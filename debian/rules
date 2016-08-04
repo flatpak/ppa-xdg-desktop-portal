@@ -1,0 +1,23 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+include /usr/share/dpkg/default.mk
+
+%:
+	dh $@ --parallel --with=autoreconf
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--disable-silent-rules \
+		--enable-docbook-docs \
+		--enable-installed-tests \
+		--libexecdir=/usr/lib/$(DEB_SOURCE) \
+		$(NULL)
+
+override_dh_auto_install:
+	dh_auto_install --destdir=debian/tmp
+
+override_dh_install:
+	dh_install --fail-missing

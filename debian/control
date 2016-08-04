@@ -1,0 +1,42 @@
+Source: xdg-desktop-portal
+Section: admin
+Priority: optional
+Maintainer: Utopia Maintenance Team <pkg-utopia-maintainers@lists.alioth.debian.org>
+Uploaders:
+ Simon McVittie <smcv@debian.org>,
+Build-Depends:
+ dbus,
+ debhelper (>= 9),
+ dh-autoreconf,
+ libflatpak-dev,
+ libglib2.0-dev,
+ xmlto,
+Standards-Version: 3.9.8
+Homepage: http://flatpak.org/
+Vcs-Git: https://anonscm.debian.org/git/collab-maint/xdg-desktop-portal.git
+Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/xdg-desktop-portal.git
+
+Package: xdg-desktop-portal
+Architecture: linux-any
+Multi-arch: foreign
+Depends:
+ dbus-user-session | dbus-x11,
+ ${misc:Depends},
+ ${shlibs:Depends},
+Description: desktop integration portal for Flatpak
+ xdg-desktop-portal provides a portal frontend service for Flatpak, and
+ possibly other desktop containment/sandboxing frameworks. This service
+ is made available to the sandboxed application, and provides mediated
+ D-Bus interfaces for file access, URI opening, printing and similar
+ desktop integration features.
+ .
+ The implementation of these interfaces is expected to require
+ user confirmation before responding to the sandboxed application's
+ requests. For example, when the sandboxed application ask to open a file,
+ the portal implementation will open an "Open" dialog outside the sandbox,
+ and will only make the selected file available to the sandboxed app if
+ that dialog is confirmed.
+ .
+ xdg-desktop-portal is designed to be desktop-agnostic, and uses a
+ desktop-environment-specific GUI backend such as xdg-desktop-portal-gtk
+ to provide its functionality.

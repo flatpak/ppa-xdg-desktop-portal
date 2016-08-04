@@ -1,0 +1,5 @@
+xdg-desktop-portal (0.2-1) UNRELEASED; urgency=medium
+
+  * Initial release. (Closes: #831689)
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 04 Aug 2016 09:48:33 +0100
