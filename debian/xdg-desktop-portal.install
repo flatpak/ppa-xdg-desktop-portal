@@ -1,6 +1,4 @@
-usr/lib/*/pkgconfig/xdg-desktop-portal.pc
 usr/lib/xdg-desktop-portal/xdg-desktop-portal
-usr/share/dbus-1/interfaces
 usr/share/dbus-1/services
 usr/share/doc/xdg-desktop-portal
 usr/share/locale/*/*/xdg-desktop-portal.mo
