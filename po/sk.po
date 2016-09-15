@@ -1,73 +1,78 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Copyright � 2016 Red Hat
+# Slovak translation for xdg-desktop-portal.
+# Copyright (C) 2016 xdg-desktop-portal's COPYRIGHT HOLDER
 # This file is distributed under the same license as the xdg-desktop-portal package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Dušan Kazik <prescott66@gmail.com>, 2016.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: xdg-desktop-portal 0.3\n"
+"Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
 "POT-Creation-Date: 2016-09-01 22:03-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2016-08-08 09:14+0200\n"
+"Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
+"Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
+"Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #: src/device.c:191
 msgid "Turn On Microphone?"
-msgstr ""
+msgstr "Zapnúť mikrofón?"
 
 #: src/device.c:192
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
+"Prístup k vášmu mikrofónu môže byť kedykoľvek zmenený z nastavení súkromia."
 
 #: src/device.c:196
 msgid "An application wants to use your microphone."
-msgstr ""
+msgstr "Aplikácia sa pokúša použiť váš mikrofón."
 
 #: src/device.c:198
 #, c-format
 msgid "%s wants to use your microphone."
-msgstr ""
+msgstr "Aplikácia %s sa pokúša použiť váš mikrofón."
 
 #: src/device.c:204
 msgid "Turn On Speakers?"
-msgstr ""
+msgstr "Zapnúť reproduktory?"
 
 #: src/device.c:205
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
+"Prístup k vašim reproduktorom môže byť kedykoľvek zmenený z nastavení "
+"súkromia."
 
 #: src/device.c:209
 msgid "An application wants to play sound."
-msgstr ""
+msgstr "Aplikácia sa pokúša prehrať zvuk."
 
 #: src/device.c:211
 #, c-format
 msgid "%s wants to play sound."
-msgstr ""
+msgstr "Aplikácia %s sa pokúša prehrať zvuk."
 
 #: src/device.c:217
 msgid "Turn On Camera?"
-msgstr ""
+msgstr "Zapnúť kameru?"
 
 #: src/device.c:218
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
+"Prístup k vašej kamere môže byť zmenený kedykoľvek z nastavení súkromia."
 
 #: src/device.c:222
 msgid "An application wants to use your camera."
-msgstr ""
+msgstr "Aplikácia sa pokúša použiť vašu kameru."
 
 #: src/device.c:224
 #, c-format
 msgid "%s wants to use your camera."
-msgstr ""
+msgstr "Aplikácia %s sa pokúša použiť vašu kameru."
