@@ -1,73 +1,79 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Copyright � 2016 Red Hat
+# Brazilian Portuguese translation for xdg-desktop-portal.
+# Copyright (C) 2016 xdg-desktop-portal's COPYRIGHT HOLDER
 # This file is distributed under the same license as the xdg-desktop-portal package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# Rafael Fontenelle <rafaelff@gnome.org>, 2016.
 msgid ""
 msgstr ""
-"Project-Id-Version: xdg-desktop-portal 0.3\n"
+"Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
 "POT-Creation-Date: 2016-09-01 22:03-0400\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2016-08-10 08:25-0200\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
+"Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Virtaal 0.7.1\n"
 
 #: src/device.c:191
 msgid "Turn On Microphone?"
-msgstr ""
+msgstr "Ligar o microfone?"
 
 #: src/device.c:192
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
+"Acesso ao seu microfone pode ser alterado a qualquer tempo a partir das "
+"configurações de privacidades."
 
 #: src/device.c:196
 msgid "An application wants to use your microphone."
-msgstr ""
+msgstr "Um aplicativo deseja usar seu microfone."
 
 #: src/device.c:198
 #, c-format
 msgid "%s wants to use your microphone."
-msgstr ""
+msgstr "%s deseja usar seu microfone."
 
 #: src/device.c:204
 msgid "Turn On Speakers?"
-msgstr ""
+msgstr "Ligar o alto-falante?"
 
 #: src/device.c:205
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
+"Acesso ao seu alto-falante pode ser alterado a qualquer tempo a partir das "
+"configurações de privacidades."
 
 #: src/device.c:209
 msgid "An application wants to play sound."
-msgstr ""
+msgstr "Um aplicativo deseja reproduzir som."
 
 #: src/device.c:211
 #, c-format
 msgid "%s wants to play sound."
-msgstr ""
+msgstr "%s deseja reproduzir som."
 
 #: src/device.c:217
 msgid "Turn On Camera?"
-msgstr ""
+msgstr "Ligar a câmera?"
 
 #: src/device.c:218
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
+"Acesso à sua câmera pode ser alterado a qualquer tempo a partir das "
+"configurações de privacidades."
 
 #: src/device.c:222
 msgid "An application wants to use your camera."
-msgstr ""
+msgstr "Um aplicativo deseja usar sua câmera."
 
 #: src/device.c:224
 #, c-format
 msgid "%s wants to use your camera."
-msgstr ""
+msgstr "%s deseja usar sua câmera."
