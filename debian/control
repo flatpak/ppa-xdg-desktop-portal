@@ -8,7 +8,7 @@ Build-Depends:
  dbus,
  debhelper (>= 9),
  dh-autoreconf,
- libflatpak-dev,
+ libflatpak-dev (>= 0.6.10),
  libglib2.0-dev,
  xmlto,
 Standards-Version: 3.9.8
