@@ -20,7 +20,7 @@ Package: xdg-desktop-portal
 Architecture: linux-any
 Multi-arch: foreign
 Depends:
- dbus-user-session | dbus-x11,
+ default-dbus-session-bus | dbus-session-bus,
  ${misc:Depends},
  ${shlibs:Depends},
 Description: desktop integration portal for Flatpak
