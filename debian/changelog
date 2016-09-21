@@ -1,5 +1,5 @@
-xdg-desktop-portal (0.3-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.3-1) unstable; urgency=medium
 
   * Initial release. (Closes: #831689)
 
- -- Simon McVittie <smcv@debian.org>  Thu, 04 Aug 2016 09:48:33 +0100
+ -- Simon McVittie <smcv@debian.org>  Wed, 21 Sep 2016 22:14:13 +0100
