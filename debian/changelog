@@ -1,3 +1,11 @@
+xdg-desktop-portal (0.4-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+    - Drop cherry-picked patch for flatpak 0.6.10 container detection,
+      now included in the upstream release
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 05 Dec 2016 10:45:03 +0000
+
 xdg-desktop-portal (0.3-1) unstable; urgency=medium
 
   * Initial release. (Closes: #831689)
