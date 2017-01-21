@@ -1,8 +1,8 @@
-xdg-desktop-portal (0.5-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.5-1) unstable; urgency=medium
 
   * New upstream release
 
- -- Simon McVittie <smcv@debian.org>  Sat, 21 Jan 2017 16:20:25 +0000
+ -- Simon McVittie <smcv@debian.org>  Sat, 21 Jan 2017 16:28:36 +0000
 
 xdg-desktop-portal (0.4-1) unstable; urgency=medium
 
