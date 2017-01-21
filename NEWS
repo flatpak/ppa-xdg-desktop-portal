@@ -1,3 +1,21 @@
+xdg-desktop-portal 0.5
+======================
+
+* The notification portal now supports non-exported actions
+
+* An Account portal for basic user information has been added
+
+* All portal interface now have a version property. Currently,
+  all interfaces are at version 1
+
+* The file chooser portal was forgetting to make files created
+  for SaveFile writable. This has been fixed
+
+* Translation updates:
+ Czech
+ Polish
+ Swedish
+
 xdg-desktop-portal 0.4
 ======================
 

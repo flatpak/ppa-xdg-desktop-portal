@@ -434,6 +434,7 @@ handle_open_in_thread_func (GTask *task,
   REQUEST_AUTOLOCK (request);
 
   resolve_scheme_and_content_type (uri, &scheme, &content_type);
+g_print ("content type: %s scheme: %s\n", content_type, scheme);
   if (content_type == NULL)
     {
       /* Reject the request */
@@ -449,6 +450,8 @@ handle_open_in_thread_func (GTask *task,
   find_recommended_choices (scheme, content_type, &choices, &use_first_choice);
   get_latest_choice_info (app_id, content_type, &latest_id, &latest_count, &latest_threshold, &always_ask);
 
+g_print ("use first: %d always ask %d, first choice: %s, latest count %d threshold: %d\n",
+         use_first_choice, always_ask, choices[0], latest_count, latest_threshold);
   if (use_first_choice || (!always_ask && (latest_count >= latest_threshold)))
     {
       /* If a recommended choice is found, just use it and skip the chooser dialog */
@@ -516,6 +519,8 @@ handle_open_uri (XdpOpenURI *object,
   g_object_set_data_full (G_OBJECT (request), "parent-window", g_strdup (arg_parent_window), g_free);
   g_object_set_data (G_OBJECT (request), "writable", GINT_TO_POINTER (writable));
 
+g_print ("handle open uri: %s %s %d\n", arg_uri, arg_parent_window, writable);
+
   request_export (request, g_dbus_method_invocation_get_connection (invocation));
   xdp_open_uri_complete_open_uri (object, invocation, request->id);
 
@@ -535,6 +540,7 @@ open_uri_iface_init (XdpOpenURIIface *iface)
 static void
 open_uri_init (OpenURI *fc)
 {
+  xdp_open_uri_set_version (XDP_OPEN_URI (fc), 1);
 }
 
 static void

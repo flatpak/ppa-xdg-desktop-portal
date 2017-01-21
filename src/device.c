@@ -328,8 +328,9 @@ device_iface_init (XdpDeviceIface *iface)
 }
 
 static void
-device_init (Device *fc)
+device_init (Device *device)
 {
+  xdp_device_set_version (XDP_DEVICE (device), 1);
 }
 
 static void

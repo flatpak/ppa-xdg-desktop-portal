@@ -1,79 +1,80 @@
-# Brazilian Portuguese translation for xdg-desktop-portal.
-# Copyright (C) 2016 xdg-desktop-portal's COPYRIGHT HOLDER
+# Swedish translation for xdg-desktop-portal.
+# Copyright © 2016 xdg-desktop-portal's COPYRIGHT HOLDER
 # This file is distributed under the same license as the xdg-desktop-portal package.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2016.
+# Sebastian Rasmussen <sebras@gmail.com>, 2016.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
 "POT-Creation-Date: 2017-01-18 11:32-0500\n"
-"PO-Revision-Date: 2016-08-10 08:25-0200\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
-"Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
-"Language: pt_BR\n"
+"PO-Revision-Date: 2016-08-14 13:43+0800\n"
+"Last-Translator: Sebastian Rasmussen <sebras@gmail.com>\n"
+"Language-Team: Swedish <tp-sv@listor.tp-sv.se>\n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Virtaal 0.7.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.8.8\n"
 
 #: src/device.c:191
 msgid "Turn On Microphone?"
-msgstr "Ligar o microfone?"
+msgstr "Aktivera mikrofon?"
 
 #: src/device.c:192
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
-"Acesso ao seu microfone pode ser alterado a qualquer tempo a partir das "
-"configurações de privacidades."
+"Tillgång till din mikrofon kan ändras när som helst från "
+"sekretessinställningarna."
 
 #: src/device.c:196
 msgid "An application wants to use your microphone."
-msgstr "Um aplicativo deseja usar seu microfone."
+msgstr "Ett program vill använda din mikrofon."
 
 #: src/device.c:198
 #, c-format
 msgid "%s wants to use your microphone."
-msgstr "%s deseja usar seu microfone."
+msgstr "%s vill använda din mikrofon."
 
 #: src/device.c:204
 msgid "Turn On Speakers?"
-msgstr "Ligar o alto-falante?"
+msgstr "Aktivera högtalarna?"
 
 #: src/device.c:205
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
-"Acesso ao seu alto-falante pode ser alterado a qualquer tempo a partir das "
-"configurações de privacidades."
+"Tillgång till dina högtalare kan ändras när som helst från "
+"sekretessinställningarna."
 
 #: src/device.c:209
 msgid "An application wants to play sound."
-msgstr "Um aplicativo deseja reproduzir som."
+msgstr "Ett program vill spela upp ljud."
 
 #: src/device.c:211
 #, c-format
 msgid "%s wants to play sound."
-msgstr "%s deseja reproduzir som."
+msgstr "%s vill spela ett ljud."
 
 #: src/device.c:217
 msgid "Turn On Camera?"
-msgstr "Ligar a câmera?"
+msgstr "Aktivera kamera?"
 
 #: src/device.c:218
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
-"Acesso à sua câmera pode ser alterado a qualquer tempo a partir das "
-"configurações de privacidades."
+"Tillgång till din kamera kan ändras när som helst från "
+"sekretessinställningarna."
 
 #: src/device.c:222
 msgid "An application wants to use your camera."
-msgstr "Um aplicativo deseja usar sua câmera."
+msgstr "Ett program vill använda din kamera."
 
 #: src/device.c:224
 #, c-format
 msgid "%s wants to use your camera."
-msgstr "%s deseja usar sua câmera."
+msgstr "%s vill använda din kamera."
