@@ -205,18 +205,19 @@ inhibit_handle_inhibit (XdpInhibit *object,
 }
 
 static void
-inhibit_class_init (InhibitClass *klass)
-{
-}
-
-static void
 inhibit_iface_init (XdpInhibitIface *iface)
 {
   iface->handle_inhibit = inhibit_handle_inhibit;
 }
 
 static void
-inhibit_init (Inhibit *resolver)
+inhibit_init (Inhibit *inhibit)
+{
+  xdp_inhibit_set_version (XDP_INHIBIT (inhibit), 1);
+}
+
+static void
+inhibit_class_init (InhibitClass *klass)
 {
 }
 

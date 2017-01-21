@@ -190,6 +190,7 @@ screenshot_iface_init (XdpScreenshotIface *iface)
 static void
 screenshot_init (Screenshot *fc)
 {
+  xdp_screenshot_set_version (XDP_SCREENSHOT (fc), 1);
 }
 
 static void

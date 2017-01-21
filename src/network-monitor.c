@@ -92,6 +92,7 @@ network_monitor_init (NetworkMonitor *nm)
                                    g_network_monitor_get_network_metered (nm->monitor));
   xdp_network_monitor_set_connectivity (XDP_NETWORK_MONITOR (nm),
                                         g_network_monitor_get_connectivity (nm->monitor));
+  xdp_network_monitor_set_version (XDP_NETWORK_MONITOR (nm), 1);
 }
 
 static void

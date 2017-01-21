@@ -68,11 +68,6 @@ proxy_resolver_handle_lookup (XdpProxyResolver *object,
 }
 
 static void
-proxy_resolver_class_init (ProxyResolverClass *klass)
-{
-}
-
-static void
 proxy_resolver_iface_init (XdpProxyResolverIface *iface)
 {
   iface->handle_lookup = proxy_resolver_handle_lookup;
@@ -82,6 +77,13 @@ static void
 proxy_resolver_init (ProxyResolver *resolver)
 {
   resolver->resolver = g_proxy_resolver_get_default ();
+
+  xdp_proxy_resolver_set_version (XDP_PROXY_RESOLVER (resolver), 1);
+}
+
+static void
+proxy_resolver_class_init (ProxyResolverClass *klass)
+{
 }
 
 GDBusInterfaceSkeleton *
