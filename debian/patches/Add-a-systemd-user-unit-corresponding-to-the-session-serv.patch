@@ -1,0 +1,94 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Wed, 15 Feb 2017 08:37:38 +0000
+Subject: Add a systemd user unit corresponding to the session service
+
+This puts xdg-desktop-portal in its own cgroup where systemd can
+apply resource limits, etc. if configured to do so, and avoids
+inheriting any non-standard execution environment that dbus-daemon
+might have.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ Makefile.am                                   | 2 ++
+ configure.ac                                  | 9 +++++++++
+ src/Makefile.am.inc                           | 7 ++++++-
+ src/org.freedesktop.portal.Desktop.service.in | 1 +
+ src/xdg-desktop-portal.service.in             | 7 +++++++
+ 5 files changed, 25 insertions(+), 1 deletion(-)
+ create mode 100644 src/xdg-desktop-portal.service.in
+
+diff --git a/Makefile.am b/Makefile.am
+index c2b5fba..2642e83 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -17,7 +17,9 @@ SUBDIRS = doc po
+ dbus_servicedir = $(DBUS_SERVICE_DIR)
+ service_in_files = $(NULL)
+ dbus_service_DATA = $(NULL)
++systemduserunit_DATA = $(NULL)
+ CLEANFILES += $(dbus_service_DATA)
++CLEANFILES += $(systemduserunit_DATA)
+ EXTRA_DIST += $(service_in_files)
+ 
+ AM_CPPFLAGS =							\
+diff --git a/configure.ac b/configure.ac
+index f162255..ba4d706 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -47,6 +47,15 @@ AC_ARG_WITH(dbus_service_dir,
+ DBUS_SERVICE_DIR=$with_dbus_service_dir
+ AC_SUBST(DBUS_SERVICE_DIR)
+ 
++AC_ARG_WITH([systemduserunitdir],
++            [AS_HELP_STRING([--with-systemduserunitdir=DIR],
++                            [Directory for systemd user service files (default=PREFIX/lib/systemd/user)])],
++    [],
++    dnl This is deliberately not ${libdir}: systemd units always go in
++    dnl .../lib, never .../lib64 or .../lib/x86_64-linux-gnu
++    [with_systemduserunitdir='${prefix}/lib/systemd/user'])
++AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
++
+ AC_SUBST([GLIB_COMPILE_RESOURCES], [`$PKG_CONFIG --variable glib_compile_resources gio-2.0`])
+ AC_SUBST([GDBUS_CODEGEN], [`$PKG_CONFIG --variable gdbus_codegen gio-2.0`])
+ 
+diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
+index bc5c6a7..8022e8f 100644
+--- a/src/Makefile.am.inc
++++ b/src/Makefile.am.inc
+@@ -2,8 +2,13 @@ libexec_PROGRAMS += \
+ 	xdg-desktop-portal \
+ 	$(NULL)
+ 
+-service_in_files += src/org.freedesktop.portal.Desktop.service.in
++service_in_files += \
++	src/org.freedesktop.portal.Desktop.service.in \
++	src/xdg-desktop-portal.service.in \
++	${NULL}
++
+ dbus_service_DATA += src/org.freedesktop.portal.Desktop.service
++systemduserunit_DATA += src/xdg-desktop-portal.service
+ 
+ xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
+ xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
+diff --git a/src/org.freedesktop.portal.Desktop.service.in b/src/org.freedesktop.portal.Desktop.service.in
+index 8bd874f..e017386 100644
+--- a/src/org.freedesktop.portal.Desktop.service.in
++++ b/src/org.freedesktop.portal.Desktop.service.in
+@@ -1,3 +1,4 @@
+ [D-BUS Service]
+ Name=org.freedesktop.portal.Desktop
+ Exec=@libexecdir@/xdg-desktop-portal
++SystemdService=xdg-desktop-portal.service
+diff --git a/src/xdg-desktop-portal.service.in b/src/xdg-desktop-portal.service.in
+new file mode 100644
+index 0000000..a637865
+--- /dev/null
++++ b/src/xdg-desktop-portal.service.in
+@@ -0,0 +1,7 @@
++[Unit]
++Description=Portal service
++
++[Service]
++Type=dbus
++BusName=org.freedesktop.portal.Desktop
++ExecStart=@libexecdir@/xdg-desktop-portal

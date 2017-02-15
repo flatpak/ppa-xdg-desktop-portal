@@ -1,3 +1,4 @@
+usr/lib/systemd/user
 usr/lib/xdg-desktop-portal/xdg-desktop-portal
 usr/share/dbus-1/services
 usr/share/doc/xdg-desktop-portal

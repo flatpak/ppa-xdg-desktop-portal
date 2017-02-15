@@ -1,0 +1,24 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Wed, 15 Feb 2017 08:35:57 +0000
+Subject: build: No need to clean org.freedesktop.portal.Desktop.service twice
+
+Everything in ${dbus_service_DATA} is already added to CLEANFILES
+by ./Makefile.am.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ src/Makefile.am.inc | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
+index 3c49fd9..bc5c6a7 100644
+--- a/src/Makefile.am.inc
++++ b/src/Makefile.am.inc
+@@ -4,7 +4,6 @@ libexec_PROGRAMS += \
+ 
+ service_in_files += src/org.freedesktop.portal.Desktop.service.in
+ dbus_service_DATA += src/org.freedesktop.portal.Desktop.service
+-DISTCLEANFILES += src/org.freedesktop.portal.Desktop.service
+ 
+ xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
+ xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
