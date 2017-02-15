@@ -46,6 +46,10 @@ Multi-arch: foreign
 Depends:
  ${misc:Depends},
  ${shlibs:Depends},
+Breaks:
+ xdg-desktop-portal (<< 0.5-2~),
+Replaces:
+ xdg-desktop-portal (<< 0.5-2~),
 Description: desktop integration portal for Flatpak - development files
  xdg-desktop-portal provides a portal frontend service for Flatpak, and
  possibly other desktop containment/sandboxing frameworks. This service
