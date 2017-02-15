@@ -6,6 +6,7 @@ Everything in ${dbus_service_DATA} is already added to CLEANFILES
 by ./Makefile.am.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/89
 ---
  src/Makefile.am.inc | 1 -
  1 file changed, 1 deletion(-)
