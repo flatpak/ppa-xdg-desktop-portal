@@ -3,6 +3,7 @@ xdg-desktop-portal (0.5-2) UNRELEASED; urgency=medium
   * Add patches to run xdg-desktop-portal as a systemd user service
     if dbus-user-session is installed
   * Move to debhelper compat level 10
+  * Omit unimplemented configure option --enable-installed-tests
 
  -- Simon McVittie <smcv@debian.org>  Wed, 15 Feb 2017 08:45:16 +0000
 
