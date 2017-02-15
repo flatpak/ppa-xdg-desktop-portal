@@ -6,8 +6,7 @@ Uploaders:
  Simon McVittie <smcv@debian.org>,
 Build-Depends:
  dbus,
- debhelper (>= 9),
- dh-autoreconf,
+ debhelper (>= 10),
  libflatpak-dev (>= 0.6.10),
  libglib2.0-dev,
  xmlto,
