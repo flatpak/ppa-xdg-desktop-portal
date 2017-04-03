@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Copyright © 2016 Red Hat
+# Copyright (C) YEAR Copyright Â© 2016 Red Hat
 # This file is distributed under the same license as the xdg-desktop-portal package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: xdg-desktop-portal 0.5\n"
+"Project-Id-Version: xdg-desktop-portal 0.6\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2017-01-18 11:32-0500\n"
+"POT-Creation-Date: 2017-03-31 08:41-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,57 +17,57 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/device.c:191
+#: src/device.c:202
 msgid "Turn On Microphone?"
 msgstr ""
 
-#: src/device.c:192
+#: src/device.c:203
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
 
-#: src/device.c:196
+#: src/device.c:207
 msgid "An application wants to use your microphone."
 msgstr ""
 
-#: src/device.c:198
+#: src/device.c:209
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr ""
 
-#: src/device.c:204
+#: src/device.c:215
 msgid "Turn On Speakers?"
 msgstr ""
 
-#: src/device.c:205
+#: src/device.c:216
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 
-#: src/device.c:209
+#: src/device.c:220
 msgid "An application wants to play sound."
 msgstr ""
 
-#: src/device.c:211
+#: src/device.c:222
 #, c-format
 msgid "%s wants to play sound."
 msgstr ""
 
-#: src/device.c:217
+#: src/device.c:228
 msgid "Turn On Camera?"
 msgstr ""
 
-#: src/device.c:218
+#: src/device.c:229
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 
-#: src/device.c:222
+#: src/device.c:233
 msgid "An application wants to use your camera."
 msgstr ""
 
-#: src/device.c:224
+#: src/device.c:235
 #, c-format
 msgid "%s wants to use your camera."
 msgstr ""
