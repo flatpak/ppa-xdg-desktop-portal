@@ -1,7 +1,8 @@
-xdg-desktop-portal (0.5-2) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.6-1) UNRELEASED; urgency=medium
 
-  * Add patches to run xdg-desktop-portal as a systemd user service
-    if dbus-user-session is installed
+  * New upstream release
+    - Run as a systemd user service if dbus-user-session is installed
+    - Add email portal
   * Move to debhelper compat level 10
   * Omit unimplemented configure option --enable-installed-tests
   * Do not explicitly disable quiet Automake output: dh now does this
