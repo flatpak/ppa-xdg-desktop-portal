@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2017-01-18 11:32-0500\n"
+"POT-Creation-Date: 2017-03-31 08:41-0400\n"
 "PO-Revision-Date: 2016-08-26 12:25+0300\n"
 "Last-Translator: Yuri Chornoivan <yurchor@ukr.net>\n"
 "Language-Team: Ukrainian <trans-uk@lists.fedoraproject.org>\n"
@@ -19,11 +19,11 @@ msgstr ""
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Lokalize 1.5\n"
 
-#: src/device.c:191
+#: src/device.c:202
 msgid "Turn On Microphone?"
 msgstr "Увімкнути мікрофон?"
 
-#: src/device.c:192
+#: src/device.c:203
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
@@ -31,51 +31,51 @@ msgstr ""
 "Параметри доступу до мікрофона може бути будь-коли змінено за допомогою "
 "налаштувань конфіденційності."
 
-#: src/device.c:196
+#: src/device.c:207
 msgid "An application wants to use your microphone."
 msgstr "Програмі потрібен доступ до використання мікрофона."
 
-#: src/device.c:198
+#: src/device.c:209
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "%s потрібен доступ до використання мікрофона."
 
-#: src/device.c:204
+#: src/device.c:215
 msgid "Turn On Speakers?"
 msgstr "Увімкнути гучномовці?"
 
-#: src/device.c:205
+#: src/device.c:216
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Параметри доступу до гучномовців може бути будь-коли змінено за допомогою "
 "налаштувань конфіденційності."
 
-#: src/device.c:209
+#: src/device.c:220
 msgid "An application wants to play sound."
 msgstr "Програмі потрібно відтворити звукові дані."
 
-#: src/device.c:211
+#: src/device.c:222
 #, c-format
 msgid "%s wants to play sound."
 msgstr "%s потрібно відтворити звукові дані."
 
-#: src/device.c:217
+#: src/device.c:228
 msgid "Turn On Camera?"
 msgstr "Увімкнути камеру?"
 
-#: src/device.c:218
+#: src/device.c:229
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Параметри доступу до камери може бути будь-коли змінено за допомогою "
 "налаштувань конфіденційності."
 
-#: src/device.c:222
+#: src/device.c:233
 msgid "An application wants to use your camera."
 msgstr "Програмі потрібен доступ до використання відеокамери."
 
-#: src/device.c:224
+#: src/device.c:235
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "%s потрібен доступ до використання відеокамери."

@@ -2,9 +2,13 @@ libexec_PROGRAMS += \
 	xdg-desktop-portal \
 	$(NULL)
 
-service_in_files += src/org.freedesktop.portal.Desktop.service.in
+service_in_files += \
+	src/org.freedesktop.portal.Desktop.service.in \
+	src/xdg-desktop-portal.service.in \
+	${NULL}
+
 dbus_service_DATA += src/org.freedesktop.portal.Desktop.service
-DISTCLEANFILES += src/org.freedesktop.portal.Desktop.service
+systemduserunit_DATA += src/xdg-desktop-portal.service
 
 xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
 xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
@@ -30,6 +34,7 @@ PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.Inhibit.xml \
 	data/org.freedesktop.portal.Device.xml \
 	data/org.freedesktop.portal.Account.xml \
+	data/org.freedesktop.portal.Email.xml \
 	$(NULL)
 
 PORTAL_IMPL_IFACE_FILES =\
@@ -42,6 +47,7 @@ PORTAL_IMPL_IFACE_FILES =\
 	data/org.freedesktop.impl.portal.Inhibit.xml \
 	data/org.freedesktop.impl.portal.Access.xml \
 	data/org.freedesktop.impl.portal.Account.xml \
+	data/org.freedesktop.impl.portal.Email.xml \
 	$(NULL)
 
 $(xdp_dbus_built_sources) : $(FLATPAK_IFACE_FILES) $(PORTAL_IFACE_FILES)
@@ -114,6 +120,8 @@ xdg_desktop_portal_SOURCES = \
         src/documents.h                 \
         src/permissions.c               \
         src/permissions.h               \
+        src/email.c                     \
+        src/email.h                     \
 	src/xdp-utils.c			\
 	src/xdp-utils.h			\
 	src/xdg-desktop-resources.c	\

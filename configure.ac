@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[0.5])
+AC_INIT([xdg-desktop-portal],[0.6])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -46,6 +46,15 @@ AC_ARG_WITH(dbus_service_dir,
         with_dbus_service_dir="$withval", with_dbus_service_dir=$datadir/dbus-1/services)
 DBUS_SERVICE_DIR=$with_dbus_service_dir
 AC_SUBST(DBUS_SERVICE_DIR)
+
+AC_ARG_WITH([systemduserunitdir],
+            [AS_HELP_STRING([--with-systemduserunitdir=DIR],
+                            [Directory for systemd user service files (default=PREFIX/lib/systemd/user)])],
+    [],
+    dnl This is deliberately not ${libdir}: systemd units always go in
+    dnl .../lib, never .../lib64 or .../lib/x86_64-linux-gnu
+    [with_systemduserunitdir='${prefix}/lib/systemd/user'])
+AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
 AC_SUBST([GLIB_COMPILE_RESOURCES], [`$PKG_CONFIG --variable glib_compile_resources gio-2.0`])
 AC_SUBST([GDBUS_CODEGEN], [`$PKG_CONFIG --variable gdbus_codegen gio-2.0`])

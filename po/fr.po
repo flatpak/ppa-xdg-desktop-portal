@@ -1,78 +1,79 @@
-# Polish translation for xdg-desktop-portal.
-# Copyright © 2016-2017 the xdg-desktop-portal authors.
+# French translation for xdg-desktop-portal.
+# Copyright (C) 2016 xdg-desktop-portal's COPYRIGHT HOLDER
 # This file is distributed under the same license as the xdg-desktop-portal package.
-# Piotr Drąg <piotrdrag@gmail.com>, 2016-2017.
-# Aviary.pl <community-poland@mozilla.org>, 2016-2017.
+# Nicolas Cuffia <cuffia.cuceglio@vivaldi.net>, 2016.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: xdg-desktop-portal\n"
+"Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
 "POT-Creation-Date: 2017-03-31 08:41-0400\n"
-"PO-Revision-Date: 2017-01-16 14:01+0100\n"
-"Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
-"Language-Team: Polish <community-poland@mozilla.org>\n"
-"Language: pl\n"
+"PO-Revision-Date: 2017-03-02 11:34+0100\n"
+"Last-Translator: Nicolas Cuffia <cuffia.cuceglio@vivaldi.net>\n"
+"Language-Team: French <gnomefr@traduc.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
-"|| n%100>=20) ? 1 : 2);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: src/device.c:202
 msgid "Turn On Microphone?"
-msgstr "Włączyć mikrofon?"
+msgstr "Allumer le microphone ?"
 
 #: src/device.c:203
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
-"Dostęp do mikrofonu można zmienić w każdej chwili w ustawieniach prywatności."
+"L'accès au microphone peut être modifié n'importe quand à partir des "
+"paramètres de confidentialité."
 
 #: src/device.c:207
 msgid "An application wants to use your microphone."
-msgstr "Program potrzebuje dostępu do mikrofonu."
+msgstr "Une application veut utiliser votre microphone."
 
 #: src/device.c:209
 #, c-format
 msgid "%s wants to use your microphone."
-msgstr "Program „%s” potrzebuje dostępu do mikrofonu."
+msgstr "%s veut utiliser votre microphone."
 
 #: src/device.c:215
 msgid "Turn On Speakers?"
-msgstr "Włączyć głośniki?"
+msgstr "Allumer les haut-parleurs ?"
 
 #: src/device.c:216
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
-"Dostęp do głośników można zmienić w każdej chwili w ustawieniach prywatności."
+"L'accès aux haut-parleurs peut être modifié n'importe quand à partir des "
+"paramètres de confidentialité."
 
 #: src/device.c:220
 msgid "An application wants to play sound."
-msgstr "Program potrzebuje odtwarzać dźwięk."
+msgstr "Une application veut jouer du son."
 
 #: src/device.c:222
 #, c-format
 msgid "%s wants to play sound."
-msgstr "Program „%s” potrzebuje odtwarzać dźwięk."
+msgstr "%s veut jouer du son."
 
 #: src/device.c:228
 msgid "Turn On Camera?"
-msgstr "Włączyć kamerę?"
+msgstr "Allumer la caméra ?"
 
 #: src/device.c:229
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
-"Dostęp do kamery można zmienić w każdej chwili w ustawieniach prywatności."
+"L'accès à la caméra peut être modifié n'importe quand à partir des "
+"paramètres de confidentialité."
 
 #: src/device.c:233
 msgid "An application wants to use your camera."
-msgstr "Program potrzebuje dostępu do kamery."
+msgstr "Une application veut utiliser votre caméra."
 
 #: src/device.c:235
 #, c-format
 msgid "%s wants to use your camera."
-msgstr "Program „%s” potrzebuje dostępu do kamery."
+msgstr "%s veut utiliser votre caméra."
