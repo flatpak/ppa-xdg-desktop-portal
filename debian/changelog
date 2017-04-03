@@ -1,4 +1,4 @@
-xdg-desktop-portal (0.6-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.6-1) experimental; urgency=medium
 
   * New upstream release
     - Run as a systemd user service if dbus-user-session is installed
@@ -10,7 +10,7 @@ xdg-desktop-portal (0.6-1) UNRELEASED; urgency=medium
   * Move API documentation from main package to -dev package
   * Register API documentation with doc-base
 
- -- Simon McVittie <smcv@debian.org>  Wed, 15 Feb 2017 08:45:16 +0000
+ -- Simon McVittie <smcv@debian.org>  Mon, 03 Apr 2017 15:28:02 +0100
 
 xdg-desktop-portal (0.5-1) unstable; urgency=medium
 
