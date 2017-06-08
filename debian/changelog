@@ -2,6 +2,7 @@ xdg-desktop-portal (0.6-2) UNRELEASED; urgency=medium
 
   * Add patches to make the development files completely
     architecture-independent (Closes: #864451)
+  * Make xdg-desktop-portal-dev Architecture: all
 
  -- Simon McVittie <smcv@debian.org>  Thu, 08 Jun 2017 22:27:55 +0100
 

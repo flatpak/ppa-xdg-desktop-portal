@@ -41,7 +41,7 @@ Description: desktop integration portal for Flatpak
  to provide its functionality.
 
 Package: xdg-desktop-portal-dev
-Architecture: linux-any
+Architecture: all
 Multi-arch: foreign
 Depends:
  ${misc:Depends},
