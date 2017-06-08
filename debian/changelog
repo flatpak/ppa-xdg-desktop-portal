@@ -1,7 +1,7 @@
 xdg-desktop-portal (0.6-2) UNRELEASED; urgency=medium
 
-  * Set ${libdir} to /usr/lib to put the pkg-config metadata in an
-    architecture-independent location (Closes: #864451)
+  * Add patches to make the development files completely
+    architecture-independent (Closes: #864451)
 
  -- Simon McVittie <smcv@debian.org>  Thu, 08 Jun 2017 22:27:55 +0100
 

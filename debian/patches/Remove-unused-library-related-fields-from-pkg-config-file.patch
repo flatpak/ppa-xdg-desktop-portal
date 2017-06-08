@@ -1,0 +1,24 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Thu, 8 Jun 2017 22:36:11 +0100
+Subject: Remove unused library-related fields from pkg-config file
+
+This package contains no C/C++ libraries or public C/C++ headers.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ xdg-desktop-portal.pc.in | 3 ---
+ 1 file changed, 3 deletions(-)
+
+diff --git a/xdg-desktop-portal.pc.in b/xdg-desktop-portal.pc.in
+index 2c4d407..585c0c8 100644
+--- a/xdg-desktop-portal.pc.in
++++ b/xdg-desktop-portal.pc.in
+@@ -1,8 +1,5 @@
+ prefix=@prefix@
+-exec_prefix=@exec_prefix@
+-libdir=@libdir@
+ datarootdir=@datarootdir@
+-includedir=@includedir@
+ datadir=@datadir@
+ 
+ interfaces_dir=${datadir}/dbus-1/interfaces/

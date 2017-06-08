@@ -1,0 +1,3 @@
+Remove-library-dependencies-from-pkg-config-metadata.patch
+Remove-unused-library-related-fields-from-pkg-config-file.patch
+Install-pkg-config-metadata-to-datadir.patch
