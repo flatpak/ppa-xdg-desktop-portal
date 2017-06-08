@@ -5,6 +5,7 @@ Subject: Remove unused library-related fields from pkg-config file
 This package contains no C/C++ libraries or public C/C++ headers.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/112
 ---
  xdg-desktop-portal.pc.in | 3 ---
  1 file changed, 3 deletions(-)
