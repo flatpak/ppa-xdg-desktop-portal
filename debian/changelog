@@ -1,11 +1,11 @@
-xdg-desktop-portal (0.8-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.8-1) experimental; urgency=medium
 
   * New upstream release
   * Add patches to make the development files completely
     architecture-independent (Closes: #864451)
   * Make xdg-desktop-portal-dev Architecture: all
 
- -- Simon McVittie <smcv@debian.org>  Thu, 08 Jun 2017 22:27:55 +0100
+ -- Simon McVittie <smcv@debian.org>  Fri, 09 Jun 2017 08:04:12 +0100
 
 xdg-desktop-portal (0.6-1) experimental; urgency=medium
 
