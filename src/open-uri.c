@@ -28,6 +28,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 
 #include <gio/gio.h>
@@ -330,7 +331,7 @@ app_chooser_done (GObject *source,
 static void
 resolve_scheme_and_content_type (const char *uri,
                                  char **scheme,
-                                 gchar **content_type)
+                                 char **content_type)
 {
   g_autofree char *uri_scheme = NULL;
 
@@ -338,34 +339,45 @@ resolve_scheme_and_content_type (const char *uri,
   if (uri_scheme && uri_scheme[0] != '\0')
     *scheme = g_ascii_strdown (uri_scheme, -1);
 
-  if ((*scheme != NULL) && (strcmp (*scheme, "file") != 0))
+  if (*scheme == NULL)
+    return;
+
+  if (strcmp (*scheme, "file") == 0)
     {
-      *content_type = g_strconcat ("x-scheme-handler/", *scheme, NULL);
+      g_debug ("Not handling file uri %s", uri);
+      return;
+    }
+
+  *content_type = g_strconcat ("x-scheme-handler/", *scheme, NULL);
+  g_debug ("Content type for %s uri %s: %s", uri, *scheme, *content_type);
+}
+
+static void
+get_content_type_for_file (const char  *path,
+                           char       **content_type)
+{
+  g_autoptr(GError) error = NULL;
+  g_autoptr(GFile) file = g_file_new_for_path (path);
+  g_autoptr(GFileInfo) info = g_file_query_info (file,
+                                                 G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+                                                 0,
+                                                 NULL,
+                                                 &error);
+
+  if (info != NULL)
+    {
+      *content_type = g_strdup (g_file_info_get_content_type (info));
+      g_debug ("Content type for file %s: %s", path, *content_type);
     }
   else
     {
-      g_autoptr(GError) error = NULL;
-      g_autoptr(GFile) file = g_file_new_for_uri (uri);
-      g_autoptr(GFileInfo) info = g_file_query_info (file,
-                                                     G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                                     0,
-                                                     NULL,
-                                                     &error);
-
-      if (info != NULL)
-        {
-          *content_type = g_strdup (g_file_info_get_content_type (info));
-          g_debug ("Content type for uri %s: %s", uri, *content_type);
-        }
-      else
-        {
-          g_debug ("Failed to fetch content type for uri %s: %s", uri, error->message);
-        }
+      g_debug ("Failed to fetch content type for file %s: %s", path, error->message);
     }
 }
 
 static gboolean
-can_skip_app_chooser (const char *scheme, const char *content_type)
+can_skip_app_chooser (const char *scheme,
+                      const char *content_type)
 {
   /* We skip the app chooser for Internet URIs, to be open in the browser */
   if ((g_strcmp0 (scheme, "http") == 0) || (g_strcmp0 (scheme, "https") == 0))
@@ -377,7 +389,6 @@ can_skip_app_chooser (const char *scheme, const char *content_type)
 
   return FALSE;
 }
-
 
 static void
 find_recommended_choices (const char *scheme,
@@ -441,38 +452,129 @@ handle_open_in_thread_func (GTask *task,
 {
   Request *request = (Request *)task_data;
   const char *parent_window;
-  const char *uri;
   const char *app_id = request->app_id;
+  g_autofree char *uri = NULL;
   g_autoptr(GError) error = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
   g_auto(GStrv) choices = NULL;
   g_autofree char *scheme = NULL;
   g_autofree char *content_type = NULL;
   g_autofree char *latest_id = NULL;
+  g_autofree char *basename = NULL;
   gint latest_count;
   gint latest_threshold;
   gboolean always_ask;
   GVariantBuilder opts_builder;
   gboolean skip_app_chooser = FALSE;
+  int fd;
   gboolean writable = FALSE;
 
   parent_window = (const char *)g_object_get_data (G_OBJECT (request), "parent-window");
-  uri = (const char *)g_object_get_data (G_OBJECT (request), "uri");
+  uri = g_strdup ((const char *)g_object_get_data (G_OBJECT (request), "uri"));
+  fd = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "fd"));
   writable = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "writable"));
 
   REQUEST_AUTOLOCK (request);
 
-  resolve_scheme_and_content_type (uri, &scheme, &content_type);
-  if (content_type == NULL)
+  if (uri)
     {
-      /* Reject the request */
-      if (request->exported)
+      resolve_scheme_and_content_type (uri, &scheme, &content_type);
+      if (content_type == NULL)
         {
-          g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
-          xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
-          request_unexport (request);
+          /* Reject the request */
+          if (request->exported)
+            {
+              g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
+              xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
+              request_unexport (request);
+            }
+          return;
         }
-      return;
+    }
+  else
+    {
+      g_autofree char *proc_path = NULL;
+      int fd_flags;
+      char path_buffer[PATH_MAX + 1];
+      g_autofree char *rewritten_path = NULL;
+      char *path;
+      ssize_t symlink_size;
+      struct stat st_buf;
+      struct stat real_st_buf;
+
+      proc_path = g_strdup_printf ("/proc/self/fd/%d", fd);
+
+      if (fd == -1 ||
+          (fd_flags = fcntl (fd, F_GETFL)) == 0 ||
+          ((fd_flags & O_PATH) != O_PATH) ||
+          ((fd_flags & O_NOFOLLOW) == O_NOFOLLOW) ||
+          fstat (fd, &st_buf) < 0 ||
+          (st_buf.st_mode & S_IFMT) != S_IFREG ||
+          (symlink_size = readlink (proc_path, path_buffer, PATH_MAX)) < 0)
+        {
+          /* Reject the request */
+          if (request->exported)
+            {
+              g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
+              xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
+              request_unexport (request);
+            }
+          return;
+        }
+
+      path_buffer[symlink_size] = 0;
+
+      path = path_buffer;
+
+      if (request->app_info != NULL)
+        {
+          if (g_str_has_prefix (path, "/newroot/usr/"))
+            {
+              g_autofree char * usr_root =
+                g_key_file_get_string (request->app_info,
+                                       "Instance", "runtime-path", NULL);
+              if (usr_root)
+                {
+                  rewritten_path = g_build_filename (usr_root, path + strlen ("/newroot/usr/"), NULL);
+                  path = rewritten_path;
+                }
+            }
+          else if (g_str_has_prefix (path, "/newroot/app/"))
+            {
+              g_autofree char * app_root =
+                g_key_file_get_string (request->app_info,
+                                       "Instance", "app-path", NULL);
+              if (app_root)
+                {
+                  rewritten_path = g_build_filename (app_root, path + strlen ("/newroot/app/"), NULL);
+                  path = rewritten_path;
+                }
+            }
+          else if (g_str_has_prefix (path, "/newroot/"))
+            path = path + strlen ("/newroot");
+
+          /* Verify that this is the same file as the app opened */
+          if (stat (path, &real_st_buf) < 0 ||
+              st_buf.st_dev != real_st_buf.st_dev ||
+              st_buf.st_ino != real_st_buf.st_ino)
+            {
+              /* Different files on the inside and the outside, reject the request */
+              if (request->exported)
+                {
+                  g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
+                  xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
+                  request_unexport (request);
+                }
+              return;
+            }
+        }
+
+      get_content_type_for_file (path, &content_type);
+      basename = g_path_get_basename (path);
+
+      scheme = g_strdup ("file");
+      uri = g_filename_to_uri (path, NULL, NULL);
+      g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
     }
 
   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
@@ -507,6 +609,10 @@ handle_open_in_thread_func (GTask *task,
     }
 
   g_object_set_data_full (G_OBJECT (request), "content-type", g_strdup (content_type), g_free);
+
+  g_variant_builder_add (&opts_builder, "{sv}", "content_type", g_variant_new_string (content_type));
+  if (basename)
+    g_variant_builder_add (&opts_builder, "{sv}", "filename", g_variant_new_string (basename));
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
                                                   G_DBUS_PROXY_FLAGS_NONE,
@@ -555,16 +661,56 @@ handle_open_uri (XdpOpenURI *object,
   return TRUE;
 }
 
+static gboolean
+handle_open_file (XdpOpenURI *object,
+                 GDBusMethodInvocation *invocation,
+                 GUnixFDList *fd_list,
+                 const gchar *arg_parent_window,
+                 GVariant *arg_fd,
+                 GVariant *arg_options)
+{
+  Request *request = request_from_invocation (invocation);
+  g_autoptr(GTask) task = NULL;
+  gboolean writable;
+  int fd_id, fd;
+  g_autoptr(GError) error = NULL;
+
+  if (!g_variant_lookup (arg_options, "writable", "b", &writable))
+    writable = FALSE;
+
+  g_variant_get (arg_fd, "h", &fd_id);
+  fd = g_unix_fd_list_get (fd_list, fd_id, &error);
+  if (fd == -1)
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
+
+  g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (fd));
+  g_object_set_data_full (G_OBJECT (request), "parent-window", g_strdup (arg_parent_window), g_free);
+  g_object_set_data (G_OBJECT (request), "writable", GINT_TO_POINTER (writable));
+
+  request_export (request, g_dbus_method_invocation_get_connection (invocation));
+  xdp_open_uri_complete_open_file (object, invocation, NULL, request->id);
+
+  task = g_task_new (object, NULL, NULL, NULL);
+  g_task_set_task_data (task, g_object_ref (request), g_object_unref);
+  g_task_run_in_thread (task, handle_open_in_thread_func);
+
+  return TRUE;
+}
+
 static void
 open_uri_iface_init (XdpOpenURIIface *iface)
 {
   iface->handle_open_uri = handle_open_uri;
+  iface->handle_open_file = handle_open_file;
 }
 
 static void
 open_uri_init (OpenURI *fc)
 {
-  xdp_open_uri_set_version (XDP_OPEN_URI (fc), 1);
+  xdp_open_uri_set_version (XDP_OPEN_URI (fc), 2);
 }
 
 static void

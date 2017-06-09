@@ -419,7 +419,7 @@ remove_done (GObject *source,
   g_autoptr(Request) request = data;
   g_autoptr(GError) error = NULL;
 
-  if (!xdp_impl_notification_call_add_notification_finish (impl, result, &error))
+  if (!xdp_impl_notification_call_remove_notification_finish (impl, result, &error))
     {
       g_warning ("Backend call failed: %s", error->message);
     }
@@ -563,7 +563,7 @@ notification_create (GDBusConnection *connection,
 
   g_dbus_connection_signal_subscribe (connection,
                                       dbus_name,
-                                      "org.freedesktop.portal.impl.Notification",
+                                      "org.freedesktop.impl.portal.Notification",
                                       "ActionInvoked",
                                       DESKTOP_PORTAL_OBJECT_PATH,
                                       NULL,
