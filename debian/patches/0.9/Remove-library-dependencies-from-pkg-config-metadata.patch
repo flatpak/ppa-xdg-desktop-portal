@@ -8,6 +8,7 @@ it is not a substitute for RPM or dpkg metadata.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
 Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/112
+Applied-upstream: 0.9
 ---
  xdg-desktop-portal.pc.in | 2 --
  1 file changed, 2 deletions(-)

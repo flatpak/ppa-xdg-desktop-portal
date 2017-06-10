@@ -10,6 +10,7 @@ ${libdir}/pkgconfig in order to support such packages.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
 Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/112
+Applied-upstream: 0.9
 ---
  Makefile.am | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
