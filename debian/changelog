@@ -1,6 +1,7 @@
-xdg-desktop-portal (0.8-2) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.8-2) unstable; urgency=medium
 
   * Mark patches as applied upstream for 0.9
+  * Upload to unstable
 
  -- Simon McVittie <smcv@debian.org>  Sat, 10 Jun 2017 10:12:20 +0100
 
