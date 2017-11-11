@@ -1,10 +1,10 @@
-xdg-desktop-portal (0.8-3) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.8-3) unstable; urgency=medium
 
   * Set Rules-Requires-Root to no
   * Use https Format URL in d/copyright
   * Standards-Version: 4.1.1 (no further changes)
 
- -- Simon McVittie <smcv@debian.org>  Sat, 11 Nov 2017 12:32:45 +0000
+ -- Simon McVittie <smcv@debian.org>  Sat, 11 Nov 2017 13:43:41 +0000
 
 xdg-desktop-portal (0.8-2) unstable; urgency=medium
 
