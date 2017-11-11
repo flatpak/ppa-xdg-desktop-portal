@@ -1,3 +1,9 @@
+xdg-desktop-portal (0.8-3) UNRELEASED; urgency=medium
+
+  * Set Rules-Requires-Root to no
+
+ -- Simon McVittie <smcv@debian.org>  Sat, 11 Nov 2017 12:32:45 +0000
+
 xdg-desktop-portal (0.8-2) unstable; urgency=medium
 
   * Mark patches as applied upstream for 0.9
