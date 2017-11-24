@@ -1,6 +1,7 @@
 xdg-desktop-portal (0.9-1) UNRELEASED; urgency=medium
 
   * New upstream release
+    - Drop all patches, applied upstream
 
  -- Simon McVittie <smcv@debian.org>  Fri, 24 Nov 2017 10:36:34 +0000
 
