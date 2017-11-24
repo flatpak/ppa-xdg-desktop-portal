@@ -1,77 +1,76 @@
-# Czech translation for xdg-desktop-portal.
-# Copyright (C) 2016 xdg-desktop-portal's COPYRIGHT HOLDER
+# Indonesian translation for xdg-desktop-portal.
+# Copyright (C) 2017 xdg-desktop-portal's COPYRIGHT HOLDER
 # This file is distributed under the same license as the xdg-desktop-portal package.
-#
-# Marek Černocký <marek@manet.cz>, 2016.
+# Kukuh Syafaat <syafaatkukuh@gmail.com>, 2017.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
 "POT-Creation-Date: 2017-11-16 20:22-0500\n"
-"PO-Revision-Date: 2016-11-09 12:23+0100\n"
-"Last-Translator: Marek Černocký <marek@manet.cz>\n"
-"Language-Team: Czech <gnome-cs-list@gnome.org>\n"
-"Language: cs\n"
+"PO-Revision-Date: 2017-08-18 19:48+0700\n"
+"Last-Translator: Kukuh Syafaat <syafaatkukuh@gmail.com>\n"
+"Language-Team: Indonesian <gnome-l10n-id@googlegroups.com>\n"
+"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Gtranslator 2.91.7\n"
+"X-Generator: Poedit 2.0.3\n"
 
 #: src/device.c:202
 msgid "Turn On Microphone?"
-msgstr "Zapnout mikrofon?"
+msgstr "Menyalakan Mikrofon?"
 
 #: src/device.c:203
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
-"Přístup ke svému mikrofonu můžete kdykoliv změnit v nastavení soukromí."
+"Akses ke mikrofon Anda dapat diubah sewaktu-waktu dari pengaturan privasi."
 
 #: src/device.c:207
 msgid "An application wants to use your microphone."
-msgstr "Nějaká aplikace chce používat váš mikrofon."
+msgstr "Aplikasi ingin menggunakan mikrofon Anda."
 
 #: src/device.c:209
 #, c-format
 msgid "%s wants to use your microphone."
-msgstr "Aplikace %s chce používat váš mikrofon."
+msgstr "%s ingin menggunakan mikrofon Anda."
 
 #: src/device.c:215
 msgid "Turn On Speakers?"
-msgstr "Zapnout reproduktory?"
+msgstr "Menyalakan Speaker?"
 
 #: src/device.c:216
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
-"Přístup ke svým reproduktorům můžete kdykoliv změnit v nastavení soukromí."
+"Akses ke speaker Anda dapat berubah sewaktu-waktu dari pengaturan privasi."
 
 #: src/device.c:220
 msgid "An application wants to play sound."
-msgstr "Nějaká aplikace chce přehrávat zvuk."
+msgstr "Aplikasi ingin memutar suara."
 
 #: src/device.c:222
 #, c-format
 msgid "%s wants to play sound."
-msgstr "Aplikace %s chce přehrávat zvuk."
+msgstr "%s ingin memutar suara"
 
 #: src/device.c:228
 msgid "Turn On Camera?"
-msgstr "Zapnout kameru?"
+msgstr "Menyalakan Kamera?"
 
 #: src/device.c:229
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
-msgstr "Přístup ke své kameře můžete kdykoliv změnit v nastavení soukromí."
+msgstr ""
+"Akses ke kamera Anda dapat diubah sewaktu-waktu dari pengaturan privasi."
 
 #: src/device.c:233
 msgid "An application wants to use your camera."
-msgstr "Nějaká aplikace chce používat vaši kameru."
+msgstr "Aplikasi ingin menggunakan kamera Anda."
 
 #: src/device.c:235
 #, c-format
 msgid "%s wants to use your camera."
-msgstr "Aplikace %s chce používat vaši kameru."
+msgstr "%s ingin menggunakan kamera Anda."
