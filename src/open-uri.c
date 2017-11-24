@@ -493,24 +493,10 @@ handle_open_in_thread_func (GTask *task,
     }
   else
     {
-      g_autofree char *proc_path = NULL;
-      int fd_flags;
-      char path_buffer[PATH_MAX + 1];
-      g_autofree char *rewritten_path = NULL;
-      char *path;
-      ssize_t symlink_size;
-      struct stat st_buf;
-      struct stat real_st_buf;
+      g_autofree char *path = NULL;
 
-      proc_path = g_strdup_printf ("/proc/self/fd/%d", fd);
-
-      if (fd == -1 ||
-          (fd_flags = fcntl (fd, F_GETFL)) == 0 ||
-          ((fd_flags & O_PATH) != O_PATH) ||
-          ((fd_flags & O_NOFOLLOW) == O_NOFOLLOW) ||
-          fstat (fd, &st_buf) < 0 ||
-          (st_buf.st_mode & S_IFMT) != S_IFREG ||
-          (symlink_size = readlink (proc_path, path_buffer, PATH_MAX)) < 0)
+      path = xdp_get_path_for_fd (request->app_info, fd);
+      if (path == NULL)
         {
           /* Reject the request */
           if (request->exported)
@@ -522,59 +508,11 @@ handle_open_in_thread_func (GTask *task,
           return;
         }
 
-      path_buffer[symlink_size] = 0;
-
-      path = path_buffer;
-
-      if (request->app_info != NULL)
-        {
-          if (g_str_has_prefix (path, "/newroot/usr/"))
-            {
-              g_autofree char * usr_root =
-                g_key_file_get_string (request->app_info,
-                                       "Instance", "runtime-path", NULL);
-              if (usr_root)
-                {
-                  rewritten_path = g_build_filename (usr_root, path + strlen ("/newroot/usr/"), NULL);
-                  path = rewritten_path;
-                }
-            }
-          else if (g_str_has_prefix (path, "/newroot/app/"))
-            {
-              g_autofree char * app_root =
-                g_key_file_get_string (request->app_info,
-                                       "Instance", "app-path", NULL);
-              if (app_root)
-                {
-                  rewritten_path = g_build_filename (app_root, path + strlen ("/newroot/app/"), NULL);
-                  path = rewritten_path;
-                }
-            }
-          else if (g_str_has_prefix (path, "/newroot/"))
-            path = path + strlen ("/newroot");
-
-          /* Verify that this is the same file as the app opened */
-          if (stat (path, &real_st_buf) < 0 ||
-              st_buf.st_dev != real_st_buf.st_dev ||
-              st_buf.st_ino != real_st_buf.st_ino)
-            {
-              /* Different files on the inside and the outside, reject the request */
-              if (request->exported)
-                {
-                  g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
-                  xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
-                  request_unexport (request);
-                }
-              return;
-            }
-        }
-
       get_content_type_for_file (path, &content_type);
       basename = g_path_get_basename (path);
 
       scheme = g_strdup ("file");
-      uri = g_filename_to_uri (path, NULL, NULL);
-      g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
+      g_object_set_data_full (G_OBJECT (request), "uri", g_filename_to_uri (path, NULL, NULL), g_free);
     }
 
   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
@@ -613,6 +551,8 @@ handle_open_in_thread_func (GTask *task,
   g_variant_builder_add (&opts_builder, "{sv}", "content_type", g_variant_new_string (content_type));
   if (basename)
     g_variant_builder_add (&opts_builder, "{sv}", "filename", g_variant_new_string (basename));
+  if (uri)
+    g_variant_builder_add (&opts_builder, "{sv}", "uri", g_variant_new_string (uri));
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
                                                   G_DBUS_PROXY_FLAGS_NONE,
