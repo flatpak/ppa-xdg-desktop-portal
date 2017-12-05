@@ -11,7 +11,7 @@ Build-Depends:
  libglib2.0-dev,
  xmlto,
 Rules-Requires-Root: no
-Standards-Version: 4.1.1
+Standards-Version: 4.1.2
 Homepage: http://flatpak.org/
 Vcs-Git: https://anonscm.debian.org/git/collab-maint/xdg-desktop-portal.git
 Vcs-Browser: https://anonscm.debian.org/cgit/collab-maint/xdg-desktop-portal.git
