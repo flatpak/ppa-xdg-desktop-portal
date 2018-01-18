@@ -1,0 +1,29 @@
+From: Philip Withnall <withnall@endlessm.com>
+Date: Mon, 27 Nov 2017 14:12:13 +0000
+Subject: screenshot: Gracefully handle an option not being provided
+
+Spotted by Coverity, CID 207679.
+
+Signed-off-by: Philip Withnall <withnall@endlessm.com>
+Origin: upstream, 0.10, commit:065d357a06458a65cc36f9afdf09079073a43d34
+---
+ src/screenshot.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/screenshot.c b/src/screenshot.c
+index 69abc64..38d01e4 100644
+--- a/src/screenshot.c
++++ b/src/screenshot.c
+@@ -84,7 +84,11 @@ send_response_in_thread_func (GTask *task,
+   if (response != 0)
+     goto out;
+ 
+-  g_variant_lookup (options, "uri", "&s", &uri);
++  if (!g_variant_lookup (options, "uri", "&s", &uri))
++    {
++      g_warning ("No URI was provided");
++      goto out;
++    }
+ 
+   ruri = register_document (uri, request->app_id, FALSE, FALSE, &error);
+   if (ruri == NULL)

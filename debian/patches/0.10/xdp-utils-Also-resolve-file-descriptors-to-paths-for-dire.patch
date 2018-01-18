@@ -1,0 +1,27 @@
+From: Mario Sanchez Prada <mario@endlessm.com>
+Date: Fri, 24 Nov 2017 14:27:27 +0000
+Subject: xdp-utils: Also resolve file descriptors to paths for directories
+
+This won't be useful if the path passed points to a directory not
+reachable inside the sandbox, but it will at least allow opening
+them in other cases where that might be the case.
+
+Bug: https://github.com/flatpak/xdg-desktop-portal/issues/128
+Origin: upstream, 0.10, commit:8c6c6c2f76eada66a73c2b951e36154e9ede5750
+---
+ src/xdp-utils.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/xdp-utils.c b/src/xdp-utils.c
+index e46b320..f1b6d56 100644
+--- a/src/xdp-utils.c
++++ b/src/xdp-utils.c
+@@ -337,7 +337,7 @@ xdp_get_path_for_fd (GKeyFile *app_info,
+       ((fd_flags & O_PATH) != O_PATH) ||
+       ((fd_flags & O_NOFOLLOW) == O_NOFOLLOW) ||
+       fstat (fd, &st_buf) < 0 ||
+-      (st_buf.st_mode & S_IFMT) != S_IFREG ||
++      ((st_buf.st_mode & S_IFMT) != S_IFREG && (st_buf.st_mode & S_IFMT) != S_IFDIR) ||
+       (symlink_size = readlink (proc_path, path_buffer, PATH_MAX)) < 0)
+     {
+       return NULL;

@@ -1,0 +1,31 @@
+From: Mario Sanchez Prada <mario@endlessm.com>
+Date: Fri, 24 Nov 2017 14:30:28 +0000
+Subject: open-uri: Don't crash when opening files skipping the app chooser
+
+When OpenFile is used to open a directory and either there's a default
+application to handle file:// URIs, or only one appropriate application
+is installed (e.g. Nautilus), we would hit a crash with the current code
+since launch_default_for_uri() will be passed a NULL uri parameter.
+
+This fixes that by ensuring that uri is always properly set at that point.
+
+Bug: https://github.com/flatpak/xdg-desktop-portal/issues/129
+Origin: upstream, 0.10, commit:91c6942432d9b5a8dba9aa638137c6fa1abcb501
+---
+ src/open-uri.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/src/open-uri.c b/src/open-uri.c
+index bc581b5..a13ce98 100644
+--- a/src/open-uri.c
++++ b/src/open-uri.c
+@@ -512,7 +512,8 @@ handle_open_in_thread_func (GTask *task,
+       basename = g_path_get_basename (path);
+ 
+       scheme = g_strdup ("file");
+-      g_object_set_data_full (G_OBJECT (request), "uri", g_filename_to_uri (path, NULL, NULL), g_free);
++      uri = g_filename_to_uri (path, NULL, NULL);
++      g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
+     }
+ 
+   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
