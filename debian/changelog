@@ -5,6 +5,7 @@ xdg-desktop-portal (0.10-1) UNRELEASED; urgency=medium
     has taken over the permission store and documents portal
   * Disable Pipewire support for now (ITP: #874089)
   * Add new build-dependencies for FUSE
+  * Install the permission store and documents portal
   * d/copyright: Update
 
  -- Simon McVittie <smcv@debian.org>  Wed, 14 Feb 2018 12:05:43 +0000
