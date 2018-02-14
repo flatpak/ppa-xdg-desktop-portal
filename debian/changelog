@@ -8,6 +8,7 @@ xdg-desktop-portal (0.10-1) UNRELEASED; urgency=medium
   * Install the permission store and documents portal
   * d/copyright: Update
   * Drop flatpak build-dependency, no longer needed
+  * Remove patches, applied upstream
 
  -- Simon McVittie <smcv@debian.org>  Wed, 14 Feb 2018 12:05:43 +0000
 

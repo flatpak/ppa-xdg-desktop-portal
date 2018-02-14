@@ -1,5 +1,0 @@
-0.10/screenshot-Gracefully-handle-an-option-not-being-provided.patch
-0.10/xdp-utils-Also-resolve-file-descriptors-to-paths-for-dire.patch
-0.10/open-uri-Don-t-crash-when-opening-files-skipping-the-app-.patch
-0.10/request-Stop-hardcoding-response-codes-use-an-enum-instea.patch
-0.10/open-uri-Don-t-ever-pass-a-list-of-NULLs-to-g_app_info_la.patch
