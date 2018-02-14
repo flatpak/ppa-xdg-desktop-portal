@@ -7,7 +7,9 @@ Uploaders:
 Build-Depends:
  dbus,
  debhelper (>= 10),
+ fuse <!nocheck>,
  libflatpak-dev (>= 0.6.10),
+ libfuse-dev,
  libglib2.0-dev,
  xmlto,
 Rules-Requires-Root: no
