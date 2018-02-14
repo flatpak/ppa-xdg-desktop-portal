@@ -30,6 +30,7 @@
 #include "xdp-utils.h"
 #include "xdp-dbus.h"
 #include "request.h"
+#include "call.h"
 #include "documents.h"
 #include "permissions.h"
 #include "file-chooser.h"
@@ -43,6 +44,8 @@
 #include "device.h"
 #include "account.h"
 #include "email.h"
+#include "screen-cast.h"
+#include "remote-desktop.h"
 
 static GMainLoop *loop = NULL;
 
@@ -274,16 +277,45 @@ find_portal_implementation (const char *interface)
 }
 
 static gboolean
+method_needs_request (GDBusMethodInvocation *invocation)
+{
+  const char *interface;
+  const char *method;
+
+  interface = g_dbus_method_invocation_get_interface_name (invocation);
+  method = g_dbus_method_invocation_get_method_name (invocation);
+
+  if (strcmp (interface, "org.freedesktop.portal.ScreenCast") == 0)
+    {
+      if (strcmp (method, "OpenPipeWireRemote") == 0)
+        return FALSE;
+      else
+        return TRUE;
+    }
+  else if (strcmp (interface, "org.freedesktop.portal.RemoteDesktop") == 0)
+    {
+      if (strstr (method, "Notify") == method)
+        return FALSE;
+      else
+        return TRUE;
+    }
+  else
+    {
+      return TRUE;
+    }
+}
+
+static gboolean
 authorize_callback (GDBusInterfaceSkeleton *interface,
                     GDBusMethodInvocation  *invocation,
                     gpointer                user_data)
 {
-  g_autofree char *app_id;
+  g_autoptr(XdpAppInfo) app_info = NULL;
 
   g_autoptr(GError) error = NULL;
 
-  app_id = xdp_invocation_lookup_app_id_sync (invocation, NULL, &error);
-  if (app_id == NULL)
+  app_info = xdp_invocation_lookup_app_info_sync (invocation, NULL, &error);
+  if (app_info == NULL)
     {
       g_dbus_method_invocation_return_error (invocation,
                                              G_DBUS_ERROR,
@@ -292,7 +324,10 @@ authorize_callback (GDBusInterfaceSkeleton *interface,
       return FALSE;
     }
 
-  request_init_invocation (invocation, app_id);
+  if (method_needs_request (invocation))
+    request_init_invocation (invocation, app_info);
+  else
+    call_init_invocation (invocation, app_info);
 
   return TRUE;
 }
@@ -321,6 +356,13 @@ export_portal_implementation (GDBusConnection *connection,
 }
 
 static void
+peer_died_cb (const char *name)
+{
+  close_requests_for_sender (name);
+  close_sessions_for_sender (name);
+}
+
+static void
 on_bus_acquired (GDBusConnection *connection,
                  const gchar     *name,
                  gpointer         user_data)
@@ -328,7 +370,7 @@ on_bus_acquired (GDBusConnection *connection,
   PortalImplementation *implementation;
   g_autoptr(GError) error = NULL;
 
-  xdp_connection_track_name_owners (connection);
+  xdp_connection_track_name_owners (connection, peer_died_cb);
   init_document_proxy (connection);
   init_permission_store (connection);
 
@@ -379,6 +421,18 @@ on_bus_acquired (GDBusConnection *connection,
   if (implementation != NULL)
     export_portal_implementation (connection,
                                   email_create (connection, implementation->dbus_name));
+
+#if HAVE_PIPEWIRE
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.ScreenCast");
+  if (implementation != NULL)
+    export_portal_implementation (connection,
+                                  screen_cast_create (connection, implementation->dbus_name));
+
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.RemoteDesktop");
+  if (implementation != NULL)
+    export_portal_implementation (connection,
+                                  remote_desktop_create (connection, implementation->dbus_name));
+#endif
 }
 
 static void

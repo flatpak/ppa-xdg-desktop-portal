@@ -84,9 +84,13 @@ send_response_in_thread_func (GTask *task,
   if (response != 0)
     goto out;
 
-  g_variant_lookup (options, "uri", "&s", &uri);
+  if (!g_variant_lookup (options, "uri", "&s", &uri))
+    {
+      g_warning ("No URI was provided");
+      goto out;
+    }
 
-  ruri = register_document (uri, request->app_id, FALSE, FALSE, &error);
+  ruri = register_document (uri, xdp_app_info_get_id (request->app_info), FALSE, FALSE, &error);
   if (ruri == NULL)
     g_warning ("Failed to register %s: %s", uri, error->message);
   else
@@ -132,7 +136,8 @@ screenshot_done (GObject *source,
 }
 
 static XdpOptionKey screenshot_options[] = {
-  { "modal", G_VARIANT_TYPE_BOOLEAN }
+  { "modal", G_VARIANT_TYPE_BOOLEAN },
+  { "interactive", G_VARIANT_TYPE_BOOLEAN }
 };
 
 static gboolean
@@ -142,7 +147,6 @@ handle_screenshot (XdpScreenshot *object,
                    GVariant *arg_options)
 {
   Request *request = request_from_invocation (invocation);
-  const char *app_id = request->app_id;
   g_autoptr(GError) error = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
   GVariantBuilder opt_builder;
@@ -169,7 +173,7 @@ handle_screenshot (XdpScreenshot *object,
 
   xdp_impl_screenshot_call_screenshot (impl,
                                        request->id,
-                                       app_id,
+                                       xdp_app_info_get_id (request->app_info),
                                        arg_parent_window,
                                        g_variant_builder_end (&opt_builder),
                                        NULL,

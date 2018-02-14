@@ -177,7 +177,7 @@ is_sandboxed (GDesktopAppInfo *info)
   return strstr (exec, "flatpak run ") != NULL;
 }
 
-static void
+static gboolean
 launch_application_with_uri (const char *choice_id,
                              const char *uri,
                              const char *parent_window,
@@ -191,8 +191,15 @@ launch_application_with_uri (const char *choice_id,
 
   if (is_sandboxed (info))
     {
+      g_autoptr(GError) error = NULL;
+
       g_debug ("registering %s for %s", uri, choice_id);
-      ruri = register_document (uri, choice_id, FALSE, writable, NULL);
+      ruri = register_document (uri, choice_id, FALSE, writable, &error);
+      if (ruri == NULL)
+        {
+          g_warning ("Error registering %s for %s: %s", uri, choice_id, error->message);
+          return FALSE;
+        }
     }
   else
     ruri = g_strdup (uri);
@@ -204,6 +211,8 @@ launch_application_with_uri (const char *choice_id,
 
   g_debug ("launching %s %s", choice_id, ruri);
   g_app_info_launch_uris (G_APP_INFO (info), &uris, context, NULL);
+
+  return TRUE;
 }
 
 static void
@@ -287,8 +296,8 @@ send_response_in_thread_func (GTask *task,
       writable = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "writable"));
       content_type = (const char *)g_object_get_data (G_OBJECT (request), "content-type");
 
-      launch_application_with_uri (choice, uri, parent_window, writable);
-      update_permissions_store (request->app_id, content_type, choice);
+      if (launch_application_with_uri (choice, uri, parent_window, writable))
+        update_permissions_store (xdp_app_info_get_id (request->app_info), content_type, choice);
     }
 
 out:
@@ -452,7 +461,7 @@ handle_open_in_thread_func (GTask *task,
 {
   Request *request = (Request *)task_data;
   const char *parent_window;
-  const char *app_id = request->app_id;
+  const char *app_id = xdp_app_info_get_id (request->app_info);
   g_autofree char *uri = NULL;
   g_autoptr(GError) error = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
@@ -485,7 +494,9 @@ handle_open_in_thread_func (GTask *task,
           if (request->exported)
             {
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
-              xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
+              xdp_request_emit_response (XDP_REQUEST (request),
+                                         XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
+                                         g_variant_builder_end (&opts_builder));
               request_unexport (request);
             }
           return;
@@ -495,14 +506,16 @@ handle_open_in_thread_func (GTask *task,
     {
       g_autofree char *path = NULL;
 
-      path = xdp_get_path_for_fd (request->app_info, fd);
+      path = xdp_app_info_get_path_for_fd (request->app_info, fd);
       if (path == NULL)
         {
           /* Reject the request */
           if (request->exported)
             {
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
-              xdp_request_emit_response (XDP_REQUEST (request), 2, g_variant_builder_end (&opts_builder));
+              xdp_request_emit_response (XDP_REQUEST (request),
+                                         XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
+                                         g_variant_builder_end (&opts_builder));
               request_unexport (request);
             }
           return;
@@ -512,7 +525,8 @@ handle_open_in_thread_func (GTask *task,
       basename = g_path_get_basename (path);
 
       scheme = g_strdup ("file");
-      g_object_set_data_full (G_OBJECT (request), "uri", g_filename_to_uri (path, NULL, NULL), g_free);
+      uri = g_filename_to_uri (path, NULL, NULL);
+      g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
     }
 
   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
@@ -521,15 +535,16 @@ handle_open_in_thread_func (GTask *task,
   if (skip_app_chooser || (!always_ask && (latest_count >= latest_threshold)))
     {
       /* If a recommended choice is found, just use it and skip the chooser dialog */
-      launch_application_with_uri (skip_app_chooser ? choices[0] : latest_id,
-                                   uri,
-                                   parent_window,
-                                   writable);
-
+      gboolean result = launch_application_with_uri (skip_app_chooser ? choices[0] : latest_id,
+                                                     uri,
+                                                     parent_window,
+                                                     writable);
       if (request->exported)
         {
           g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
-          xdp_request_emit_response (XDP_REQUEST (request), 0, g_variant_builder_end (&opts_builder));
+          xdp_request_emit_response (XDP_REQUEST (request),
+                                     result ? XDG_DESKTOP_PORTAL_RESPONSE_SUCCESS : XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
+                                     g_variant_builder_end (&opts_builder));
           request_unexport (request);
         }
       return;

@@ -267,7 +267,7 @@ handle_access_microphone_in_thread (GTask *task,
 
       g_variant_builder_init (&results, G_VARIANT_TYPE_VARDICT);
       xdp_request_emit_response (XDP_REQUEST (request),
-                                 allowed ? 0 : 1,
+                                 allowed ? XDG_DESKTOP_PORTAL_RESPONSE_SUCCESS : XDG_DESKTOP_PORTAL_RESPONSE_CANCELLED,
                                  g_variant_builder_end (&results));
       request_unexport (request);
     }
@@ -281,14 +281,14 @@ handle_access_device (XdpDevice *object,
                       GVariant *arg_options)
 {
   Request *request = request_from_invocation (invocation);
-  g_autofree char *app_id = NULL;
+  g_autoptr(XdpAppInfo) app_info = NULL;
   g_autoptr(GError) error = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
   g_autoptr(GTask) task = NULL;
 
   REQUEST_AUTOLOCK (request);
 
-  if (!g_str_equal (request->app_id, ""))
+  if (!xdp_app_info_is_host (request->app_info))
     {
       g_dbus_method_invocation_return_error (invocation,
                                              XDG_DESKTOP_PORTAL_ERROR,
@@ -306,9 +306,17 @@ handle_access_device (XdpDevice *object,
       return TRUE;
     }
 
-  app_id = xdp_get_app_id_from_pid (pid, NULL);
+  app_info = xdp_get_app_info_from_pid (pid, &error);
+  if (app_info == NULL)
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                                             "Invalid pid requested");
+      return TRUE;
+    }
 
-  g_object_set_data_full (G_OBJECT (request), "app-id", g_strdup (app_id ? app_id : ""), g_free);
+  g_object_set_data_full (G_OBJECT (request), "app-id", g_strdup (xdp_app_info_get_id (app_info)), g_free);
   g_object_set_data_full (G_OBJECT (request), "device", g_strdup (devices[0]), g_free);
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),

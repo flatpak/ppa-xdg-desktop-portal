@@ -14,16 +14,10 @@ xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
 xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
 BUILT_SOURCES += $(xdp_dbus_built_sources) $(xdp_impl_dbus_built_sources)
 
-FLATPAK_IFACE_FILES =\
-	$(FLATPAK_INTERFACES_DIR)/org.freedesktop.portal.Documents.xml \
-	$(NULL)
-
-FLATPAK_IMPL_IFACE_FILES =\
-	$(FLATPAK_INTERFACES_DIR)/org.freedesktop.impl.portal.PermissionStore.xml \
-	$(NULL)
-
 PORTAL_IFACE_FILES =\
+	data/org.freedesktop.portal.Documents.xml \
 	data/org.freedesktop.portal.Request.xml \
+	data/org.freedesktop.portal.Session.xml \
 	data/org.freedesktop.portal.FileChooser.xml \
 	data/org.freedesktop.portal.OpenURI.xml \
 	data/org.freedesktop.portal.Print.xml \
@@ -35,10 +29,14 @@ PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.Device.xml \
 	data/org.freedesktop.portal.Account.xml \
 	data/org.freedesktop.portal.Email.xml \
+	data/org.freedesktop.portal.ScreenCast.xml \
+	data/org.freedesktop.portal.RemoteDesktop.xml \
 	$(NULL)
 
 PORTAL_IMPL_IFACE_FILES =\
+	data/org.freedesktop.impl.portal.PermissionStore.xml \
 	data/org.freedesktop.impl.portal.Request.xml \
+	data/org.freedesktop.impl.portal.Session.xml \
 	data/org.freedesktop.impl.portal.FileChooser.xml \
 	data/org.freedesktop.impl.portal.AppChooser.xml \
 	data/org.freedesktop.impl.portal.Print.xml \
@@ -48,27 +46,23 @@ PORTAL_IMPL_IFACE_FILES =\
 	data/org.freedesktop.impl.portal.Access.xml \
 	data/org.freedesktop.impl.portal.Account.xml \
 	data/org.freedesktop.impl.portal.Email.xml \
+	data/org.freedesktop.impl.portal.ScreenCast.xml \
+	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	$(NULL)
 
-$(xdp_dbus_built_sources) : $(FLATPAK_IFACE_FILES) $(PORTAL_IFACE_FILES)
+$(xdp_dbus_built_sources) : $(PORTAL_IFACE_FILES)
 	$(AM_V_GEN) $(GDBUS_CODEGEN)                            \
 		--interface-prefix org.freedesktop.portal.      \
 		--c-namespace Xdp                               \
 		--generate-c-code $(builddir)/src/xdp-dbus      \
-		--annotate "org.freedesktop.portal.Documents.Add()" "org.gtk.GDBus.C.UnixFD" "true" \
-		--annotate "org.freedesktop.portal.Documents.AddNamed()" "org.gtk.GDBus.C.UnixFD" "true" \
-		--annotate "org.freedesktop.portal.Print.Print()" "org.gtk.GDBus.C.UnixFD" "true" \
-		--annotate "org.freedesktop.portal.OpenURI.OpenFile()" "org.gtk.GDBus.C.UnixFD" "true" \
-		--annotate "org.freedesktop.portal.Email.ComposeEmail()" "org.gtk.GDBus.C.UnixFD" "true" \
 		$^ \
 		$(NULL)
 
-$(xdp_impl_dbus_built_sources) : $(FLATPAK_IMPL_IFACE_FILES) $(PORTAL_IMPL_IFACE_FILES)
+$(xdp_impl_dbus_built_sources) : $(PORTAL_IMPL_IFACE_FILES)
 	$(AM_V_GEN) $(GDBUS_CODEGEN)                            \
 		--interface-prefix org.freedesktop.impl.portal. \
 		--c-namespace XdpImpl                           \
 		--generate-c-code $(builddir)/src/xdp-impl-dbus \
-		--annotate "org.freedesktop.impl.portal.Print.Print()" "org.gtk.GDBus.C.UnixFD" "true" \
 		$^ \
 		$(NULL)
 
@@ -118,19 +112,32 @@ xdg_desktop_portal_SOURCES = \
         src/account.h                   \
 	src/request.c			\
 	src/request.h			\
+	src/call.c			\
+	src/call.h			\
         src/documents.c                 \
         src/documents.h                 \
         src/permissions.c               \
         src/permissions.h               \
         src/email.c                     \
         src/email.h                     \
+	src/session.c			\
+	src/session.h			\
 	src/xdp-utils.c			\
 	src/xdp-utils.h			\
 	$(NULL)
 
-xdg_desktop_portal_LDADD = $(BASE_LIBS)
+if HAVE_PIPEWIRE
+xdg_desktop_portal_SOURCES += \
+	src/screen-cast.c		\
+	src/screen-cast.h		\
+	src/remote-desktop.c		\
+	src/remote-desktop.h		\
+	$(NULL)
+endif
+
+xdg_desktop_portal_LDADD = $(BASE_LIBS) $(PIPEWIRE_LIBS)
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) \
+	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) $(PIPEWIRE_CFLAGS) \
 	-I$(srcdir)/src -I$(builddir)/src \
 	$(NULL)
 xdg_desktop_portal_CPPFLAGS = \
