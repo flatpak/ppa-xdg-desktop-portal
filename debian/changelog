@@ -1,6 +1,8 @@
 xdg-desktop-portal (0.10-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * Add Breaks/Replaces for flatpak (<< 0.10.4-1~) since this package
+    has taken over the permission store and documents portal
 
  -- Simon McVittie <smcv@debian.org>  Wed, 14 Feb 2018 12:05:43 +0000
 

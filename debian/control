@@ -23,6 +23,10 @@ Depends:
  default-dbus-session-bus | dbus-session-bus,
  ${misc:Depends},
  ${shlibs:Depends},
+Breaks:
+ flatpak (<< 0.10.4-1~),
+Replaces:
+ flatpak (<< 0.10.4-1~),
 Description: desktop integration portal for Flatpak
  xdg-desktop-portal provides a portal frontend service for Flatpak, and
  possibly other desktop containment/sandboxing frameworks. This service
@@ -48,8 +52,10 @@ Depends:
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:
+ libflatpak-dev (<< 0.10.4-1~),
  xdg-desktop-portal (<< 0.5-2~),
 Replaces:
+ libflatpak-dev (<< 0.10.4-1~),
  xdg-desktop-portal (<< 0.5-2~),
 Description: desktop integration portal for Flatpak - development files
  xdg-desktop-portal provides a portal frontend service for Flatpak, and
