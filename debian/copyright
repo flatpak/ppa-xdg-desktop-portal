@@ -5,7 +5,8 @@ Source: https://github.com/flatpak/xdg-desktop-portal/releases
 Files:
  *
 Copyright:
- © 2015-2017 Red Hat, Inc
+ © 2010 Codethink Limited
+ © 2015-2018 Red Hat, Inc
  © 2016 Free Software Foundation, Inc.
  © 2016 Piotr Drag
  © 2016 Aviary.pl
@@ -14,7 +15,8 @@ License: LGPL-2+
 Files:
  debian/*
 Copyright:
- © 2016 Simon McVittie
+ © 2016-2018 Simon McVittie
+ © 2016-2018 Collabora Ltd.
 License: LGPL-2+
 
 License: LGPL-2+
