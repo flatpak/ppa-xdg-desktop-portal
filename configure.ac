@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[0.9])
+AC_INIT([xdg-desktop-portal],[0.10])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -63,10 +63,14 @@ PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0])
 AC_SUBST(BASE_CFLAGS)
 AC_SUBST(BASE_LIBS)
 
-PKG_CHECK_EXISTS([flatpak],
-                 [AC_SUBST([FLATPAK_INTERFACES_DIR],
-                           [`$PKG_CONFIG --variable=interfaces_dir flatpak`])],
-                 [AC_MSG_ERROR([flatpak.pc is required])])
+AC_ARG_ENABLE(pipewire,
+	      [AS_HELP_STRING([--enable-pipewire],[Enable PipeWire support. Needed for screen cast portal])],
+	      enable_pipewire=$enableval, enable_pipewire=yes)
+if test x$enable_pipewire = xyes ; then
+	PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.1 >= 0.1.8])
+	AC_DEFINE([HAVE_PIPEWIRE],[1], [Define to enable PipeWire support])
+fi
+AM_CONDITIONAL([HAVE_PIPEWIRE],[test "$enable_pipewire" = "yes"])
 
 AC_ARG_ENABLE(docbook-docs,
         [AS_HELP_STRING([--enable-docbook-docs],[build documentation (requires xmlto)])],
@@ -96,6 +100,10 @@ fi
 AM_CONDITIONAL(DOCBOOK_DOCS_ENABLED, test x$enable_docbook_docs = xyes)
 AC_ARG_VAR([XMLTO],[Define/override the 'xmlto' location.])
 AC_ARG_VAR([XMLTO_FLAGS],[Define/override 'xmlto' options, like '--skip-validation'.])
+
+GLIB_TESTS
+
+PKG_CHECK_MODULES(FUSE, [fuse])
 
 AC_CONFIG_FILES([
 Makefile

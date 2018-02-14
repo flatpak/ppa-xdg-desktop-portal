@@ -3,11 +3,15 @@ NULL =
 bin_PROGRAMS = $(NULL)
 noinst_PROGRAMS = $(NULL)
 noinst_LTLIBRARIES = $(NULL)
+noinst_SCRIPTS =
+noinst_DATA =
 libexec_PROGRAMS = $(NULL)
 CLEANFILES = $(NULL)
 DISTCLEANFILES= $(NULL)
 BUILT_SOURCES = $(NULL)
-EXTRA_DIST =
+EXTRA_DIST = tap-driver.sh tap-test
+
+include $(top_srcdir)/glib-tap.mk
 
 SUBDIRS = doc po
 
@@ -22,6 +26,7 @@ CLEANFILES += $(dbus_service_DATA)
 CLEANFILES += $(systemduserunit_DATA)
 EXTRA_DIST += $(service_in_files)
 
+ACLOCAL_AMFLAGS = --install -I m4 ${ACLOCAL_FLAGS}
 AM_CPPFLAGS =							\
 	-DG_LOG_DOMAIN=\"xdg-desktop-portal\"			\
 	$(NULL)
@@ -29,7 +34,9 @@ AM_CPPFLAGS =							\
 lib_LTLIBRARIES =
 
 include data/Makefile.am.inc
+include document-portal/Makefile.am.inc
 include src/Makefile.am.inc
+include tests/Makefile.am.inc
 
 pkgconfigdir = $(datadir)/pkgconfig
 pkgconfig_DATA = xdg-desktop-portal.pc
