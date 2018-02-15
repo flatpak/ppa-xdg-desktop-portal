@@ -1,6 +1,9 @@
 xdg-desktop-portal (0.10-3) UNRELEASED; urgency=medium
 
   * Reinstate xdg-desktop-portal-tests package and autopkgtests
+  * d/p/build-Run-install-test-data-hook-as-intended.patch:
+    Run the tests' install hook to set up enough symlinks that they
+    will pass
 
  -- Simon McVittie <smcv@debian.org>  Thu, 15 Feb 2018 00:29:19 +0000
 
