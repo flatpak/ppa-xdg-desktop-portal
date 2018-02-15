@@ -69,19 +69,3 @@ Description: desktop integration portal for Flatpak - development files
  .
  This package contains development files for backends such as
  xdg-desktop-portal-gtk.
-
-Package: xdg-desktop-portal-tests
-Architecture: any
-Depends:
- xdg-desktop-portal,
- ${misc:Depends},
- ${shlibs:Depends},
-Description: desktop integration portal for Flatpak - automated tests
- xdg-desktop-portal provides a portal frontend service for Flatpak, and
- possibly other desktop containment/sandboxing frameworks. This service
- is made available to the sandboxed application, and provides mediated
- D-Bus interfaces for file access, URI opening, printing and similar
- desktop integration features. See the xdg-desktop-portal package's
- description for more details.
- .
- This package contains automated tests.

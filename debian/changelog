@@ -1,3 +1,9 @@
+xdg-desktop-portal (0.10-2) unstable; urgency=medium
+
+  * Really remove xdg-desktop-portal-tests stanza from d/control
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 15 Feb 2018 00:01:42 +0000
+
 xdg-desktop-portal (0.10-1) unstable; urgency=medium
 
   * New upstream release
