@@ -1,11 +1,12 @@
-xdg-desktop-portal (0.10-3) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.10-3) experimental; urgency=medium
 
   * Reinstate xdg-desktop-portal-tests package and autopkgtests
   * d/p/build-Run-install-test-data-hook-as-intended.patch:
     Run the tests' install hook to set up enough symlinks that they
     will pass
+  * Upload to experimental to wait for NEW processing
 
- -- Simon McVittie <smcv@debian.org>  Thu, 15 Feb 2018 00:29:19 +0000
+ -- Simon McVittie <smcv@debian.org>  Thu, 15 Feb 2018 00:30:01 +0000
 
 xdg-desktop-portal (0.10-2) unstable; urgency=medium
 
