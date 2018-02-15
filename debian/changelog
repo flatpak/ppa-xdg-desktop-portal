@@ -1,3 +1,9 @@
+xdg-desktop-portal (0.10-3) UNRELEASED; urgency=medium
+
+  * Reinstate xdg-desktop-portal-tests package and autopkgtests
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 15 Feb 2018 00:29:19 +0000
+
 xdg-desktop-portal (0.10-2) unstable; urgency=medium
 
   * Really remove xdg-desktop-portal-tests stanza from d/control

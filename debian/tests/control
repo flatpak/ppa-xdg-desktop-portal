@@ -1,0 +1,5 @@
+Tests: gnome-desktop-testing
+Restrictions: isolation-machine
+Depends:
+ gnome-desktop-testing,
+ xdg-desktop-portal-tests,
