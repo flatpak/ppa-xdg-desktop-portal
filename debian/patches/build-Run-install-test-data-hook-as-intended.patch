@@ -5,6 +5,8 @@ Subject: build: Run install-test-data-hook as intended
 This wasn't set up when it was copied from Flatpak.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/159
+Applied-upstream: 0.11, commit:2ce76e8239fd15d38f680c9829aeb057313c4b16
 ---
  Makefile.am | 3 +++
  1 file changed, 3 insertions(+)
