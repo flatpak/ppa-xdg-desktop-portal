@@ -1,3 +1,9 @@
+xdg-desktop-portal (0.10-4) UNRELEASED; urgency=medium
+
+  * Merge from experimental, with autopkgtests included
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 16 Feb 2018 14:48:27 +0000
+
 xdg-desktop-portal (0.10-3) experimental; urgency=medium
 
   * Reinstate xdg-desktop-portal-tests package and autopkgtests
