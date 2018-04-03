@@ -29,9 +29,9 @@ Breaks:
  flatpak (<< 0.10.4-1~),
 Replaces:
  flatpak (<< 0.10.4-1~),
-Description: desktop integration portal for Flatpak
- xdg-desktop-portal provides a portal frontend service for Flatpak, and
- possibly other desktop containment/sandboxing frameworks. This service
+Description: desktop integration portal for Flatpak and Snap
+ xdg-desktop-portal provides a portal frontend service for Flatpak, Snap,
+ and possibly other desktop containment/sandboxing frameworks. This service
  is made available to the sandboxed application, and provides mediated
  D-Bus interfaces for file access, URI opening, printing and similar
  desktop integration features.
@@ -59,9 +59,9 @@ Breaks:
 Replaces:
  libflatpak-dev (<< 0.10.4-1~),
  xdg-desktop-portal (<< 0.5-2~),
-Description: desktop integration portal for Flatpak - development files
- xdg-desktop-portal provides a portal frontend service for Flatpak, and
- possibly other desktop containment/sandboxing frameworks. This service
+Description: desktop integration portal - development files
+ xdg-desktop-portal provides a portal frontend service for Flatpak, Snap,
+ and possibly other desktop containment/sandboxing frameworks. This service
  is made available to the sandboxed application, and provides mediated
  D-Bus interfaces for file access, URI opening, printing and similar
  desktop integration features. See the xdg-desktop-portal package's
@@ -76,9 +76,9 @@ Depends:
  xdg-desktop-portal,
  ${misc:Depends},
  ${shlibs:Depends},
-Description: desktop integration portal for Flatpak - automated tests
- xdg-desktop-portal provides a portal frontend service for Flatpak, and
- possibly other desktop containment/sandboxing frameworks. This service
+Description: desktop integration portal - automated tests
+ xdg-desktop-portal provides a portal frontend service for Flatpak, Snap,
+ and possibly other desktop containment/sandboxing frameworks. This service
  is made available to the sandboxed application, and provides mediated
  D-Bus interfaces for file access, URI opening, printing and similar
  desktop integration features. See the xdg-desktop-portal package's
