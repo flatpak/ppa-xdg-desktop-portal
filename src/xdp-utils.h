@@ -21,6 +21,10 @@
 
 #pragma once
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <gio/gio.h>
 #include <errno.h>
 
@@ -37,7 +41,7 @@ gint xdp_mkstempat (int    dir_fd,
                     int    flags,
                     int    mode);
 
-gboolean xdp_is_valid_flatpak_name (const char *string);
+gboolean xdp_is_valid_app_id (const char *string);
 
 typedef void (*XdpPeerDiedCallback) (const char *name);
 
@@ -47,10 +51,14 @@ XdpAppInfo *xdp_app_info_ref             (XdpAppInfo  *app_info);
 void        xdp_app_info_unref           (XdpAppInfo  *app_info);
 const char *xdp_app_info_get_id          (XdpAppInfo  *app_info);
 gboolean    xdp_app_info_is_host         (XdpAppInfo  *app_info);
+gboolean    xdp_app_info_supports_opath  (XdpAppInfo  *app_info);
 char *      xdp_app_info_remap_path      (XdpAppInfo  *app_info,
                                           const char  *path);
 char *      xdp_app_info_get_path_for_fd (XdpAppInfo  *app_info,
-                                          int          fd);
+                                          int          fd,
+                                          int          require_st_mode,
+                                          struct stat *st_buf,
+                                          gboolean    *writable_out);
 XdpAppInfo *xdp_get_app_info_from_pid    (pid_t        pid,
                                           GError     **error);
 
