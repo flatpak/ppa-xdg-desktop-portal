@@ -134,7 +134,11 @@ get_latest_choice_info (const char *app_id,
                                                    NULL,
                                                    &error))
     {
-      g_warning ("Error updating permission store: %s", error->message);
+      /* Not finding an entry for the content type in the permission store is perfectly ok */
+      if (!g_error_matches (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_FOUND))
+        g_warning ("Unable to retrieve info for '%s' in the %s table of the permission store: %s",
+                   content_type, TABLE_NAME, error->message);
+
       g_clear_error (&error);
     }
 
@@ -178,6 +182,19 @@ is_sandboxed (GDesktopAppInfo *info)
 }
 
 static gboolean
+is_file_uri (const char *uri)
+{
+  g_autofree char *scheme = NULL;
+
+  scheme = g_uri_parse_scheme (uri);
+
+  if (g_strcmp0 (scheme, "file") == 0)
+    return TRUE;
+
+  return FALSE;
+}
+
+static gboolean
 launch_application_with_uri (const char *choice_id,
                              const char *uri,
                              const char *parent_window,
@@ -189,7 +206,7 @@ launch_application_with_uri (const char *choice_id,
   g_autofree char *ruri = NULL;
   GList uris;
 
-  if (is_sandboxed (info))
+  if (is_sandboxed (info) && is_file_uri (uri))
     {
       g_autoptr(GError) error = NULL;
 
@@ -505,9 +522,11 @@ handle_open_in_thread_func (GTask *task,
   else
     {
       g_autofree char *path = NULL;
+      gboolean fd_is_writable;
 
-      path = xdp_app_info_get_path_for_fd (request->app_info, fd);
-      if (path == NULL)
+      path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, &fd_is_writable);
+      if (path == NULL ||
+          (writable && !fd_is_writable))
         {
           /* Reject the request */
           if (request->exported)
@@ -532,7 +551,7 @@ handle_open_in_thread_func (GTask *task,
   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
   get_latest_choice_info (app_id, content_type, &latest_id, &latest_count, &latest_threshold, &always_ask);
 
-  if (skip_app_chooser || (!always_ask && (latest_count >= latest_threshold)))
+  if ((always_ask && skip_app_chooser) || (!always_ask && (latest_count >= latest_threshold)))
     {
       /* If a recommended choice is found, just use it and skip the chooser dialog */
       gboolean result = launch_application_with_uri (skip_app_chooser ? choices[0] : latest_id,
