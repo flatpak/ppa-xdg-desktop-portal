@@ -13,7 +13,7 @@ override_dh_auto_configure:
 		--disable-pipewire \
 		--enable-docbook-docs \
 		--enable-installed-tests \
-		--libexecdir=/usr/lib/$(DEB_SOURCE) \
+		--libexecdir=/usr/libexec \
 		$(NULL)
 
 override_dh_missing:

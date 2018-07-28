@@ -1,6 +1,6 @@
 usr/lib/systemd/user
-usr/lib/xdg-desktop-portal/xdg-desktop-portal
-usr/lib/xdg-desktop-portal/xdg-document-portal
-usr/lib/xdg-desktop-portal/xdg-permission-store
+usr/libexec/xdg-desktop-portal
+usr/libexec/xdg-document-portal
+usr/libexec/xdg-permission-store
 usr/share/dbus-1/services
 usr/share/locale/*/*/xdg-desktop-portal.mo
