@@ -1,8 +1,12 @@
-xdg-desktop-portal (0.99-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (0.99-1) unstable; urgency=medium
 
   * New upstream release
+  * Standards-Version: 4.1.5
+  * Install to /usr/libexec
+  * Build in a UTF-8 locale, to avoid FTBFS when gdbus-codegen reads
+    UTF-8
 
- -- Simon McVittie <smcv@debian.org>  Sat, 28 Jul 2018 12:14:21 +0100
+ -- Simon McVittie <smcv@debian.org>  Sat, 28 Jul 2018 12:28:48 +0100
 
 xdg-desktop-portal (0.11-2) unstable; urgency=medium
 
