@@ -1,0 +1,38 @@
+From: Simon McVittie <smcv@collabora.com>
+Date: Fri, 31 Aug 2018 08:49:19 +0100
+Subject: network-monitor: Build variants for GetStatus() correctly
+
+Passing a boolean on the stack where a GVariant * is expected is just
+going to lead to a segfault.
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/219
+---
+ src/network-monitor.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/network-monitor.c b/src/network-monitor.c
+index 725e6dd..eb0b7d4 100644
+--- a/src/network-monitor.c
++++ b/src/network-monitor.c
+@@ -143,11 +143,17 @@ handle_get_status (XdpNetworkMonitor     *object,
+ 
+       g_variant_builder_init (&status, G_VARIANT_TYPE_VARDICT);
+       g_variant_builder_add (&status, "{sv}",
+-                             "available", g_network_monitor_get_network_available (nm->monitor));
++                             "available",
++                             g_variant_new_boolean (
++                                 g_network_monitor_get_network_available (nm->monitor)));
+       g_variant_builder_add (&status, "{sv}",
+-                             "metered", g_network_monitor_get_network_metered (nm->monitor));
++                             "metered",
++                             g_variant_new_boolean (
++                                 g_network_monitor_get_network_metered (nm->monitor)));
+       g_variant_builder_add (&status, "{sv}",
+-                             "connectivity", g_network_monitor_get_connectivity (nm->monitor));
++                             "connectivity",
++                             g_variant_new_boolean (
++                                 g_network_monitor_get_connectivity (nm->monitor)));
+       g_dbus_method_invocation_return_value (invocation, g_variant_new ("(a{sv})", &status));
+     }
+ 
