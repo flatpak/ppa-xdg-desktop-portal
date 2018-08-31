@@ -1,11 +1,11 @@
-xdg-desktop-portal (1.0.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.0.1-1) unstable; urgency=medium
 
   * New upstream release
   * d/p/network-monitor-Build-variants-for-GetStatus-correctly.patch:
     Add patch to make NetworkMonitor.GetStatus() work as intended
   * Standards-Version: 4.2.1 (no changes required)
 
- -- Simon McVittie <smcv@debian.org>  Fri, 31 Aug 2018 08:51:48 +0100
+ -- Simon McVittie <smcv@debian.org>  Fri, 31 Aug 2018 08:55:19 +0100
 
 xdg-desktop-portal (1.0-1) unstable; urgency=medium
 
