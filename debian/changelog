@@ -3,6 +3,7 @@ xdg-desktop-portal (1.0.1-1) UNRELEASED; urgency=medium
   * New upstream release
   * d/p/network-monitor-Build-variants-for-GetStatus-correctly.patch:
     Add patch to make NetworkMonitor.GetStatus() work as intended
+  * Standards-Version: 4.2.1 (no changes required)
 
  -- Simon McVittie <smcv@debian.org>  Fri, 31 Aug 2018 08:51:48 +0100
 
