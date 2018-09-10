@@ -1,3 +1,11 @@
+xdg-desktop-portal (1.0.2-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+  * d/p/network-monitor-Build-variants-for-GetStatus-correctly.patch:
+    Drop, superseded by upstream changes
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 10 Sep 2018 10:36:53 +0100
+
 xdg-desktop-portal (1.0.1-1) unstable; urgency=medium
 
   * New upstream release
