@@ -140,14 +140,19 @@ handle_get_status (XdpNetworkMonitor     *object,
     {
       NetworkMonitor *nm = (NetworkMonitor *)object;
       GVariantBuilder status;
+      gboolean b;
+      guint c;
 
       g_variant_builder_init (&status, G_VARIANT_TYPE_VARDICT);
+      b = g_network_monitor_get_network_available (nm->monitor);
       g_variant_builder_add (&status, "{sv}",
-                             "available", g_network_monitor_get_network_available (nm->monitor));
+                             "available", g_variant_new_boolean (b));
+      b = g_network_monitor_get_network_metered (nm->monitor);
       g_variant_builder_add (&status, "{sv}",
-                             "metered", g_network_monitor_get_network_metered (nm->monitor));
+                             "metered", g_variant_new_boolean (b));
+      c = g_network_monitor_get_connectivity (nm->monitor);
       g_variant_builder_add (&status, "{sv}",
-                             "connectivity", g_network_monitor_get_connectivity (nm->monitor));
+                             "connectivity", g_variant_new_uint32 (c));
       g_dbus_method_invocation_return_value (invocation, g_variant_new ("(a{sv})", &status));
     }
 
@@ -206,9 +211,9 @@ network_monitor_iface_init (XdpNetworkMonitorIface *iface)
 }
 
 static void
-notify (GObject *object,
-        GParamSpec *pspec,
-        NetworkMonitor *nm)
+network_changed (GObject *object,
+                 gboolean network_available,
+                 NetworkMonitor *nm)
 {
   xdp_network_monitor_emit_changed (XDP_NETWORK_MONITOR (nm));
 }
@@ -218,7 +223,7 @@ network_monitor_init (NetworkMonitor *nm)
 {
   nm->monitor = g_network_monitor_get_default ();
 
-  g_signal_connect (nm->monitor, "notify", G_CALLBACK (notify), nm);
+  g_signal_connect (nm->monitor, "network-changed", G_CALLBACK (network_changed), nm);
 
   xdp_network_monitor_set_version (XDP_NETWORK_MONITOR (nm), 3);
 }
