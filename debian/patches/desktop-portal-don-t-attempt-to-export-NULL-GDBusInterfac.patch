@@ -1,0 +1,26 @@
+From: James Henstridge <james@jamesh.id.au>
+Date: Wed, 10 Oct 2018 18:28:05 +0800
+Subject: desktop-portal: don't attempt to export NULL GDBusInterfaceSkeletons
+
+Origin: upstream, 1.0.4, commit:1737e30f5115fea144ab5e3f5f455e40d43dc974
+---
+ src/xdg-desktop-portal.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/src/xdg-desktop-portal.c b/src/xdg-desktop-portal.c
+index 1938252..41a41d2 100644
+--- a/src/xdg-desktop-portal.c
++++ b/src/xdg-desktop-portal.c
+@@ -339,6 +339,12 @@ export_portal_implementation (GDBusConnection *connection,
+ {
+   g_autoptr(GError) error = NULL;
+ 
++  if (skeleton == NULL)
++    {
++      g_warning ("No skeleton to export");
++      return;
++    }
++
+   g_dbus_interface_skeleton_set_flags (skeleton,
+                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
+   g_signal_connect (skeleton, "g-authorize-method",

@@ -1,6 +1,9 @@
 xdg-desktop-portal (1.0.3-1) UNRELEASED; urgency=medium
 
   * New upstream release
+  * d/p/desktop-portal-don-t-attempt-to-export-NULL-GDBusInterfac.patch:
+    Add patch from upstream to guard against NULL interface objects
+    (previously applied in Ubuntu, LP: #1691649)
 
  -- Simon McVittie <smcv@debian.org>  Sat, 13 Oct 2018 11:28:08 +0100
 
