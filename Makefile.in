@@ -720,6 +720,7 @@ FGREP = @FGREP@
 FUSE_CFLAGS = @FUSE_CFLAGS@
 FUSE_LIBS = @FUSE_LIBS@
 GDBUS_CODEGEN = @GDBUS_CODEGEN@
+GENHTML = @GENHTML@
 GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GLIB_COMPILE_RESOURCES = @GLIB_COMPILE_RESOURCES@
@@ -733,6 +734,7 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 INTLLIBS = @INTLLIBS@
 INTL_MACOSX_LIBS = @INTL_MACOSX_LIBS@
+LCOV = @LCOV@
 LD = @LD@
 LDFLAGS = @LDFLAGS@
 LIBICONV = @LIBICONV@
@@ -745,8 +747,6 @@ LN_S = @LN_S@
 LTLIBICONV = @LTLIBICONV@
 LTLIBINTL = @LTLIBINTL@
 LTLIBOBJS = @LTLIBOBJS@
-LTP = @LTP@
-LTP_GENHTML = @LTP_GENHTML@
 LT_SYS_LIBRARY_PATH = @LT_SYS_LIBRARY_PATH@
 MAINT = @MAINT@
 MAKEINFO = @MAKEINFO@
@@ -779,7 +779,6 @@ RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
-SHTOOL = @SHTOOL@
 STRIP = @STRIP@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
@@ -3350,6 +3349,21 @@ install-test-data-hook:
 
 install-data-hook:
 	$(MAKE) $(AM_MAKEFLAGS) install-test-data-hook
+
+.PHONY: coverage lcov-clean genlcov
+
+coverage:
+	$(AM_V_GEN) $(MAKE) $(AM_MAKEFLAGS) lcov-clean
+	$(AM_V_GEN) $(MAKE) -j $(getconf _NPROCESSORS_ONLN) check
+	$(AM_V_GEN) $(MAKE) $(AM_MAKEFLAGS) genlcov
+
+lcov-clean:
+	$(AM_V_GEN) $(LCOV) --directory $(top_builddir) --zerocounters
+
+genlcov:
+	$(AM_V_GEN) $(LCOV) --directory $(top_builddir) --capture --output-file coverage.info
+	$(AM_V_GEN) $(GENHTML) --prefix $(top_builddir) --output-directory coverage coverage.info
+	$(AM_V_GEN)
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
