@@ -32,6 +32,10 @@
       host to the sandbox. For example, it allows you to restart the
       applications or start a more sandboxed instance.
 
+      The D-Bus interface for the document portal is available under the
+      bus name org.freedesktop.portal.Flatpak and the object path
+      /org/freedesktop/portal/flatpak.
+
       This documentation describes version 1 of this interface.
   -->
   <interface name='org.freedesktop.portal.Flatpak'>
@@ -84,14 +88,16 @@
              <term>sandbox-expose as</term>
              <listitem><para>
                A list of filenames for files inside the sandbox that will be exposed
-               to the new sandbox, for reading and writing.
+               to the new sandbox, for reading and writing. Note that absolute paths
+               or subdirectories are not allowed.
              </para></listitem>
            </varlistentry>
            <varlistentry>
              <term>sandbox-expose-ro as</term>
              <listitem><para>
                A list of filenames for files inside the sandbox that will be exposed
-               to the new sandbox, readonly.
+               to the new sandbox, readonly. Note that absolute paths or subdirectories
+               are not allowed.
              </para></listitem>
            </varlistentry>
          </variablelist>
