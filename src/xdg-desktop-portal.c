@@ -47,10 +47,12 @@
 #include "screen-cast.h"
 #include "remote-desktop.h"
 #include "trash.h"
+#include "location.h"
+#include "settings.h"
 
 static GMainLoop *loop = NULL;
 
-static gboolean opt_verbose;
+gboolean opt_verbose;
 static gboolean opt_replace;
 
 static GOptionEntry entries[] = {
@@ -339,6 +341,12 @@ export_portal_implementation (GDBusConnection *connection,
 {
   g_autoptr(GError) error = NULL;
 
+  if (skeleton == NULL)
+    {
+      g_warning ("No skeleton to export");
+      return;
+    }
+
   g_dbus_interface_skeleton_set_flags (skeleton,
                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
   g_signal_connect (skeleton, "g-authorize-method",
@@ -379,6 +387,9 @@ on_bus_acquired (GDBusConnection *connection,
   export_portal_implementation (connection, proxy_resolver_create (connection));
   export_portal_implementation (connection, trash_create (connection));
 
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Settings");
+  export_portal_implementation (connection, settings_create (connection, implementation ? implementation->dbus_name : NULL));
+
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.FileChooser");
   if (implementation != NULL)
     export_portal_implementation (connection,
@@ -411,8 +422,14 @@ on_bus_acquired (GDBusConnection *connection,
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Access");
   if (implementation != NULL)
-    export_portal_implementation (connection,
-                                  device_create (connection, implementation->dbus_name));
+    {
+      export_portal_implementation (connection,
+                                    device_create (connection, implementation->dbus_name));
+#ifdef HAVE_GEOCLUE
+      export_portal_implementation (connection,
+                                    location_create (connection, implementation->dbus_name));
+#endif
+    }
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Account");
   if (implementation != NULL)

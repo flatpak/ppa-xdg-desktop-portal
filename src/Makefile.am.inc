@@ -12,7 +12,8 @@ systemduserunit_DATA += src/xdg-desktop-portal.service
 
 xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
 xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
-BUILT_SOURCES += $(xdp_dbus_built_sources) $(xdp_impl_dbus_built_sources)
+geoclue_built_sources = src/geoclue-dbus.c src/geoclue-dbus.h
+BUILT_SOURCES += $(xdp_dbus_built_sources) $(xdp_impl_dbus_built_sources) $(geoclue_built_sources)
 
 PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.Documents.xml \
@@ -32,6 +33,8 @@ PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.Email.xml \
 	data/org.freedesktop.portal.ScreenCast.xml \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
+	data/org.freedesktop.portal.Location.xml \
+	data/org.freedesktop.portal.Settings.xml \
 	$(NULL)
 
 PORTAL_IMPL_IFACE_FILES =\
@@ -49,6 +52,7 @@ PORTAL_IMPL_IFACE_FILES =\
 	data/org.freedesktop.impl.portal.Email.xml \
 	data/org.freedesktop.impl.portal.ScreenCast.xml \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
+	data/org.freedesktop.impl.portal.Settings.xml \
 	$(NULL)
 
 $(xdp_dbus_built_sources) : $(PORTAL_IFACE_FILES)
@@ -66,6 +70,16 @@ $(xdp_impl_dbus_built_sources) : $(PORTAL_IMPL_IFACE_FILES)
 		--generate-c-code $(builddir)/src/xdp-impl-dbus \
 		$^ \
 		$(NULL)
+
+$(geoclue_built_sources) : src/org.freedesktop.GeoClue2.Client.xml
+	$(AM_V_GEN) $(GDBUS_CODEGEN)                            \
+		--interface-prefix org.freedesktop.GeoClue2. \
+		--c-namespace Geoclue                        \
+		--generate-c-code $(builddir)/src/geoclue-dbus \
+		$^ \
+		$(NULL)
+
+EXTRA_DIST += src/org.freedesktop.GeoClue2.Client.xml
 
 xdg_desktop_resource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/src/xdg-desktop-portal.gresource.xml)
 
@@ -86,6 +100,7 @@ CLEANFILES += \
 nodist_xdg_desktop_portal_SOURCES = \
 	$(xdp_dbus_built_sources)		\
 	$(xdp_impl_dbus_built_sources)		\
+	$(geoclue_built_sources)		\
 	src/xdg-desktop-resources.c		\
 	$(NULL)
 
@@ -121,12 +136,16 @@ xdg_desktop_portal_SOURCES = \
         src/permissions.h               \
         src/email.c                     \
         src/email.h                     \
+	src/settings.c			\
+	src/settings.h			\
 	src/session.c			\
 	src/session.h			\
 	src/trash.c			\
 	src/trash.h			\
 	src/xdp-utils.c			\
 	src/xdp-utils.h			\
+	src/fc-monitor.c		\
+	src/fc-monitor.h		\
 	$(NULL)
 
 if HAVE_PIPEWIRE
@@ -138,9 +157,16 @@ xdg_desktop_portal_SOURCES += \
 	$(NULL)
 endif
 
-xdg_desktop_portal_LDADD = $(BASE_LIBS) $(PIPEWIRE_LIBS)
+if HAVE_GEOCLUE
+xdg_desktop_portal_SOURCES += \
+	src/location.c                  \
+	src/location.h                  \
+	$(NULL)
+endif
+
+xdg_desktop_portal_LDADD = $(BASE_LIBS) $(PIPEWIRE_LIBS) $(GEOCLUE_LIBS)
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) $(PIPEWIRE_CFLAGS) \
+	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) $(PIPEWIRE_CFLAGS) $(GEOCLUE_CFLAGS) \
 	-I$(srcdir)/src -I$(builddir)/src \
 	$(NULL)
 xdg_desktop_portal_CPPFLAGS = \
