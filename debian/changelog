@@ -12,6 +12,7 @@ xdg-desktop-portal (1.1.0-1) UNRELEASED; urgency=medium
   * d/patches: Skip another build-time test when FUSE is not supported
   * d/patches: Don't show a critical warning when a document permissions
     entry is removed
+  * Enable Pipewire support, for screencasting
 
  -- Simon McVittie <smcv@debian.org>  Mon, 19 Nov 2018 14:03:26 +0000
 
