@@ -4,6 +4,7 @@ xdg-desktop-portal (1.1.0-1) UNRELEASED; urgency=medium
     - d/copyright: Update
     - d/control: Build-depend on fontconfig, for fontconfig cache
       invalidation in Settings portal
+    - d/control: Build-depend on flatpak, for permission-store test
 
  -- Simon McVittie <smcv@debian.org>  Sun, 18 Nov 2018 20:42:53 +0000
 
