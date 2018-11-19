@@ -9,6 +9,7 @@ xdg-desktop-portal (1.1.0-1) UNRELEASED; urgency=medium
     currently too old
   * Drop patch, applied upstream
   * d/gbp.conf: Use debian/experimental branch
+  * d/patches: Skip another build-time test when FUSE is not supported
 
  -- Simon McVittie <smcv@debian.org>  Mon, 19 Nov 2018 14:03:26 +0000
 
