@@ -8,6 +8,7 @@ Build-Depends:
  dbus,
  debhelper (>= 10),
  fuse <!nocheck>,
+ libfontconfig1-dev,
  libfuse-dev,
  libglib2.0-dev,
  xmlto,
