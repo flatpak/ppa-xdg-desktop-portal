@@ -1,6 +1,6 @@
 xdg-desktop-portal (1.1.0-1) UNRELEASED; urgency=medium
 
-  * New upstream release
+  * New upstream development release
     - d/copyright: Update
     - d/control: Build-depend on fontconfig, for fontconfig cache
       invalidation in Settings portal
@@ -8,8 +8,9 @@ xdg-desktop-portal (1.1.0-1) UNRELEASED; urgency=medium
   * Don't build with Location portal yet, because geoclue-2.0 is
     currently too old
   * Drop patch, applied upstream
+  * d/gbp.conf: Use debian/experimental branch
 
- -- Simon McVittie <smcv@debian.org>  Sun, 18 Nov 2018 20:42:53 +0000
+ -- Simon McVittie <smcv@debian.org>  Mon, 19 Nov 2018 14:03:26 +0000
 
 xdg-desktop-portal (1.0.3-1) unstable; urgency=medium
 
