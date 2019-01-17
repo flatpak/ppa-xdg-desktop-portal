@@ -8,6 +8,11 @@ xdg-desktop-portal (1.1.1-1) UNRELEASED; urgency=medium
   * Enable Location portal (geoclue-2.0)
   * Standards-Version: 4.3.0 (no changes required)
   * d/control: Set Vcs-Git branch for experimental
+  * d/p/notification-Handle-non-existing-directories.patch,
+    d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
+    Make bwrap invocation more reliable, and in particular make it
+    work on purely 32-bit systems with no /lib64 (patches taken from
+    gnome-desktop, thanks to Iain Lane and Mart Raudsepp)
 
  -- Simon McVittie <smcv@debian.org>  Thu, 17 Jan 2019 08:05:49 +0000
 

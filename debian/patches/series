@@ -1,0 +1,2 @@
+notification-Handle-non-existing-directories.patch
+notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch

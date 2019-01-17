@@ -1,0 +1,102 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Thu, 17 Jan 2019 09:20:25 +0000
+Subject: notification: Handle non-existing directories
+
+We need to handle source directories not existing, for example /lib64
+on a pure 32-bit system.
+
+Because relative symlinks in a directory that is itself a symlink do
+not have the same meaning as the same relative symlink in a bind-mount
+of that directory, ideally we want to use --symlink for /lib and /lib64
+on merged-/usr systems, but --ro-bind on non-merged-/usr systems.
+
+Changes originally made in libgnome-desktop by Iain Lane (see
+<https://bugzilla.gnome.org/show_bug.cgi?id=787072>).
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ src/notification.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 50 insertions(+), 4 deletions(-)
+
+diff --git a/src/notification.c b/src/notification.c
+index ab02b50..8b9f38a 100644
+--- a/src/notification.c
++++ b/src/notification.c
+@@ -23,6 +23,7 @@
+ #include <string.h>
+ #include <gio/gio.h>
+ #include <gio/gunixoutputstream.h>
++#include <glib/gstdio.h>
+ 
+ #include "notification.h"
+ #include "request.h"
+@@ -402,20 +403,65 @@ add_env (GPtrArray  *array,
+               NULL);
+ }
+ 
++static gboolean
++path_is_usrmerged (const char *dir)
++{
++  /* does /dir point to /usr/dir? */
++  g_autofree char *target = NULL;
++  GStatBuf stat_buf_src, stat_buf_target;
++
++  if (g_stat (dir, &stat_buf_src) < 0)
++    return FALSE;
++
++  target = g_strdup_printf ("/usr/%s", dir);
++
++  if (g_stat (target, &stat_buf_target) < 0)
++    return FALSE;
++
++  return (stat_buf_src.st_dev == stat_buf_target.st_dev) &&
++         (stat_buf_src.st_ino == stat_buf_target.st_ino);
++}
++
+ static void
+ add_bwrap (GPtrArray *array,
+            const char *input)
+ {
++  const char * const usrmerged_dirs[] = { "bin", "lib64", "lib", "sbin" };
++  int i;
++
+   add_args (array,
+             BWRAP,
+             "--ro-bind", "/usr", "/usr",
+-            "--ro-bind", "/lib", "/lib",
+-            "--ro-bind", "/lib64", "/lib64",
++            NULL);
++
++  /* These directories might be symlinks into /usr/... */
++  for (i = 0; i < G_N_ELEMENTS (usrmerged_dirs); i++)
++    {
++      g_autofree char *absolute_dir = g_strdup_printf ("/%s", usrmerged_dirs[i]);
++
++      if (!g_file_test (absolute_dir, G_FILE_TEST_EXISTS))
++        continue;
++
++      if (path_is_usrmerged (absolute_dir))
++        {
++          g_autofree char *symlink_target = g_strdup_printf ("/usr/%s", absolute_dir);
++
++          add_args (array,
++                    "--symlink", symlink_target, absolute_dir,
++                    NULL);
++        }
++      else
++        {
++          add_args (array,
++                    "--ro-bind", absolute_dir, absolute_dir,
++                    NULL);
++        }
++    }
++
++  add_args (array,
+             "--tmpfs", "/tmp",
+             "--proc", "/proc",
+             "--dev", "/dev",
+-            "--symlink", "usr/bin", "/bin",
+-            "--symlink", "usr/sbin", "/sbin",
+             "--chdir", "/",
+             "--setenv", "GIO_USE_VFS", "local",
+             "--unsetenv", "TMPDIR",
