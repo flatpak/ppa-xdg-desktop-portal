@@ -1,4 +1,4 @@
-xdg-desktop-portal (1.1.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.1.1-1) experimental; urgency=medium
 
   * New upstream development release
     - Drop patches, applied upstream
@@ -14,7 +14,7 @@ xdg-desktop-portal (1.1.1-1) UNRELEASED; urgency=medium
     work on purely 32-bit systems with no /lib64 (patches taken from
     gnome-desktop, thanks to Iain Lane and Mart Raudsepp)
 
- -- Simon McVittie <smcv@debian.org>  Thu, 17 Jan 2019 08:05:49 +0000
+ -- Simon McVittie <smcv@debian.org>  Thu, 17 Jan 2019 09:57:59 +0000
 
 xdg-desktop-portal (1.1.0-1) experimental; urgency=medium
 
