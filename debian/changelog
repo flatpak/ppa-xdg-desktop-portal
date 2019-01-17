@@ -3,6 +3,7 @@ xdg-desktop-portal (1.1.1-1) UNRELEASED; urgency=medium
   * New upstream development release
     - Drop patches, applied upstream
   * Enable Location portal (geoclue-2.0)
+  * Standards-Version: 4.3.0 (no changes required)
 
  -- Simon McVittie <smcv@debian.org>  Thu, 17 Jan 2019 08:05:49 +0000
 
