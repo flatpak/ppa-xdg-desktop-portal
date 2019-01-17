@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2018-11-16 14:10-0500\n"
+"POT-Creation-Date: 2019-01-15 23:05-0500\n"
 "PO-Revision-Date: 2016-09-23 19:17+0200\n"
 "Last-Translator: Mario Blättermann <mario.blaettermann@gmail.com>\n"
 "Language-Team: German <gnome-de@gnome.org>\n"
@@ -19,11 +19,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 1.8.9\n"
 
-#: src/device.c:202
+#: src/device.c:205
 msgid "Turn On Microphone?"
 msgstr "Mikrofon einschalten?"
 
-#: src/device.c:203
+#: src/device.c:206
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
@@ -31,83 +31,83 @@ msgstr ""
 "Der Zugriff auf Ihr Mikrofon kann in den Einstellungen zur Privatsphäre "
 "jederzeit geändert werden."
 
-#: src/device.c:207
+#: src/device.c:210
 msgid "An application wants to use your microphone."
 msgstr "Eine Anwendung möchte auf Ihr Mikrofon zugreifen."
 
-#: src/device.c:209
+#: src/device.c:212
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "%s möchte auf Ihr Mikrofon zugreifen."
 
-#: src/device.c:215
+#: src/device.c:218
 msgid "Turn On Speakers?"
 msgstr "Lautsprecher einschalten?"
 
-#: src/device.c:216
+#: src/device.c:219
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Der Zugriff auf Ihre Lautsprecher kann in den Einstellungen zur Privatsphäre "
 "jederzeit geändert werden."
 
-#: src/device.c:220
+#: src/device.c:223
 msgid "An application wants to play sound."
 msgstr "Eine Anwendung möchte Ton wiedergeben."
 
-#: src/device.c:222
+#: src/device.c:225
 #, c-format
 msgid "%s wants to play sound."
 msgstr "%s möchte Ton wiedergeben."
 
-#: src/device.c:228
+#: src/device.c:231
 msgid "Turn On Camera?"
 msgstr "Kamera einschalten?"
 
-#: src/device.c:229
+#: src/device.c:232
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Der Zugriff auf Ihre Kamera kann in den Einstellungen zur Privatsphäre "
 "jederzeit geändert werden."
 
-#: src/device.c:233
+#: src/device.c:236
 msgid "An application wants to use your camera."
 msgstr "Eine Anwendung möchte Ihre Kamera nutzen."
 
-#: src/device.c:235
+#: src/device.c:238
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "%s möchte Ihre Kamera nutzen."
 
-#: src/location.c:536
+#: src/location.c:549
 msgid "Deny Access"
 msgstr ""
 
-#: src/location.c:538
+#: src/location.c:551
 msgid "Grant Access"
 msgstr ""
 
-#: src/location.c:544
+#: src/location.c:557
 msgid "Grant Access to Your Location?"
 msgstr ""
 
-#: src/location.c:545
+#: src/location.c:558
 #, fuzzy
 msgid "An application wants to use your location."
 msgstr "Eine Anwendung möchte Ihre Kamera nutzen."
 
-#: src/location.c:557
+#: src/location.c:570
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr ""
 
-#: src/location.c:561
+#: src/location.c:574
 #, fuzzy, c-format
 msgid "%s wants to use your location."
 msgstr "%s möchte Ihre Kamera nutzen."
 
-#: src/location.c:564
+#: src/location.c:577
 #, fuzzy
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""

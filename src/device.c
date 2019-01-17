@@ -39,7 +39,7 @@
 #include "xdp-impl-dbus.h"
 #include "xdp-utils.h"
 
-#define TABLE_NAME "devices"
+#define PERMISSION_TABLE "devices"
 
 typedef struct _Device Device;
 typedef struct _DeviceClass DeviceClass;
@@ -56,6 +56,7 @@ struct _DeviceClass
 
 static XdpImplAccess *impl;
 static Device *device;
+static XdpImplLockdown *lockdown;
 
 GType device_get_type (void) G_GNUC_CONST;
 static void device_iface_init (XdpDeviceIface *iface);
@@ -75,14 +76,15 @@ get_permission (const char *app_id,
   const char **permissions;
 
   if (!xdp_impl_permission_store_call_lookup_sync (get_permission_store (),
-                                                   TABLE_NAME,
+                                                   PERMISSION_TABLE,
                                                    device,
                                                    &out_perms,
                                                    &out_data,
                                                    NULL,
                                                    &error))
     {
-      g_warning ("Error updating permission store: %s", error->message);
+      g_dbus_error_strip_remote_error (error);
+      g_debug ("No device permissions found: %s", error->message);
       return UNSET;
     }
 
@@ -138,7 +140,7 @@ set_permission (const char *app_id,
   permissions[1] = NULL;
 
   if (!xdp_impl_permission_store_call_set_permission_sync (get_permission_store (),
-                                                           TABLE_NAME,
+                                                           PERMISSION_TABLE,
                                                            TRUE,
                                                            device,
                                                            app_id,
@@ -146,6 +148,7 @@ set_permission (const char *app_id,
                                                            NULL,
                                                            &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Error updating permission store: %s", error->message);
     }
 }
@@ -286,6 +289,46 @@ handle_access_device (XdpDevice *object,
   g_autoptr(XdpImplRequest) impl_request = NULL;
   g_autoptr(GTask) task = NULL;
 
+  if (g_strv_length ((char **)devices) != 1 || !g_strv_contains (known_devices, devices[0]))
+    {
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                                             "Invalid devices requested");
+      return TRUE;
+    }
+
+  if (g_str_equal (devices[0], "microphone") &&
+      xdp_impl_lockdown_get_disable_microphone (lockdown))
+    {
+      g_debug ("Microphone access disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Microphone access disabled");
+      return TRUE;
+    }
+  if (g_str_equal (devices[0], "camera") &&
+      xdp_impl_lockdown_get_disable_camera (lockdown))
+    {
+      g_debug ("Camera access disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Camera access disabled");
+      return TRUE;
+    }
+  if (g_str_equal (devices[0], "speakers") &&
+      xdp_impl_lockdown_get_disable_sound_output (lockdown))
+    {
+      g_debug ("Speaker access disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Speaker access disabled");
+      return TRUE;
+    }
+
   REQUEST_AUTOLOCK (request);
 
   if (!xdp_app_info_is_host (request->app_info))
@@ -294,15 +337,6 @@ handle_access_device (XdpDevice *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "This call is not available inside the sandbox");
-      return TRUE;
-    }
-
-  if (g_strv_length ((char **)devices) != 1 || !g_strv_contains (known_devices, devices[0]))
-    {
-      g_dbus_method_invocation_return_error (invocation,
-                                             XDG_DESKTOP_PORTAL_ERROR,
-                                             XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
-                                             "Invalid devices requested");
       return TRUE;
     }
 
@@ -361,9 +395,12 @@ device_class_init (DeviceClass *klass)
 
 GDBusInterfaceSkeleton *
 device_create (GDBusConnection *connection,
-               const char *dbus_name)
+               const char *dbus_name,
+               gpointer lockdown_proxy)
 {
   g_autoptr(GError) error = NULL;
+
+  lockdown = lockdown_proxy;
 
   impl = xdp_impl_access_proxy_new_sync (connection,
                                          G_DBUS_PROXY_FLAGS_NONE,

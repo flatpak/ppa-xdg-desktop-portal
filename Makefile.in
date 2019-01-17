@@ -97,7 +97,8 @@ bin_PROGRAMS = $(am__EXEEXT_1)
 noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_6)
 libexec_PROGRAMS = $(am__EXEEXT_1) xdg-permission-store$(EXEEXT) \
 	xdg-document-portal$(EXEEXT) $(am__EXEEXT_1) \
-	xdg-desktop-portal$(EXEEXT) $(am__EXEEXT_1)
+	xdg-desktop-portal$(EXEEXT) \
+	xdg-desktop-portal-validate-icon$(EXEEXT) $(am__EXEEXT_1)
 TESTS = $(am__EXEEXT_2) $(am__EXEEXT_7)
 installed_test_PROGRAMS = $(am__EXEEXT_5)
 check_PROGRAMS = $(am__EXEEXT_4)
@@ -301,11 +302,21 @@ nodist_xdg_desktop_portal_OBJECTS = $(am__objects_5) $(am__objects_6) \
 xdg_desktop_portal_OBJECTS = $(am_xdg_desktop_portal_OBJECTS) \
 	$(nodist_xdg_desktop_portal_OBJECTS)
 xdg_desktop_portal_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 xdg_desktop_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(xdg_desktop_portal_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_xdg_desktop_portal_validate_icon_OBJECTS =  \
+	src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT)
+xdg_desktop_portal_validate_icon_OBJECTS =  \
+	$(am_xdg_desktop_portal_validate_icon_OBJECTS)
+xdg_desktop_portal_validate_icon_DEPENDENCIES = $(am__DEPENDENCIES_1)
+xdg_desktop_portal_validate_icon_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__objects_8 =  \
 	document-portal/xdg_document_portal-permission-db.$(OBJEXT) \
 	document-portal/gvdb/xdg_document_portal-gvdb-reader.$(OBJEXT) \
@@ -412,6 +423,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po \
+	src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po \
 	src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po \
 	src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po \
 	tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po \
@@ -441,6 +453,7 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 	$(nodist_test_permission_store_SOURCES) $(testdb_SOURCES) \
 	$(xdg_desktop_portal_SOURCES) \
 	$(nodist_xdg_desktop_portal_SOURCES) \
+	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) \
 	$(nodist_xdg_document_portal_SOURCES) \
 	$(xdg_permission_store_SOURCES) \
@@ -448,6 +461,7 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 DIST_SOURCES = $(test_doc_portal_SOURCES) \
 	$(test_permission_store_SOURCES) $(testdb_SOURCES) \
 	$(am__xdg_desktop_portal_SOURCES_DIST) \
+	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) $(xdg_permission_store_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -734,6 +748,7 @@ AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
 BASE_CFLAGS = @BASE_CFLAGS@
 BASE_LIBS = @BASE_LIBS@
+BWRAP = @BWRAP@
 CC = @CC@
 CCDEPMODE = @CCDEPMODE@
 CFLAGS = @CFLAGS@
@@ -757,6 +772,8 @@ FLATPAK_LIBS = @FLATPAK_LIBS@
 FUSE_CFLAGS = @FUSE_CFLAGS@
 FUSE_LIBS = @FUSE_LIBS@
 GDBUS_CODEGEN = @GDBUS_CODEGEN@
+GDK_PIXBUF_CFLAGS = @GDK_PIXBUF_CFLAGS@
+GDK_PIXBUF_LIBS = @GDK_PIXBUF_LIBS@
 GENHTML = @GENHTML@
 GEOCLUE_CFLAGS = @GEOCLUE_CFLAGS@
 GEOCLUE_LIBS = @GEOCLUE_LIBS@
@@ -1000,6 +1017,7 @@ dist_introspection_DATA = \
 	data/org.freedesktop.impl.portal.ScreenCast.xml \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
+	data/org.freedesktop.impl.portal.Lockdown.xml \
 	$(NULL)
 
 nodist_xdg_permission_store_SOURCES = \
@@ -1089,6 +1107,7 @@ PORTAL_IMPL_IFACE_FILES = \
 	data/org.freedesktop.impl.portal.ScreenCast.xml \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
+	data/org.freedesktop.impl.portal.Lockdown.xml \
 	$(NULL)
 
 xdg_desktop_resource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/src/xdg-desktop-portal.gresource.xml)
@@ -1112,10 +1131,23 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/settings.h src/session.c src/session.h src/trash.c \
 	src/trash.h src/xdp-utils.c src/xdp-utils.h src/fc-monitor.c \
 	src/fc-monitor.h $(NULL) $(am__append_14) $(am__append_15)
-xdg_desktop_portal_LDADD = $(BASE_LIBS) $(PIPEWIRE_LIBS) $(GEOCLUE_LIBS)
+xdg_desktop_portal_LDADD = \
+	$(BASE_LIBS) \
+	$(PIPEWIRE_LIBS) \
+	$(GEOCLUE_LIBS) \
+	$(FLATPAK_LIBS) \
+	$(NULL)
+
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) $(PIPEWIRE_CFLAGS) $(GEOCLUE_CFLAGS) \
-	-I$(srcdir)/src -I$(builddir)/src \
+	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DLIBEXECDIR=\"$(libexecdir)\" \
+	-DBWRAP=\"$(BWRAP)\" \
+	$(BASE_CFLAGS) \
+	$(PIPEWIRE_CFLAGS) \
+	$(GEOCLUE_CFLAGS) \
+	$(FLATPAK_CFLAGS) \
+	-I$(srcdir)/src \
+	-I$(builddir)/src \
 	$(NULL)
 
 xdg_desktop_portal_CPPFLAGS = \
@@ -1123,6 +1155,9 @@ xdg_desktop_portal_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\"			\
 	$(NULL)
 
+xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
+xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS)
 TESTS_ENVIRONMENT = FLATPAK_TESTS_DEBUG=1 \
 	FLATPAK_TRIGGERSDIR=$$(cd $(top_srcdir) && pwd)/triggers \
 	FLATPAK_DBUSPROXY=$$(cd $(top_builddir) && pwd)/flatpak-dbus-proxy \
@@ -1601,6 +1636,12 @@ src/xdg_desktop_portal-xdg-desktop-resources.$(OBJEXT):  \
 xdg-desktop-portal$(EXEEXT): $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_DEPENDENCIES) 
 	@rm -f xdg-desktop-portal$(EXEEXT)
 	$(AM_V_CCLD)$(xdg_desktop_portal_LINK) $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_LDADD) $(LIBS)
+src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+xdg-desktop-portal-validate-icon$(EXEEXT): $(xdg_desktop_portal_validate_icon_OBJECTS) $(xdg_desktop_portal_validate_icon_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_validate_icon_DEPENDENCIES) 
+	@rm -f xdg-desktop-portal-validate-icon$(EXEEXT)
+	$(AM_V_CCLD)$(xdg_desktop_portal_validate_icon_LINK) $(xdg_desktop_portal_validate_icon_OBJECTS) $(xdg_desktop_portal_validate_icon_LDADD) $(LIBS)
 src/xdg_document_portal-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 document-portal/xdg_document_portal-document-portal.$(OBJEXT):  \
@@ -1748,6 +1789,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po@am__quote@ # am--include-marker
@@ -2287,6 +2329,20 @@ src/xdg_desktop_portal-xdg-desktop-resources.obj: src/xdg-desktop-resources.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdg-desktop-resources.c' object='src/xdg_desktop_portal-xdg-desktop-resources.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-xdg-desktop-resources.obj `if test -f 'src/xdg-desktop-resources.c'; then $(CYGPATH_W) 'src/xdg-desktop-resources.c'; else $(CYGPATH_W) '$(srcdir)/src/xdg-desktop-resources.c'; fi`
+
+src/xdg_desktop_portal_validate_icon-validate-icon.o: src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/validate-icon.c' object='src/xdg_desktop_portal_validate_icon-validate-icon.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
+
+src/xdg_desktop_portal_validate_icon-validate-icon.obj: src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.obj `if test -f 'src/validate-icon.c'; then $(CYGPATH_W) 'src/validate-icon.c'; else $(CYGPATH_W) '$(srcdir)/src/validate-icon.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/validate-icon.c' object='src/xdg_desktop_portal_validate_icon-validate-icon.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_validate_icon-validate-icon.obj `if test -f 'src/validate-icon.c'; then $(CYGPATH_W) 'src/validate-icon.c'; else $(CYGPATH_W) '$(srcdir)/src/validate-icon.c'; fi`
 
 src/xdg_document_portal-xdp-utils.o: src/xdp-utils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT src/xdg_document_portal-xdp-utils.o -MD -MP -MF src/$(DEPDIR)/xdg_document_portal-xdp-utils.Tpo -c -o src/xdg_document_portal-xdp-utils.o `test -f 'src/xdp-utils.c' || echo '$(srcdir)/'`src/xdp-utils.c
@@ -3261,6 +3317,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
@@ -3369,6 +3426,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po

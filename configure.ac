@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.1.0])
+AC_INIT([xdg-desktop-portal],[1.1.1])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -55,6 +55,8 @@ AC_ARG_WITH([systemduserunitdir],
     dnl .../lib, never .../lib64 or .../lib/x86_64-linux-gnu
     [with_systemduserunitdir='${prefix}/lib/systemd/user'])
 AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
+
+AC_PATH_PROG([BWRAP], [bwrap])
 
 AC_SUBST([GLIB_COMPILE_RESOURCES], [`$PKG_CONFIG --variable glib_compile_resources gio-2.0`])
 AC_SUBST([GDBUS_CODEGEN], [`$PKG_CONFIG --variable gdbus_codegen gio-2.0`])
@@ -135,6 +137,7 @@ GLIB_TESTS
 
 PKG_CHECK_MODULES(FUSE, [fuse])
 PKG_CHECK_MODULES(FLATPAK, [flatpak])
+PKG_CHECK_MODULES(GDK_PIXBUF, [gdk-pixbuf-2.0])
 
 AC_CONFIG_FILES([
 Makefile

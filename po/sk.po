@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2018-11-16 14:10-0500\n"
+"POT-Creation-Date: 2019-01-15 23:05-0500\n"
 "PO-Revision-Date: 2016-08-08 09:14+0200\n"
 "Last-Translator: Dušan Kazik <prescott66@gmail.com>\n"
 "Language-Team: Slovak <gnome-sk-list@gnome.org>\n"
@@ -18,93 +18,93 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1) ? 1 : (n>=2 && n<=4) ? 2 : 0;\n"
 "X-Generator: Poedit 1.8.8\n"
 
-#: src/device.c:202
+#: src/device.c:205
 msgid "Turn On Microphone?"
 msgstr "Zapnúť mikrofón?"
 
-#: src/device.c:203
+#: src/device.c:206
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
 "Prístup k vášmu mikrofónu môže byť kedykoľvek zmenený z nastavení súkromia."
 
-#: src/device.c:207
+#: src/device.c:210
 msgid "An application wants to use your microphone."
 msgstr "Aplikácia sa pokúša použiť váš mikrofón."
 
-#: src/device.c:209
+#: src/device.c:212
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "Aplikácia %s sa pokúša použiť váš mikrofón."
 
-#: src/device.c:215
+#: src/device.c:218
 msgid "Turn On Speakers?"
 msgstr "Zapnúť reproduktory?"
 
-#: src/device.c:216
+#: src/device.c:219
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Prístup k vašim reproduktorom môže byť kedykoľvek zmenený z nastavení "
 "súkromia."
 
-#: src/device.c:220
+#: src/device.c:223
 msgid "An application wants to play sound."
 msgstr "Aplikácia sa pokúša prehrať zvuk."
 
-#: src/device.c:222
+#: src/device.c:225
 #, c-format
 msgid "%s wants to play sound."
 msgstr "Aplikácia %s sa pokúša prehrať zvuk."
 
-#: src/device.c:228
+#: src/device.c:231
 msgid "Turn On Camera?"
 msgstr "Zapnúť kameru?"
 
-#: src/device.c:229
+#: src/device.c:232
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Prístup k vašej kamere môže byť zmenený kedykoľvek z nastavení súkromia."
 
-#: src/device.c:233
+#: src/device.c:236
 msgid "An application wants to use your camera."
 msgstr "Aplikácia sa pokúša použiť vašu kameru."
 
-#: src/device.c:235
+#: src/device.c:238
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "Aplikácia %s sa pokúša použiť vašu kameru."
 
-#: src/location.c:536
+#: src/location.c:549
 msgid "Deny Access"
 msgstr ""
 
-#: src/location.c:538
+#: src/location.c:551
 msgid "Grant Access"
 msgstr ""
 
-#: src/location.c:544
+#: src/location.c:557
 msgid "Grant Access to Your Location?"
 msgstr ""
 
-#: src/location.c:545
+#: src/location.c:558
 #, fuzzy
 msgid "An application wants to use your location."
 msgstr "Aplikácia sa pokúša použiť vašu kameru."
 
-#: src/location.c:557
+#: src/location.c:570
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr ""
 
-#: src/location.c:561
+#: src/location.c:574
 #, fuzzy, c-format
 msgid "%s wants to use your location."
 msgstr "Aplikácia %s sa pokúša použiť vašu kameru."
 
-#: src/location.c:564
+#: src/location.c:577
 #, fuzzy
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
