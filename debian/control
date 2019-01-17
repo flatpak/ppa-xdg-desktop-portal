@@ -26,6 +26,7 @@ Package: xdg-desktop-portal
 Architecture: linux-any
 Multi-arch: foreign
 Depends:
+ bubblewrap,
  default-dbus-session-bus | dbus-session-bus,
  fuse,
  ${misc:Depends},

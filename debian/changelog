@@ -4,6 +4,7 @@ xdg-desktop-portal (1.1.1-1) UNRELEASED; urgency=medium
     - Drop patches, applied upstream
     - Build-Depend on libgdk-pixbuf2.0-dev, for icon validation
     - Package new xdg-desktop-portal-validate-icon executable
+    - Depend on bubblewrap, for sandboxed icon validation
   * Enable Location portal (geoclue-2.0)
   * Standards-Version: 4.3.0 (no changes required)
   * d/control: Set Vcs-Git branch for experimental
