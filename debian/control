@@ -8,6 +8,7 @@ Build-Depends:
  dbus,
  debhelper (>= 10),
  fuse <!nocheck>,
+ libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev,
  libfontconfig1-dev,
