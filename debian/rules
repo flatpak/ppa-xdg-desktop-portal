@@ -11,8 +11,8 @@ include /usr/share/dpkg/default.mk
 
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--disable-geoclue \
 		--enable-docbook-docs \
+		--enable-geoclue \
 		--enable-installed-tests \
 		--enable-pipewire \
 		--libexecdir=/usr/libexec \
