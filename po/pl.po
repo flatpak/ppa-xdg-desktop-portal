@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2018-11-16 14:10-0500\n"
+"POT-Creation-Date: 2019-01-15 23:05-0500\n"
 "PO-Revision-Date: 2018-11-04 16:49+0100\n"
 "Last-Translator: Piotr Drąg <piotrdrag@gmail.com>\n"
 "Language-Team: Polish <community-poland@mozilla.org>\n"
@@ -19,91 +19,91 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
 
-#: src/device.c:202
+#: src/device.c:205
 msgid "Turn On Microphone?"
 msgstr "Włączyć mikrofon?"
 
-#: src/device.c:203
+#: src/device.c:206
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
 "Dostęp do mikrofonu można zmienić w każdej chwili w ustawieniach prywatności."
 
-#: src/device.c:207
+#: src/device.c:210
 msgid "An application wants to use your microphone."
 msgstr "Program potrzebuje dostępu do mikrofonu."
 
-#: src/device.c:209
+#: src/device.c:212
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "Program „%s” potrzebuje dostępu do mikrofonu."
 
-#: src/device.c:215
+#: src/device.c:218
 msgid "Turn On Speakers?"
 msgstr "Włączyć głośniki?"
 
-#: src/device.c:216
+#: src/device.c:219
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Dostęp do głośników można zmienić w każdej chwili w ustawieniach prywatności."
 
-#: src/device.c:220
+#: src/device.c:223
 msgid "An application wants to play sound."
 msgstr "Program potrzebuje odtwarzać dźwięk."
 
-#: src/device.c:222
+#: src/device.c:225
 #, c-format
 msgid "%s wants to play sound."
 msgstr "Program „%s” potrzebuje odtwarzać dźwięk."
 
-#: src/device.c:228
+#: src/device.c:231
 msgid "Turn On Camera?"
 msgstr "Włączyć kamerę?"
 
-#: src/device.c:229
+#: src/device.c:232
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Dostęp do kamery można zmienić w każdej chwili w ustawieniach prywatności."
 
-#: src/device.c:233
+#: src/device.c:236
 msgid "An application wants to use your camera."
 msgstr "Program potrzebuje dostępu do kamery."
 
-#: src/device.c:235
+#: src/device.c:238
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "Program „%s” potrzebuje dostępu do kamery."
 
-#: src/location.c:536
+#: src/location.c:549
 msgid "Deny Access"
 msgstr "Odmów dostępu"
 
-#: src/location.c:538
+#: src/location.c:551
 msgid "Grant Access"
 msgstr "Udziel dostępu"
 
-#: src/location.c:544
+#: src/location.c:557
 msgid "Grant Access to Your Location?"
 msgstr "Udzielić dostęp do położenia?"
 
-#: src/location.c:545
+#: src/location.c:558
 msgid "An application wants to use your location."
 msgstr "Program potrzebuje dostępu do położenia."
 
-#: src/location.c:557
+#: src/location.c:570
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr "Udzielić dostęp do położenia programowi „%s”?"
 
-#: src/location.c:561
+#: src/location.c:574
 #, c-format
 msgid "%s wants to use your location."
 msgstr "Program „%s” potrzebuje dostępu do położenia."
 
-#: src/location.c:564
+#: src/location.c:577
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
 "Dostęp do położenia można zmienić w każdej chwili w ustawieniach prywatności."

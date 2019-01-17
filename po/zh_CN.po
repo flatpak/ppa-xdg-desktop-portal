@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2018-11-16 14:10-0500\n"
+"POT-Creation-Date: 2019-01-15 23:05-0500\n"
 "PO-Revision-Date: 2016-10-28 17:59-0400\n"
 "Last-Translator: Mingye Wang (Arthur2e5) <arthur200126@gmail.com>\n"
 "Language-Team: Chinese (China) <i18n-zh@googlegroups.com>\n"
@@ -17,89 +17,89 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.8.7\n"
 
-#: src/device.c:202
+#: src/device.c:205
 msgid "Turn On Microphone?"
 msgstr "要打开麦克风吗？"
 
-#: src/device.c:203
+#: src/device.c:206
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr "您可随时在隐私设置中调整麦克风的访问权限。"
 
-#: src/device.c:207
+#: src/device.c:210
 msgid "An application wants to use your microphone."
 msgstr "有应用程序想要使用您的麦克风。"
 
-#: src/device.c:209
+#: src/device.c:212
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "%s 想使用您的麦克风。"
 
-#: src/device.c:215
+#: src/device.c:218
 msgid "Turn On Speakers?"
 msgstr "要打开扬声器吗？"
 
-#: src/device.c:216
+#: src/device.c:219
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr "您可随时在隐私设置中调整扬声器的访问权限。"
 
-#: src/device.c:220
+#: src/device.c:223
 msgid "An application wants to play sound."
 msgstr "有应用程序想要播放声音。"
 
-#: src/device.c:222
+#: src/device.c:225
 #, c-format
 msgid "%s wants to play sound."
 msgstr "%s 想播放声音。"
 
-#: src/device.c:228
+#: src/device.c:231
 msgid "Turn On Camera?"
 msgstr "要打开摄像头吗？"
 
-#: src/device.c:229
+#: src/device.c:232
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr "您可随时在隐私设置中调整摄像头的访问权限。"
 
-#: src/device.c:233
+#: src/device.c:236
 msgid "An application wants to use your camera."
 msgstr "有应用程序想要使用您的摄像头。"
 
-#: src/device.c:235
+#: src/device.c:238
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "%s 想使用您的摄像头。"
 
-#: src/location.c:536
+#: src/location.c:549
 msgid "Deny Access"
 msgstr ""
 
-#: src/location.c:538
+#: src/location.c:551
 msgid "Grant Access"
 msgstr ""
 
-#: src/location.c:544
+#: src/location.c:557
 msgid "Grant Access to Your Location?"
 msgstr ""
 
-#: src/location.c:545
+#: src/location.c:558
 #, fuzzy
 msgid "An application wants to use your location."
 msgstr "有应用程序想要使用您的摄像头。"
 
-#: src/location.c:557
+#: src/location.c:570
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr ""
 
-#: src/location.c:561
+#: src/location.c:574
 #, fuzzy, c-format
 msgid "%s wants to use your location."
 msgstr "%s 想使用您的摄像头。"
 
-#: src/location.c:564
+#: src/location.c:577
 #, fuzzy
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr "您可随时在隐私设置中调整扬声器的访问权限。"

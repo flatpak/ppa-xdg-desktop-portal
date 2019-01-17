@@ -348,7 +348,8 @@ get_location_permissions (const char *app_id,
                                                    NULL,
                                                    &error))
     {
-      g_warning ("Error getting permissions: %s", error->message);
+      g_dbus_error_strip_remote_error (error);
+      g_debug ("Error getting permissions: %s", error->message);
       return FALSE;
     }
 
@@ -400,6 +401,7 @@ set_location_permissions (const char *app_id,
                                                            NULL,
                                                            &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Error setting permissions: %s", error->message);
     }
 }
@@ -418,6 +420,7 @@ typedef struct
 
 static Location *location;
 static XdpImplAccess *access_impl;
+static XdpImplLockdown *lockdown;
 
 GType location_get_type (void) G_GNUC_CONST;
 static void location_iface_init (XdpLocationIface *iface);
@@ -436,6 +439,16 @@ handle_create_session (XdpLocation *object,
   LocationSession *session;
   guint threshold;
   guint accuracy;
+
+  if (xdp_impl_lockdown_get_disable_location (lockdown))
+    {
+      g_debug ("Location services disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Location services disabled");
+      return TRUE;
+    }
 
   session = location_session_new (arg_options, invocation, &error);
   if (!session)
@@ -641,6 +654,16 @@ handle_start (XdpLocation *object,
   LocationSession *loc_session;
   g_autoptr(GTask) task = NULL;
 
+  if (xdp_impl_lockdown_get_disable_location (lockdown))
+    {
+      g_debug ("Location services disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Location services disabled");
+      return TRUE;
+    }
+
   REQUEST_AUTOLOCK (request);
 
   session = acquire_session (arg_session_handle, request);
@@ -718,9 +741,12 @@ location_class_init (LocationClass *klass)
 
 GDBusInterfaceSkeleton *
 location_create (GDBusConnection *connection,
-                 const char *dbus_name)
+                 const char *dbus_name,
+                 gpointer lockdown_proxy)
 {
   g_autoptr(GError) error = NULL;
+
+  lockdown = lockdown_proxy;
 
   access_impl = xdp_impl_access_proxy_new_sync (connection,
                                                 G_DBUS_PROXY_FLAGS_NONE,

@@ -1,5 +1,6 @@
 libexec_PROGRAMS += \
 	xdg-desktop-portal \
+	xdg-desktop-portal-validate-icon \
 	$(NULL)
 
 service_in_files += \
@@ -53,6 +54,7 @@ PORTAL_IMPL_IFACE_FILES =\
 	data/org.freedesktop.impl.portal.ScreenCast.xml \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
+	data/org.freedesktop.impl.portal.Lockdown.xml \
 	$(NULL)
 
 $(xdp_dbus_built_sources) : $(PORTAL_IFACE_FILES)
@@ -164,12 +166,28 @@ xdg_desktop_portal_SOURCES += \
 	$(NULL)
 endif
 
-xdg_desktop_portal_LDADD = $(BASE_LIBS) $(PIPEWIRE_LIBS) $(GEOCLUE_LIBS)
+xdg_desktop_portal_LDADD = \
+	$(BASE_LIBS) \
+	$(PIPEWIRE_LIBS) \
+	$(GEOCLUE_LIBS) \
+	$(FLATPAK_LIBS) \
+	$(NULL)
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" $(BASE_CFLAGS) $(PIPEWIRE_CFLAGS) $(GEOCLUE_CFLAGS) \
-	-I$(srcdir)/src -I$(builddir)/src \
+	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DLIBEXECDIR=\"$(libexecdir)\" \
+	-DBWRAP=\"$(BWRAP)\" \
+	$(BASE_CFLAGS) \
+	$(PIPEWIRE_CFLAGS) \
+	$(GEOCLUE_CFLAGS) \
+	$(FLATPAK_CFLAGS) \
+	-I$(srcdir)/src \
+	-I$(builddir)/src \
 	$(NULL)
 xdg_desktop_portal_CPPFLAGS = \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"        \
 	-DLOCALEDIR=\"$(localedir)\"			\
 	$(NULL)
+
+xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
+xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS)
