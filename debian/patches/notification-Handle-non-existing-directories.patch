@@ -14,6 +14,7 @@ Changes originally made in libgnome-desktop by Iain Lane (see
 <https://bugzilla.gnome.org/show_bug.cgi?id=787072>).
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/289
 ---
  src/notification.c | 54 ++++++++++++++++++++++++++++++++++++++++++++++++++----
  1 file changed, 50 insertions(+), 4 deletions(-)

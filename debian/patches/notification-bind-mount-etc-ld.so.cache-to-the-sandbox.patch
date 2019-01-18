@@ -31,6 +31,7 @@ By bind mounting just that file out of /etc, we get it to work on
 such a system.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/289
 ---
  src/notification.c | 1 +
  1 file changed, 1 insertion(+)
