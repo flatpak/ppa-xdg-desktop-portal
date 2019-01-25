@@ -21,6 +21,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <stdio.h>
 #include <gio/gio.h>
 #include <gio/gunixoutputstream.h>
 
@@ -378,57 +379,14 @@ check_notification (GVariant *notification,
   return TRUE;
 }
 
-/* From https://github.com/flatpak/flatpak/blob/master/common/flatpak-run.c */
-G_GNUC_NULL_TERMINATED
 static void
-add_args (GPtrArray *argv_array, ...)
+cleanup_temp_file (void *p)
 {
-  va_list args;
-  const char *arg;
+  void **pp = (void **)p;
 
-  va_start (args, argv_array);
-  while ((arg = va_arg (args, const gchar *)))
-    g_ptr_array_add (argv_array, g_strdup (arg));
-  va_end (args);
-}
-
-static void
-add_env (GPtrArray  *array,
-         const char *envvar)
-{
-  if (g_getenv (envvar) != NULL)
-    add_args (array,
-              "--setenv", envvar, g_getenv (envvar),
-              NULL);
-}
-
-static void
-add_bwrap (GPtrArray *array,
-           const char *input)
-{
-  add_args (array,
-            BWRAP,
-            "--ro-bind", "/usr", "/usr",
-            "--ro-bind", "/lib", "/lib",
-            "--ro-bind", "/lib64", "/lib64",
-            "--tmpfs", "/tmp",
-            "--proc", "/proc",
-            "--dev", "/dev",
-            "--symlink", "usr/bin", "/bin",
-            "--symlink", "usr/sbin", "/sbin",
-            "--chdir", "/",
-            "--setenv", "GIO_USE_VFS", "local",
-            "--unsetenv", "TMPDIR",
-            "--unshare-all",
-            "--die-with-parent",
-            NULL);
-
-  add_env (array, "G_MESSAGES_DEBUG");
-  add_env (array, "G_MESSAGES_PREFIXED");
-
-  g_ptr_array_add (array, g_strdup ("--ro-bind"));
-  g_ptr_array_add (array, g_strdup (input));
-  g_ptr_array_add (array, g_strdup (input));
+  if (*pp)
+    remove (*pp);
+  g_free (*pp);
 }
 
 static gboolean
@@ -436,14 +394,15 @@ validate_icon_more (GVariant *v)
 {
   g_autoptr(GIcon) icon = g_icon_deserialize (v);
   GBytes *bytes;
-  g_autofree char *name = NULL;
-  g_autoptr(GPtrArray) array = NULL;
+  __attribute__((cleanup(cleanup_temp_file))) char *name = NULL;
   int fd = -1;
   g_autoptr(GOutputStream) stream = NULL;
   gssize written;
   int status;
   g_autofree char *err = NULL;
   g_autoptr(GError) error = NULL;
+  const char *icon_validator = LIBEXECDIR "/flatpak-validate-icon";
+  const char *args[6];
 
   if (G_IS_THEMED_ICON (icon))
     {
@@ -456,6 +415,12 @@ validate_icon_more (GVariant *v)
     {
       g_warning ("Unexpected icon type: %s", G_OBJECT_TYPE_NAME (icon));
       return FALSE;
+    }
+
+  if (!g_file_test (icon_validator, G_FILE_TEST_EXISTS))
+    {
+      g_debug ("Icon validation: %s not found, accepting icon without further validation.", icon_validator);
+      return TRUE;
     }
 
   bytes = g_bytes_icon_get_bytes (G_BYTES_ICON (icon));
@@ -480,27 +445,24 @@ validate_icon_more (GVariant *v)
       return FALSE;
     }
 
-  array = g_ptr_array_new_with_free_func (g_free);
+  args[0] = icon_validator;
+  args[1] = "--sandbox";
+  args[2] = "512";
+  args[3] = "512";
+  args[4] = name;
+  args[5] = NULL;
 
-  add_bwrap (array, name);
-  add_args (array,
-            LIBEXECDIR "/xdg-desktop-portal-validate-icon", name,
-            NULL);
-  g_ptr_array_add (array, NULL);
-  {
-    g_autofree char *a = g_strjoinv (" ", (char **)array->pdata);
-    g_debug ("Icon validation: %s", a);
-  }
-
-  if (!g_spawn_sync (NULL, (char **)array->pdata, NULL, 0, NULL, NULL, NULL, &err, &status, &error))
+  if (!g_spawn_sync (NULL, (char **)args, NULL, 0, NULL, NULL, NULL, &err, &status, &error))
     {
       g_debug ("Icon validation: %s", error->message);
+
       return FALSE;
     }
 
-  if (!g_spawn_check_exit_status (status, NULL))
+  if (!g_spawn_check_exit_status (status, &error))
     {
-      g_debug ("Icon validation: %s", err);
+      g_debug ("Icon validation: %s", error->message);
+
       return FALSE;
     }
 
