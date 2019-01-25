@@ -18,8 +18,6 @@
 
 #include "config.h"
 
-#include <flatpak.h>
-
 #include "remote-desktop.h"
 #include "screen-cast.h"
 #include "request.h"
@@ -359,13 +357,14 @@ select_devices_done (GObject *source_object,
 static gboolean
 validate_device_types (const char *key,
                        GVariant *value,
+                       GVariant *options,
                        GError **error)
 {
   guint32 types = g_variant_get_uint32 (value);
 
   if ((types & ~(1 | 2 | 4)) != 0)
     {
-      g_set_error (error, FLATPAK_PORTAL_ERROR, FLATPAK_PORTAL_ERROR_INVALID_ARGUMENT,
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
                    "Unsupported device type: %x", types & ~(1 | 2 | 4));
       return FALSE;
     }

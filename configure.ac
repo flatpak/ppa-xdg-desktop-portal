@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.1.1])
+AC_INIT([xdg-desktop-portal],[1.2.0])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -137,7 +137,6 @@ GLIB_TESTS
 
 PKG_CHECK_MODULES(FUSE, [fuse])
 PKG_CHECK_MODULES(FLATPAK, [flatpak])
-PKG_CHECK_MODULES(GDK_PIXBUF, [gdk-pixbuf-2.0])
 
 AC_CONFIG_FILES([
 Makefile
