@@ -1,2 +1,3 @@
 Revert-Stop-building-the-icon-validator.patch
+validate-icon-Add-a-define-for-bwrap.patch
 Replace-the-icon-validator-with-the-one-from-Flatpak-git-.patch
