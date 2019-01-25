@@ -1,5 +1,6 @@
 xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
 
+  [ Simon McVittie ]
   * New upstream stable release
   * d/watch: Only watch for stable releases
   * d/p/Revert-Stop-building-the-icon-validator.patch,
@@ -13,7 +14,10 @@ xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
       Remove, no longer necessary
   * d/upstream/metadata: Add DEP-12 metadata
 
- -- Simon McVittie <smcv@debian.org>  Fri, 18 Jan 2019 10:10:55 +0000
+  [ Jeremy Bicha ]
+  * Don't enable remote desktop support on Ubuntu. See LP bug 1802533
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 25 Jan 2019 23:12:16 +0000
 
 xdg-desktop-portal (1.1.1-1) experimental; urgency=medium
 
