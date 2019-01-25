@@ -6,6 +6,13 @@ export LC_ALL=C.UTF-8
 
 include /usr/share/dpkg/default.mk
 
+# pipewire is not in Ubuntu main yet https://launchpad.net/bugs/1802533
+ifeq ($(shell dpkg-vendor --query vendor),Ubuntu)
+	CONFFLAGS += --disable-pipewire
+else
+	CONFFLAGS += --enable-pipewire
+endif
+
 %:
 	dh $@
 
@@ -14,8 +21,8 @@ override_dh_auto_configure:
 		--enable-docbook-docs \
 		--enable-geoclue \
 		--enable-installed-tests \
-		--enable-pipewire \
 		--libexecdir=/usr/libexec \
+		$(CONFFLAGS)
 		$(NULL)
 
 override_dh_missing:
