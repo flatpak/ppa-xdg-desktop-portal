@@ -1,2 +1,2 @@
-notification-Handle-non-existing-directories.patch
-notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch
+Revert-Stop-building-the-icon-validator.patch
+Replace-the-icon-validator-with-the-one-from-Flatpak-git-.patch

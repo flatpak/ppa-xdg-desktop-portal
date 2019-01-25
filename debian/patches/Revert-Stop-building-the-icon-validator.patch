@@ -1,0 +1,102 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Fri, 25 Jan 2019 19:09:54 +0000
+Subject: Revert "Stop building the icon validator"
+
+This reverts commit 2fb498f92f8e1c41049dedf887690083fa12f6d1.
+---
+ configure.ac        |  1 +
+ src/Makefile.am.inc |  5 +++++
+ src/validate-icon.c | 53 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 59 insertions(+)
+ create mode 100644 src/validate-icon.c
+
+diff --git a/configure.ac b/configure.ac
+index ae6ebc0..9411d24 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -137,6 +137,7 @@ GLIB_TESTS
+ 
+ PKG_CHECK_MODULES(FUSE, [fuse])
+ PKG_CHECK_MODULES(FLATPAK, [flatpak])
++PKG_CHECK_MODULES(GDK_PIXBUF, [gdk-pixbuf-2.0])
+ 
+ AC_CONFIG_FILES([
+ Makefile
+diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
+index 39999a1..c070f02 100644
+--- a/src/Makefile.am.inc
++++ b/src/Makefile.am.inc
+@@ -1,5 +1,6 @@
+ libexec_PROGRAMS += \
+ 	xdg-desktop-portal \
++	xdg-desktop-portal-validate-icon \
+ 	$(NULL)
+ 
+ service_in_files += \
+@@ -184,3 +185,7 @@ xdg_desktop_portal_CPPFLAGS = \
+ 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"        \
+ 	-DLOCALEDIR=\"$(localedir)\"			\
+ 	$(NULL)
++
++xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
++xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
++xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS)
+diff --git a/src/validate-icon.c b/src/validate-icon.c
+new file mode 100644
+index 0000000..2bab74f
+--- /dev/null
++++ b/src/validate-icon.c
+@@ -0,0 +1,53 @@
++#include <gdk-pixbuf/gdk-pixbuf.h>
++
++static int
++validate_icon (const char *filename)
++{
++  GdkPixbufFormat *format;
++  int width, height;
++  const char *name;
++  const char *allowed_formats[] = { "png", "jpeg", "svg", NULL };
++  g_autoptr(GdkPixbuf) pixbuf = NULL;
++  g_autoptr(GError) error = NULL;
++
++  format = gdk_pixbuf_get_file_info (filename, &width, &height);
++  if (format == NULL) 
++    {
++      g_printerr ("Format not recognized\n");
++      return 1;
++    }
++
++  name = gdk_pixbuf_format_get_name (format);
++  if (!g_strv_contains (allowed_formats, name))
++    {
++      g_printerr ("Format %s not allowed\n", name);
++      return 1;
++    }
++
++  if (width > 256 || height > 256)
++    {
++      g_printerr ("Image too large (%dx%d)\n", width, height);
++      return 1;
++    }
++
++  pixbuf = gdk_pixbuf_new_from_file (filename, &error);
++  if (pixbuf == NULL)
++    {
++      g_printerr ("Failed to load image: %s\n", error->message);
++      return 1;
++    }
++
++  return 0;
++}
++
++int
++main (int argc, char *argv[])
++{
++  if (argc != 2)
++    {
++      g_error ("Expect a single path");
++      return 1;
++    }
++
++  return validate_icon (argv[1]);
++}
