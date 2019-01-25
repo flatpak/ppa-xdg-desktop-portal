@@ -10,6 +10,7 @@ xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
     Build a copy of the icon validator from Flatpak git master.
     We don't want to depend on a version of Flatpak that isn't
     stable yet.
+  * d/watch: Only watch for stable releases
 
  -- Simon McVittie <smcv@debian.org>  Fri, 18 Jan 2019 10:10:55 +0000
 
