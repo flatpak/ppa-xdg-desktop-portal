@@ -31,7 +31,7 @@
 #include "xdp-impl-dbus.h"
 #include "xdp-utils.h"
 
-#define TABLE_NAME "inhibit"
+#define PERMISSION_TABLE "inhibit"
 
 enum {
   INHIBIT_LOGOUT  = 1,
@@ -82,16 +82,18 @@ get_allowed_inhibit (const char *app_id)
   g_autoptr(GVariant) out_perms = NULL;
   g_autoptr(GVariant) out_data = NULL;
   g_autoptr(GError) error = NULL;
+  guint32 ret = 0;
 
   if (!xdp_impl_permission_store_call_lookup_sync (get_permission_store (),
-                                                   TABLE_NAME,
+                                                   PERMISSION_TABLE,
                                                    "inhibit",
                                                    &out_perms,
                                                    &out_data,
                                                    NULL,
                                                    &error))
     {
-      g_warning ("Error getting permissions: %s", error->message);
+      g_dbus_error_strip_remote_error (error);
+      g_debug ("No inhibit permissions found: %s", error->message);
       g_clear_error (&error);
     }
 
@@ -100,7 +102,6 @@ get_allowed_inhibit (const char *app_id)
       const char **perms;
       if (g_variant_lookup (out_perms, app_id, "^a&s", &perms))
         {
-          guint32 ret = 0;
           int i;
 
           for (i = 0; perms[i]; i++)
@@ -116,11 +117,14 @@ get_allowed_inhibit (const char *app_id)
               else
                 g_warning ("Unknown inhibit flag in permission store: %s", perms[i]);
             }
-            return ret;
         }
     }
+  else
+    ret = INHIBIT_ALL; /* all allowed */
 
-  return INHIBIT_ALL; /* all allowed */
+  g_debug ("Inhibit permissions for %s: %d", app_id, ret);
+
+  return ret;
 }
 
 static void
@@ -133,6 +137,7 @@ handle_inhibit_in_thread_func (GTask *task,
   const char *window;
   guint32 flags;
   GVariant *options;
+  const char *app_id;
 
   REQUEST_AUTOLOCK (request);
 
@@ -140,13 +145,16 @@ handle_inhibit_in_thread_func (GTask *task,
   flags = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (request), "flags"));
   options = (GVariant *)g_object_get_data (G_OBJECT (request), "options");
 
-  flags = flags & get_allowed_inhibit (xdp_app_info_get_id (request->app_info));
+  app_id = xdp_app_info_get_id (request->app_info);
+  flags = flags & get_allowed_inhibit (app_id);
+
   if (flags == 0)
     return;
 
+  g_debug ("Calling inhibit backend for %s: %d", app_id, flags);
   xdp_impl_inhibit_call_inhibit (impl,
                                  request->id,
-                                 xdp_app_info_get_id (request->app_info),
+                                 app_id,
                                  window,
                                  flags,
                                  options,
@@ -156,16 +164,40 @@ handle_inhibit_in_thread_func (GTask *task,
 }
 
 static gboolean
+validate_reason (const char *key,
+                 GVariant *value,
+                 GVariant *options,
+                 GError **error)
+{
+  const char *string = g_variant_get_string (value, NULL);
+
+  if (g_utf8_strlen (string, -1) > 256)
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Not accepting overly long reasons");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static XdpOptionKey inhibit_options[] = {
+  { "reason", G_VARIANT_TYPE_STRING, validate_reason }
+};
+
+static gboolean
 handle_inhibit (XdpInhibit *object,
                 GDBusMethodInvocation *invocation,
                 const char *arg_window,
                 guint32 arg_flags,
-                GVariant *options)
+                GVariant *arg_options)
 {
   Request *request = request_from_invocation (invocation);
   g_autoptr(GError) error = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
   g_autoptr(GTask) task = NULL;
+  GVariantBuilder opt_builder;
+  g_autoptr(GVariant) options = NULL;
 
   REQUEST_AUTOLOCK (request);
 
@@ -177,6 +209,13 @@ handle_inhibit (XdpInhibit *object,
                                              "Invalid flags");
       return TRUE;
     }
+
+  g_variant_builder_init (&opt_builder, G_VARIANT_TYPE_VARDICT);
+  xdp_filter_options (arg_options, &opt_builder,
+                      inhibit_options, G_N_ELEMENTS (inhibit_options),
+                      NULL);
+
+  options = g_variant_ref_sink (g_variant_builder_end (&opt_builder));
 
   g_object_set_data_full (G_OBJECT (request), "window", g_strdup (arg_window), g_free);
   g_object_set_data (G_OBJECT (request), "flags", GUINT_TO_POINTER (arg_flags));

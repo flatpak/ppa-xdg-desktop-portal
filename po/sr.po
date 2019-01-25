@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2018-10-09 13:20-0400\n"
+"POT-Creation-Date: 2019-01-25 09:31-0500\n"
 "PO-Revision-Date: 2016-09-14 12:54+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=n==1? 3 : n%10==1 && n%100!=11 ? 0 : n"
 "%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 
-#: src/device.c:202
+#: src/device.c:205
 msgid "Turn On Microphone?"
 msgstr "Да укључим микрофон?"
 
-#: src/device.c:203
+#: src/device.c:206
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
@@ -30,51 +30,89 @@ msgstr ""
 "Приступ вашем микрофону се може изменити у било које време из подешавања "
 "приватности."
 
-#: src/device.c:207
+#: src/device.c:210
 msgid "An application wants to use your microphone."
 msgstr "Један програм жели да користи ваш микрофон."
 
-#: src/device.c:209
+#: src/device.c:212
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "„%s“ жели да користи ваш микрофон."
 
-#: src/device.c:215
+#: src/device.c:218
 msgid "Turn On Speakers?"
 msgstr "Да укључим звучнике?"
 
-#: src/device.c:216
+#: src/device.c:219
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Приступ вашим звучницима се може изменити у било које време из подешавања "
 "приватности."
 
-#: src/device.c:220
+#: src/device.c:223
 msgid "An application wants to play sound."
 msgstr "Један програм жели да пусти звук."
 
-#: src/device.c:222
+#: src/device.c:225
 #, c-format
 msgid "%s wants to play sound."
 msgstr "„%s“ жели да пусти звук."
 
-#: src/device.c:228
+#: src/device.c:231
 msgid "Turn On Camera?"
 msgstr "Да укључим камерицу?"
 
-#: src/device.c:229
+#: src/device.c:232
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Приступ вашој камерици се може изменити у било које време из подешавања "
 "приватности."
 
-#: src/device.c:233
+#: src/device.c:236
 msgid "An application wants to use your camera."
 msgstr "Један програм жели да користи вашу камерицу."
 
-#: src/device.c:235
+#: src/device.c:238
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "„%s“ жели да користи вашу камерицу."
+
+#: src/location.c:549
+msgid "Deny Access"
+msgstr ""
+
+#: src/location.c:551
+msgid "Grant Access"
+msgstr ""
+
+#: src/location.c:557
+msgid "Grant Access to Your Location?"
+msgstr ""
+
+#: src/location.c:558
+#, fuzzy
+msgid "An application wants to use your location."
+msgstr "Један програм жели да користи вашу камерицу."
+
+#: src/location.c:570
+#, c-format
+msgid "Give %s Access to Your Location?"
+msgstr ""
+
+#: src/location.c:574
+#, fuzzy, c-format
+msgid "%s wants to use your location."
+msgstr "„%s“ жели да користи вашу камерицу."
+
+#: src/location.c:577
+#, fuzzy
+msgid "Location access can be changed at any time from the privacy settings."
+msgstr ""
+"Приступ вашим звучницима се може изменити у било које време из подешавања "
+"приватности."
+
+#: src/settings.c:229
+msgid "Requested setting not found"
+msgstr ""

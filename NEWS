@@ -1,3 +1,36 @@
+Changes in 1.2.0
+================
+
+* notification: Use icon validator from flatpak
+* notification: Don't leave temp files around
+* email: Validate options better
+* inhibit: Validate options better
+* file chooser: Add support for setting the current filter
+* Translation updates
+
+Changes in 1.1.1
+================
+
+* Validate icons in notifications
+* Respect lockdown settings
+* Write back permissions for notifications to indicate portal use
+* Set st_nlink in the documents portal
+* Add infrastructure for validating options
+* Validate email addresses
+* Translation updates
+
+Changes in 1.1.0
+================
+
+This is the first release in the new unstable 1.1.x series, leading up to 1.2
+which is expected around the end of the year.
+
+* Add a location portal, this requires geoclue 2.5.2
+* Add a settings portal, for desktop-wide settings like XSettings or kdeglobals
+* Allow locking down printing, save-to-disk and opening uris
+* Monitor application changes in the open uri portal
+* Add more tests
+
 xdg-desktop-portal 1.0.3
 ========================
 

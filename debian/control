@@ -8,11 +8,16 @@ Build-Depends:
  dbus,
  debhelper (>= 10),
  fuse <!nocheck>,
+ libgdk-pixbuf2.0-dev,
+ libgeoclue-2-dev (>= 2.5.2),
+ libflatpak-dev,
+ libfontconfig1-dev,
  libfuse-dev,
  libglib2.0-dev,
+ libpipewire-0.2-dev (>= 0.2.2),
  xmlto,
 Rules-Requires-Root: no
-Standards-Version: 4.2.1
+Standards-Version: 4.3.0
 Homepage: https://github.com/flatpak/xdg-desktop-portal
 Vcs-Git: https://salsa.debian.org/debian/xdg-desktop-portal.git
 Vcs-Browser: https://salsa.debian.org/debian/xdg-desktop-portal
@@ -21,6 +26,7 @@ Package: xdg-desktop-portal
 Architecture: linux-any
 Multi-arch: foreign
 Depends:
+ bubblewrap,
  default-dbus-session-bus | dbus-session-bus,
  fuse,
  ${misc:Depends},

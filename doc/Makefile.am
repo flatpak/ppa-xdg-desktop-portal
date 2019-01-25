@@ -20,6 +20,8 @@ portal_files = 								\
 	$(top_srcdir)/data/org.freedesktop.portal.Notification.xml 	\
 	$(top_srcdir)/data/org.freedesktop.portal.Inhibit.xml	 	\
 	$(top_srcdir)/data/org.freedesktop.portal.Device.xml	 	\
+	$(top_srcdir)/data/org.freedesktop.portal.Location.xml		\
+	$(top_srcdir)/data/org.freedesktop.portal.Settings.xml		\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Request.xml 	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Session.xml 	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.FileChooser.xml 	\
@@ -32,6 +34,8 @@ portal_files = 								\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Notification.xml	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Inhibit.xml	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Access.xml	\
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Settings.xml	\
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Lockdown.xml	\
 	$(top_srcdir)/data/org.freedesktop.portal.Documents.xml		\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.PermissionStore.xml	\
 	$(NULL)
@@ -54,6 +58,8 @@ xml_files = 								\
 	portal-org.freedesktop.portal.Inhibit.xml			\
 	portal-org.freedesktop.portal.Documents.xml			\
 	portal-org.freedesktop.portal.Device.xml			\
+	portal-org.freedesktop.portal.Location.xml			\
+	portal-org.freedesktop.portal.Settings.xml			\
 	portal-org.freedesktop.impl.portal.Request.xml 			\
 	portal-org.freedesktop.impl.portal.Session.xml 			\
 	portal-org.freedesktop.impl.portal.FileChooser.xml		\
@@ -66,6 +72,8 @@ xml_files = 								\
 	portal-org.freedesktop.impl.portal.Notification.xml 		\
 	portal-org.freedesktop.impl.portal.Inhibit.xml	 		\
 	portal-org.freedesktop.impl.portal.Access.xml	 		\
+	portal-org.freedesktop.impl.portal.Settings.xml	 		\
+	portal-org.freedesktop.impl.portal.Lockdown.xml	 		\
 	portal-org.freedesktop.impl.portal.PermissionStore.xml		\
 	$(NULL)
 

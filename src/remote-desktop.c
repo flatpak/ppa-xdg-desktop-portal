@@ -354,8 +354,26 @@ select_devices_done (GObject *source_object,
     }
 }
 
+static gboolean
+validate_device_types (const char *key,
+                       GVariant *value,
+                       GVariant *options,
+                       GError **error)
+{
+  guint32 types = g_variant_get_uint32 (value);
+
+  if ((types & ~(1 | 2 | 4)) != 0)
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Unsupported device type: %x", types & ~(1 | 2 | 4));
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static XdpOptionKey remote_desktop_select_devices_options[] = {
-  { "types", G_VARIANT_TYPE_UINT32 },
+  { "types", G_VARIANT_TYPE_UINT32, validate_device_types },
 };
 
 static gboolean
@@ -430,9 +448,14 @@ handle_select_devices (XdpRemoteDesktop *object,
   request_export (request, g_dbus_method_invocation_get_connection (invocation));
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_select_devices_options,
-                      G_N_ELEMENTS (remote_desktop_select_devices_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_select_devices_options,
+                           G_N_ELEMENTS (remote_desktop_select_devices_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
 
   g_object_set_qdata_full (G_OBJECT (request),
                            quark_request_session,
@@ -512,7 +535,7 @@ start_done (GObject *source_object,
               g_warning ("Could not start remote desktop session: %s",
                          error->message);
               g_clear_error (&error);
-              g_clear_pointer (&results, (GDestroyNotify)g_variant_unref);
+              g_clear_pointer (&results, g_variant_unref);
               response = 2;
               should_close_session = TRUE;
             }
@@ -712,6 +735,7 @@ handle_notify_pointer_motion (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -735,9 +759,14 @@ handle_notify_pointer_motion (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_pointer_motion (impl,
@@ -764,6 +793,7 @@ handle_notify_pointer_motion_absolute (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -796,9 +826,15 @@ handle_notify_pointer_motion_absolute (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
+
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_pointer_motion_absolute (impl,
@@ -825,6 +861,7 @@ handle_notify_pointer_button (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -848,9 +885,15 @@ handle_notify_pointer_button (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
+
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_pointer_button (impl,
@@ -866,7 +909,7 @@ handle_notify_pointer_button (XdpRemoteDesktop *object,
 }
 
 static XdpOptionKey remote_desktop_notify_pointer_axis_options[] = {
-  { "finish", G_VARIANT_TYPE_BOOLEAN },
+  { "finish", G_VARIANT_TYPE_BOOLEAN, NULL },
 };
 
 static gboolean
@@ -881,6 +924,7 @@ handle_notify_pointer_axis (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -904,9 +948,15 @@ handle_notify_pointer_axis (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_pointer_axis_options,
-                      G_N_ELEMENTS (remote_desktop_notify_pointer_axis_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_pointer_axis_options,
+                           G_N_ELEMENTS (remote_desktop_notify_pointer_axis_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
+
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_pointer_axis (impl,
@@ -932,6 +982,7 @@ handle_notify_pointer_axis_discrete (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -955,9 +1006,14 @@ handle_notify_pointer_axis_discrete (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_pointer_axis_discrete (impl,
@@ -984,6 +1040,7 @@ handle_notify_keyboard_keycode (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -1007,9 +1064,14 @@ handle_notify_keyboard_keycode (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_keyboard_keycode (impl,
@@ -1036,6 +1098,7 @@ handle_notify_keyboard_keysym (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -1059,9 +1122,14 @@ handle_notify_keyboard_keysym (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_keyboard_keysym (impl,
@@ -1090,6 +1158,7 @@ handle_notify_touch_down (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -1122,9 +1191,14 @@ handle_notify_touch_down (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_touch_down (impl,
@@ -1154,6 +1228,7 @@ handle_notify_touch_motion (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -1186,9 +1261,14 @@ handle_notify_touch_motion (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_touch_motion (impl,
@@ -1215,6 +1295,7 @@ handle_notify_touch_up (XdpRemoteDesktop *object,
   Session *session;
   GVariantBuilder options_builder;
   GVariant *options;
+  g_autoptr(GError) error = NULL;
 
   session = acquire_session_from_call (arg_session_handle, call);
   if (!session)
@@ -1238,9 +1319,14 @@ handle_notify_touch_up (XdpRemoteDesktop *object,
     }
 
   g_variant_builder_init (&options_builder, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options_builder,
-                      remote_desktop_notify_options,
-                      G_N_ELEMENTS (remote_desktop_notify_options));
+  if (!xdp_filter_options (arg_options, &options_builder,
+                           remote_desktop_notify_options,
+                           G_N_ELEMENTS (remote_desktop_notify_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
   options = g_variant_builder_end (&options_builder);
 
   xdp_impl_remote_desktop_call_notify_touch_up (impl,

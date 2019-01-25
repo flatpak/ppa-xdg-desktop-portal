@@ -21,7 +21,9 @@
 #include "config.h"
 
 #include <string.h>
+#include <stdio.h>
 #include <gio/gio.h>
+#include <gio/gunixoutputstream.h>
 
 #include "notification.h"
 #include "request.h"
@@ -30,7 +32,8 @@
 #include "xdp-dbus.h"
 #include "xdp-utils.h"
 
-#define TABLE_NAME "notifications"
+#define PERMISSION_TABLE "notifications"
+#define PERMISSION_ID "notification"
 
 typedef struct _Notification Notification;
 typedef struct _NotificationClass NotificationClass;
@@ -132,17 +135,19 @@ get_notification_allowed (const char *app_id)
   g_autoptr(GVariant) out_perms = NULL;
   g_autoptr(GVariant) out_data = NULL;
   g_autoptr(GError) error = NULL;
+  const char *permissions[2];
 
   if (!xdp_impl_permission_store_call_lookup_sync (get_permission_store (),
-                                                   TABLE_NAME,
-                                                   "notification",
+                                                   PERMISSION_TABLE,
+                                                   PERMISSION_ID,
                                                    &out_perms,
                                                    &out_data,
                                                    NULL,
                                                    &error))
     {
-      g_warning ("Error getting permissions: %s", error->message);
-      return TRUE;
+      g_dbus_error_strip_remote_error (error);
+      g_debug ("No notification permissions found: %s", error->message);
+      g_clear_error (&error);
     }
 
   if (out_perms != NULL)
@@ -160,36 +165,23 @@ get_notification_allowed (const char *app_id)
 
   g_debug ("No notification permissions stored for %s: allowing", app_id);
 
+  permissions[0] = "yes";
+  permissions[1] = NULL;
+
+  if (!xdp_impl_permission_store_call_set_permission_sync (get_permission_store (),
+                                                           PERMISSION_TABLE,
+                                                           TRUE,
+                                                           PERMISSION_ID,
+                                                           app_id,
+                                                           (const char * const*)permissions,
+                                                           NULL,
+                                                           &error))
+    {
+      g_dbus_error_strip_remote_error (error);
+      g_warning ("Error updating permission store: %s", error->message);
+    }
+
   return TRUE;
-}
-
-
-static void
-handle_add_in_thread_func (GTask *task,
-                           gpointer source_object,
-                           gpointer task_data,
-                           GCancellable *cancellable)
-{
-  Request *request = (Request *)task_data;
-  const char *id;
-  GVariant *notification;
-
-  REQUEST_AUTOLOCK (request);
-
-  if (!xdp_app_info_is_host (request->app_info) &&
-      !get_notification_allowed (xdp_app_info_get_id (request->app_info)))
-    return;
-
-  id = (const char *)g_object_get_data (G_OBJECT (request), "id");
-  notification = (GVariant *)g_object_get_data (G_OBJECT (request), "notification");
-
-  xdp_impl_notification_call_add_notification (impl,
-                                               xdp_app_info_get_id (request->app_info),
-                                               id,
-                                               notification,
-                                               NULL,
-                                               add_done,
-                                               g_object_ref (request));
 }
 
 static gboolean
@@ -308,13 +300,18 @@ static gboolean
 check_serialized_icon (GVariant *value,
                        GError **error)
 {
-  g_autoptr(GIcon) icon = NULL;
-
-  if (g_variant_is_of_type (value, G_VARIANT_TYPE_STRING) ||
-      g_variant_is_of_type (value, G_VARIANT_TYPE("(sv)")))
-    icon = g_icon_deserialize (value);
+  g_autoptr(GIcon) icon = g_icon_deserialize (value);
 
   if (!icon)
+    {
+      g_set_error_literal (error,
+                           XDG_DESKTOP_PORTAL_ERROR,
+                           XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                           "invalid icon");
+      return FALSE;
+    }
+
+  if (!G_IS_BYTES_ICON (icon) && !G_IS_THEMED_ICON (icon))
     {
       g_set_error_literal (error,
                            XDG_DESKTOP_PORTAL_ERROR,
@@ -380,6 +377,146 @@ check_notification (GVariant *notification,
     }
 
   return TRUE;
+}
+
+static void
+cleanup_temp_file (void *p)
+{
+  void **pp = (void **)p;
+
+  if (*pp)
+    remove (*pp);
+  g_free (*pp);
+}
+
+static gboolean
+validate_icon_more (GVariant *v)
+{
+  g_autoptr(GIcon) icon = g_icon_deserialize (v);
+  GBytes *bytes;
+  __attribute__((cleanup(cleanup_temp_file))) char *name = NULL;
+  int fd = -1;
+  g_autoptr(GOutputStream) stream = NULL;
+  gssize written;
+  int status;
+  g_autofree char *err = NULL;
+  g_autoptr(GError) error = NULL;
+  const char *icon_validator = LIBEXECDIR "/flatpak-validate-icon";
+  const char *args[6];
+
+  if (G_IS_THEMED_ICON (icon))
+    {
+      g_autofree char *a = g_strjoinv (" ", (char **)g_themed_icon_get_names (G_THEMED_ICON (icon)));
+      g_debug ("Icon validation: themed icon (%s) is ok", a);
+      return TRUE;
+    }
+
+  if (!G_IS_BYTES_ICON (icon))
+    {
+      g_warning ("Unexpected icon type: %s", G_OBJECT_TYPE_NAME (icon));
+      return FALSE;
+    }
+
+  if (!g_file_test (icon_validator, G_FILE_TEST_EXISTS))
+    {
+      g_debug ("Icon validation: %s not found, accepting icon without further validation.", icon_validator);
+      return TRUE;
+    }
+
+  bytes = g_bytes_icon_get_bytes (G_BYTES_ICON (icon));
+  fd = g_file_open_tmp ("iconXXXXXX", &name, &error); 
+  if (fd == -1)
+    {
+      g_debug ("Icon validation: %s", error->message);
+      return FALSE;
+    }
+
+  stream = g_unix_output_stream_new (fd, TRUE);
+  written = g_output_stream_write_bytes (stream, bytes, NULL, &error);
+  if (written < g_bytes_get_size (bytes))
+    {
+      g_debug ("Icon validation: %s", error->message);
+      return FALSE;
+    }
+
+  if (!g_output_stream_close (stream, NULL, &error))
+    {
+      g_debug ("Icon validation: %s", error->message);
+      return FALSE;
+    }
+
+  args[0] = icon_validator;
+  args[1] = "--sandbox";
+  args[2] = "512";
+  args[3] = "512";
+  args[4] = name;
+  args[5] = NULL;
+
+  if (!g_spawn_sync (NULL, (char **)args, NULL, 0, NULL, NULL, NULL, &err, &status, &error))
+    {
+      g_debug ("Icon validation: %s", error->message);
+
+      return FALSE;
+    }
+
+  if (!g_spawn_check_exit_status (status, &error))
+    {
+      g_debug ("Icon validation: %s", error->message);
+
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static GVariant *
+maybe_remove_icon (GVariant *notification)
+{
+  GVariantBuilder n;
+  int i;
+
+  g_variant_builder_init (&n, G_VARIANT_TYPE_VARDICT);
+  for (i = 0; i < g_variant_n_children (notification); i++)
+    {
+      const char *key;
+      g_autoptr(GVariant) value = NULL;
+
+      g_variant_get_child (notification, i, "{&sv}", &key, &value);
+      if (strcmp (key, "icon") != 0 || validate_icon_more (value))
+        g_variant_builder_add (&n, "{sv}", key, value);
+    }
+
+  return g_variant_ref_sink (g_variant_builder_end (&n));
+}
+
+static void
+handle_add_in_thread_func (GTask *task,
+                           gpointer source_object,
+                           gpointer task_data,
+                           GCancellable *cancellable)
+{
+  Request *request = (Request *)task_data;
+  const char *id;
+  GVariant *notification;
+  g_autoptr(GVariant) notification2 = NULL;
+
+  REQUEST_AUTOLOCK (request);
+
+  if (!xdp_app_info_is_host (request->app_info) &&
+      !get_notification_allowed (xdp_app_info_get_id (request->app_info)))
+    return;
+
+  id = (const char *)g_object_get_data (G_OBJECT (request), "id");
+  notification = (GVariant *)g_object_get_data (G_OBJECT (request), "notification");
+
+  notification2 = maybe_remove_icon (notification);
+  xdp_impl_notification_call_add_notification (impl,
+                                               xdp_app_info_get_id (request->app_info),
+                                               id,
+                                               notification2,
+                                               NULL,
+                                               add_done,
+                                               g_object_ref (request));
 }
 
 static gboolean

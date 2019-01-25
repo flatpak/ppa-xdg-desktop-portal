@@ -43,7 +43,7 @@
 #include "permissions.h"
 #include "documents.h"
 
-#define TABLE_NAME "desktop-used-apps"
+#define PERMISSION_TABLE "desktop-used-apps"
 
 typedef struct _OpenURI OpenURI;
 
@@ -68,6 +68,8 @@ enum {
 
 static XdpImplAppChooser *impl;
 static OpenURI *open_uri;
+static GAppInfoMonitor *monitor;
+static XdpImplLockdown *lockdown;
 
 GType open_uri_get_type (void) G_GNUC_CONST;
 static void open_uri_iface_init (XdpOpenURIIface *iface);
@@ -127,18 +129,18 @@ get_latest_choice_info (const char *app_id,
   g_autoptr(GVariant) out_data = NULL;
 
   if (!xdp_impl_permission_store_call_lookup_sync (get_permission_store (),
-                                                   TABLE_NAME,
+                                                   PERMISSION_TABLE,
                                                    content_type,
                                                    &out_perms,
                                                    &out_data,
                                                    NULL,
                                                    &error))
     {
+      g_dbus_error_strip_remote_error (error);
       /* Not finding an entry for the content type in the permission store is perfectly ok */
       if (!g_error_matches (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_FOUND))
         g_warning ("Unable to retrieve info for '%s' in the %s table of the permission store: %s",
-                   content_type, TABLE_NAME, error->message);
-
+                   content_type, PERMISSION_TABLE, error->message);
       g_clear_error (&error);
     }
 
@@ -266,7 +268,7 @@ update_permissions_store (const char *app_id,
   in_permissions[PERM_APP_THRESHOLD] = always_ask ? g_strdup ("") : g_strdup_printf ("%u", latest_threshold);
 
   if (!xdp_impl_permission_store_call_set_permission_sync (get_permission_store (),
-                                                           TABLE_NAME,
+                                                           PERMISSION_TABLE,
                                                            TRUE,
                                                            content_type,
                                                            app_id,
@@ -274,6 +276,7 @@ update_permissions_store (const char *app_id,
                                                            NULL,
                                                            &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Error updating permission store: %s", error->message);
       g_clear_error (&error);
     }
@@ -471,6 +474,27 @@ find_recommended_choices (const char *scheme,
 }
 
 static void
+app_info_changed (GAppInfoMonitor *monitor,
+                  Request *request)
+{
+  const char *scheme;
+  const char *content_type;
+  g_auto(GStrv) choices = NULL;
+  gboolean skip_app_chooser = FALSE;
+
+  scheme = (const char *)g_object_get_data (G_OBJECT (request), "scheme");
+  content_type = (const char *)g_object_get_data (G_OBJECT (request), "content-type");
+  find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
+
+  xdp_impl_app_chooser_call_update_choices (impl,
+                                            request->id,
+                                            (const char * const *)choices,
+                                            NULL,
+                                            NULL,
+                                            NULL);
+}
+
+static void
 handle_open_in_thread_func (GTask *task,
                             gpointer source_object,
                             gpointer task_data,
@@ -548,6 +572,9 @@ handle_open_in_thread_func (GTask *task,
       g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
     }
 
+  g_object_set_data_full (G_OBJECT (request), "scheme", g_strdup (scheme), g_free);
+  g_object_set_data_full (G_OBJECT (request), "content-type", g_strdup (content_type), g_free);
+
   find_recommended_choices (scheme, content_type, &choices, &skip_app_chooser);
   get_latest_choice_info (app_id, content_type, &latest_id, &latest_count, &latest_threshold, &always_ask);
 
@@ -596,6 +623,8 @@ handle_open_in_thread_func (GTask *task,
 
   request_set_impl_request (request, impl_request);
 
+  g_signal_connect_object (monitor, "changed", G_CALLBACK (app_info_changed), request, 0);
+
   xdp_impl_app_chooser_call_choose_application (impl,
                                                 request->id,
                                                 app_id,
@@ -617,6 +646,16 @@ handle_open_uri (XdpOpenURI *object,
   Request *request = request_from_invocation (invocation);
   g_autoptr(GTask) task = NULL;
   gboolean writable;
+
+  if (xdp_impl_lockdown_get_disable_application_handlers (lockdown))
+    {
+      g_debug ("Application handlers disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Application handlers disabled");
+      return TRUE;
+    }
 
   if (!g_variant_lookup (arg_options, "writable", "b", &writable))
     writable = FALSE;
@@ -648,6 +687,16 @@ handle_open_file (XdpOpenURI *object,
   gboolean writable;
   int fd_id, fd;
   g_autoptr(GError) error = NULL;
+
+  if (xdp_impl_lockdown_get_disable_application_handlers (lockdown))
+    {
+      g_debug ("Application handlers disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "Application handlers disabled");
+      return TRUE;
+    }
 
   if (!g_variant_lookup (arg_options, "writable", "b", &writable))
     writable = FALSE;
@@ -694,9 +743,12 @@ open_uri_class_init (OpenURIClass *klass)
 
 GDBusInterfaceSkeleton *
 open_uri_create (GDBusConnection *connection,
-                 const char *dbus_name)
+                 const char *dbus_name,
+                 gpointer lockdown_proxy)
 {
   g_autoptr(GError) error = NULL;
+
+  lockdown = lockdown_proxy;
 
   impl = xdp_impl_app_chooser_proxy_new_sync (connection,
                                               G_DBUS_PROXY_FLAGS_NONE,
@@ -712,6 +764,8 @@ open_uri_create (GDBusConnection *connection,
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (impl), G_MAXINT);
 
   open_uri = g_object_new (open_uri_get_type (), NULL);
+
+  monitor = g_app_info_monitor_get ();
 
   return G_DBUS_INTERFACE_SKELETON (open_uri);
 }

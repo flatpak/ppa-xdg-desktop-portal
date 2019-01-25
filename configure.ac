@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.0.3])
+AC_INIT([xdg-desktop-portal],[1.2.0])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -56,10 +56,12 @@ AC_ARG_WITH([systemduserunitdir],
     [with_systemduserunitdir='${prefix}/lib/systemd/user'])
 AC_SUBST([systemduserunitdir], [$with_systemduserunitdir])
 
+AC_PATH_PROG([BWRAP], [bwrap])
+
 AC_SUBST([GLIB_COMPILE_RESOURCES], [`$PKG_CONFIG --variable glib_compile_resources gio-2.0`])
 AC_SUBST([GDBUS_CODEGEN], [`$PKG_CONFIG --variable gdbus_codegen gio-2.0`])
 
-PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0])
+PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0 fontconfig])
 AC_SUBST(BASE_CFLAGS)
 AC_SUBST(BASE_LIBS)
 
@@ -71,6 +73,15 @@ if test x$enable_pipewire = xyes ; then
 	AC_DEFINE([HAVE_PIPEWIRE],[1], [Define to enable PipeWire support])
 fi
 AM_CONDITIONAL([HAVE_PIPEWIRE],[test "$enable_pipewire" = "yes"])
+
+AC_ARG_ENABLE(geoclue,
+	      [AS_HELP_STRING([--enable-geoclue],[Enable Geoclue support. Needed for location portal])],
+	      enable_geoclue=$enableval, enable_geoclue=yes)
+if test x$enable_geoclue = xyes ; then
+	PKG_CHECK_MODULES(GEOCLUE, [libgeoclue-2.0 >= 2.5.2])
+	AC_DEFINE([HAVE_GEOCLUE],[1], [Define to enable Geoclue support])
+fi
+AM_CONDITIONAL([HAVE_GEOCLUE],[test "$enable_geoclue" = "yes"])
 
 AC_ARG_ENABLE(docbook-docs,
         [AS_HELP_STRING([--enable-docbook-docs],[build documentation (requires xmlto)])],
@@ -125,6 +136,7 @@ fi
 GLIB_TESTS
 
 PKG_CHECK_MODULES(FUSE, [fuse])
+PKG_CHECK_MODULES(FLATPAK, [flatpak])
 
 AC_CONFIG_FILES([
 Makefile

@@ -53,6 +53,7 @@ struct _FileChooserClass
   XdpFileChooserSkeletonClass parent_class;
 };
 
+static XdpImplLockdown *lockdown;
 static XdpImplFileChooser *impl;
 static FileChooser *file_chooser;
 
@@ -248,10 +249,12 @@ check_filter (GVariant *filter,
 }
 
 static gboolean
-check_filters (GVariant *value,
-               GError **error)
+validate_filters (const char *key,
+                  GVariant *value,
+                  GVariant *options,
+                  GError **error)
 {
-  int i;
+  gsize i;
 
   if (!check_value_type ("filters", value, G_VARIANT_TYPE ("a(sa(us))"), error))
     return FALSE;
@@ -268,6 +271,56 @@ check_filters (GVariant *value,
     }
 
   return TRUE;
+}
+
+static gboolean
+validate_current_filter (const char *key,
+                         GVariant *value,
+                         GVariant *options,
+                         GError **error)
+{
+  g_autoptr(GVariant) filters = NULL;
+  gsize i, n_children;
+
+  if (!check_value_type ("current_filter", value, G_VARIANT_TYPE ("(sa(us))"), error))
+    return FALSE;
+
+  if (!check_filter (value, error))
+    {
+      g_prefix_error (error, "invalid filter: ");
+      return FALSE;
+    }
+
+  /* If the filters list is nonempty and current_filter is specified,
+   * then the list must contain current_filter. But if the list is
+   * empty, current_filter may be anything.
+   */
+  filters = g_variant_lookup_value (options, "filters", G_VARIANT_TYPE ("a(sa(us))"));
+  if (!filters)
+    return TRUE;
+
+  if (!check_value_type ("filters", filters, G_VARIANT_TYPE ("a(sa(us))"), error))
+    {
+      g_prefix_error (error, "filters list is invalid: ");
+      return FALSE;
+    }
+
+  n_children = g_variant_n_children (filters);
+  if (n_children == 0)
+    return TRUE;
+
+  for (i = 0; i < n_children; i++)
+    {
+      g_autoptr(GVariant) filter = g_variant_get_child_value (filters, i);
+      if (g_variant_equal (filter, value))
+        return TRUE;
+    }
+
+  g_set_error_literal (error,
+                       XDG_DESKTOP_PORTAL_ERROR,
+                       XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                       "current_filter, if specified, must be present in filters list if list is nonempty");
+  return FALSE;
 }
 
 static gboolean
@@ -358,8 +411,10 @@ check_choice (GVariant *choice,
 }
 
 static gboolean
-check_choices (GVariant *value,
-               GError **error)
+validate_choices (const char *key,
+                  GVariant *value,
+                  GVariant *options,
+                  GError **error)
 {
   int i;
 
@@ -381,11 +436,12 @@ check_choices (GVariant *value,
 }
 
 static XdpOptionKey open_file_options[] = {
-  { "accept_label", G_VARIANT_TYPE_STRING },
-  { "modal", G_VARIANT_TYPE_BOOLEAN },
-  { "multiple", G_VARIANT_TYPE_BOOLEAN },
-  { "filters", (const GVariantType *)"a(sa(us))" },
-  { "choices", (const GVariantType *)"a(ssa(ss)s)" }
+  { "accept_label", G_VARIANT_TYPE_STRING, NULL },
+  { "modal", G_VARIANT_TYPE_BOOLEAN, NULL },
+  { "multiple", G_VARIANT_TYPE_BOOLEAN, NULL },
+  { "filters", (const GVariantType *)"a(sa(us))", validate_filters },
+  { "current_filter", (const GVariantType *)"(sa(us))", validate_current_filter },
+  { "choices", (const GVariantType *)"a(ssa(ss)s)", validate_choices }
 };
 
 static gboolean
@@ -404,34 +460,14 @@ handle_open_file (XdpFileChooser *object,
 
   REQUEST_AUTOLOCK (request);
 
-  value = g_variant_lookup_value (arg_options, "filters", NULL);
-  if (value != NULL)
-    {
-      if (!check_filters (value, &error))
-        {
-          g_prefix_error (&error, "invalid filters: ");
-          g_dbus_method_invocation_return_gerror (invocation, error);
-          return TRUE;
-        }
-      g_variant_unref (value);
-      value = NULL;
-    }
-  value = g_variant_lookup_value (arg_options, "choices", NULL);
-  if (value != NULL)
-    {
-      if (!check_choices (value, &error))
-        {
-          g_prefix_error (&error, "invalid choices: ");
-          g_dbus_method_invocation_return_gerror (invocation, error);
-          return TRUE;
-        }
-      g_variant_unref (value);
-      value = NULL;
-    }
-
   g_variant_builder_init (&options, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options,
-                      open_file_options, G_N_ELEMENTS (open_file_options));
+  if (!xdp_filter_options (arg_options, &options,
+                           open_file_options, G_N_ELEMENTS (open_file_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
                                                   G_DBUS_PROXY_FLAGS_NONE,
@@ -463,13 +499,14 @@ handle_open_file (XdpFileChooser *object,
 }
 
 static XdpOptionKey save_file_options[] = {
-  { "accept_label", G_VARIANT_TYPE_STRING },
-  { "modal", G_VARIANT_TYPE_BOOLEAN },
-  { "filters", (const GVariantType *)"a(sa(us))" },
-  { "current_name", G_VARIANT_TYPE_STRING },
-  { "current_folder", G_VARIANT_TYPE_BYTESTRING },
-  { "current_file", G_VARIANT_TYPE_BYTESTRING },
-  { "choices", (const GVariantType *)"a(ssa(ss)s)" }
+  { "accept_label", G_VARIANT_TYPE_STRING, NULL },
+  { "modal", G_VARIANT_TYPE_BOOLEAN, NULL },
+  { "filters", (const GVariantType *)"a(sa(us))", validate_filters },
+  { "current_filter", (const GVariantType *)"(sa(us))", validate_current_filter },
+  { "current_name", G_VARIANT_TYPE_STRING, NULL },
+  { "current_folder", G_VARIANT_TYPE_BYTESTRING, NULL },
+  { "current_file", G_VARIANT_TYPE_BYTESTRING, NULL },
+  { "choices", (const GVariantType *)"a(ssa(ss)s)", validate_choices  }
 };
 
 static void
@@ -514,11 +551,26 @@ handle_save_file (XdpFileChooser *object,
   XdpImplRequest *impl_request;
   GVariantBuilder options;
 
+  if (xdp_impl_lockdown_get_disable_save_to_disk (lockdown))
+    {
+      g_debug ("File saving disabled");
+      g_dbus_method_invocation_return_error (invocation,
+                                             XDG_DESKTOP_PORTAL_ERROR,
+                                             XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
+                                             "File saving disabled");
+      return TRUE;
+    }
+
   REQUEST_AUTOLOCK (request);
 
   g_variant_builder_init (&options, G_VARIANT_TYPE_VARDICT);
-  xdp_filter_options (arg_options, &options,
-                      save_file_options, G_N_ELEMENTS (save_file_options));
+  if (!xdp_filter_options (arg_options, &options,
+                           save_file_options, G_N_ELEMENTS (save_file_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
                                                   G_DBUS_PROXY_FLAGS_NONE,
@@ -571,9 +623,12 @@ file_chooser_class_init (FileChooserClass *klass)
 
 GDBusInterfaceSkeleton *
 file_chooser_create (GDBusConnection *connection,
-                     const char      *dbus_name)
+                     const char      *dbus_name,
+                     gpointer         lockdown_proxy)
 {
   g_autoptr(GError) error = NULL;
+
+  lockdown = lockdown_proxy;
 
   impl = xdp_impl_file_chooser_proxy_new_sync (connection,
                                                G_DBUS_PROXY_FLAGS_NONE,

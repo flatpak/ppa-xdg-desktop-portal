@@ -107,17 +107,59 @@ compose_email_done (GObject *source,
     }
 
   g_object_set_data (G_OBJECT (request), "response", GINT_TO_POINTER (response));
-  g_object_set_data_full (G_OBJECT (request), "results", g_variant_ref (results), (GDestroyNotify)g_variant_unref);
 
   task = g_task_new (NULL, NULL, NULL, NULL);
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, send_response_in_thread_func);
 }
 
+static gboolean
+validate_email_address (const char *key,
+                        GVariant *value,
+                        GVariant *options,
+                        GError **error)
+{
+  const char *string = g_variant_get_string (value, NULL);
+
+  if (!g_regex_match_simple ("^\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*$", string, 0, 0))
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "'%s' does not look like an email address", string);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+static gboolean
+validate_email_subject (const char *key,
+                        GVariant *value,
+                        GVariant *options,
+                        GError **error)
+{
+  const char *string = g_variant_get_string (value, NULL);
+
+  if (strchr (string, '\n'))
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Not accepting multi-line subjects");
+      return FALSE;
+    } 
+
+  if (g_utf8_strlen (string, -1) > 200)
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Not accepting extremely long subjects");
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static XdpOptionKey compose_email_options[] = {
-  { "address", G_VARIANT_TYPE_STRING },
-  { "subject", G_VARIANT_TYPE_STRING },
-  { "body", G_VARIANT_TYPE_STRING }
+  { "address", G_VARIANT_TYPE_STRING, validate_email_address },
+  { "subject", G_VARIANT_TYPE_STRING, validate_email_subject },
+  { "body", G_VARIANT_TYPE_STRING, NULL }
 };
 
 static gboolean
@@ -177,8 +219,13 @@ handle_compose_email (XdpEmail *object,
       g_variant_builder_add (&options, "{sv}", "attachments", g_variant_builder_end (&attachments));
     }
 
-  xdp_filter_options (arg_options, &options,
-                      compose_email_options, G_N_ELEMENTS (compose_email_options));
+  if (!xdp_filter_options (arg_options, &options,
+                           compose_email_options, G_N_ELEMENTS (compose_email_options),
+                           &error))
+    {
+      g_dbus_method_invocation_return_gerror (invocation, error);
+      return TRUE;
+    }
 
   request_set_impl_request (request, impl_request);
   request_export (request, g_dbus_method_invocation_get_connection (invocation));

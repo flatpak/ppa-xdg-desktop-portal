@@ -29,6 +29,7 @@
 
 #include "xdp-utils.h"
 #include "xdp-dbus.h"
+#include "xdp-impl-dbus.h"
 #include "request.h"
 #include "call.h"
 #include "documents.h"
@@ -47,15 +48,19 @@
 #include "screen-cast.h"
 #include "remote-desktop.h"
 #include "trash.h"
+#include "location.h"
+#include "settings.h"
 
 static GMainLoop *loop = NULL;
 
-static gboolean opt_verbose;
+gboolean opt_verbose;
 static gboolean opt_replace;
+static gboolean show_version;
 
 static GOptionEntry entries[] = {
   { "verbose", 'v', 0, G_OPTION_ARG_NONE, &opt_verbose, "Print debug information during command processing", NULL },
   { "replace", 'r', 0, G_OPTION_ARG_NONE, &opt_replace, "Replace a running instance", NULL },
+  { "version", 0, 0, G_OPTION_ARG_NONE, &show_version, "Show program version.", NULL},
   { NULL }
 };
 
@@ -339,6 +344,12 @@ export_portal_implementation (GDBusConnection *connection,
 {
   g_autoptr(GError) error = NULL;
 
+  if (skeleton == NULL)
+    {
+      g_warning ("No skeleton to export");
+      return;
+    }
+
   g_dbus_interface_skeleton_set_flags (skeleton,
                                        G_DBUS_INTERFACE_SKELETON_FLAGS_HANDLE_METHOD_INVOCATIONS_IN_THREAD);
   g_signal_connect (skeleton, "g-authorize-method",
@@ -370,29 +381,43 @@ on_bus_acquired (GDBusConnection *connection,
 {
   PortalImplementation *implementation;
   g_autoptr(GError) error = NULL;
+  XdpImplLockdown *lockdown;
 
   xdp_connection_track_name_owners (connection, peer_died_cb);
   init_document_proxy (connection);
   init_permission_store (connection);
 
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Lockdown");
+  if (implementation != NULL)
+    lockdown = xdp_impl_lockdown_proxy_new_sync (connection,
+                                                 G_DBUS_PROXY_FLAGS_NONE,
+                                                 implementation->dbus_name,
+                                                 DESKTOP_PORTAL_OBJECT_PATH,
+                                                 NULL, &error);
+  else
+    lockdown = xdp_impl_lockdown_skeleton_new ();
+
   export_portal_implementation (connection, network_monitor_create (connection));
   export_portal_implementation (connection, proxy_resolver_create (connection));
   export_portal_implementation (connection, trash_create (connection));
 
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Settings");
+  export_portal_implementation (connection, settings_create (connection, implementation ? implementation->dbus_name : NULL));
+
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.FileChooser");
   if (implementation != NULL)
     export_portal_implementation (connection,
-                                  file_chooser_create (connection, implementation->dbus_name));
+                                  file_chooser_create (connection, implementation->dbus_name, lockdown));
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.AppChooser");
   if (implementation != NULL)
     export_portal_implementation (connection,
-                                  open_uri_create (connection, implementation->dbus_name));
+                                  open_uri_create (connection, implementation->dbus_name, lockdown));
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Print");
   if (implementation != NULL)
     export_portal_implementation (connection,
-                                  print_create (connection, implementation->dbus_name));
+                                  print_create (connection, implementation->dbus_name, lockdown));
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Screenshot");
   if (implementation != NULL)
@@ -411,8 +436,14 @@ on_bus_acquired (GDBusConnection *connection,
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Access");
   if (implementation != NULL)
-    export_portal_implementation (connection,
-                                  device_create (connection, implementation->dbus_name));
+    {
+      export_portal_implementation (connection,
+                                    device_create (connection, implementation->dbus_name, lockdown));
+#ifdef HAVE_GEOCLUE
+      export_portal_implementation (connection,
+                                    location_create (connection, implementation->dbus_name, lockdown));
+#endif
+    }
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Account");
   if (implementation != NULL)
@@ -472,8 +503,6 @@ main (int argc, char *argv[])
   /* Avoid pointless and confusing recursion */
   g_unsetenv ("GTK_USE_PORTAL");
 
-  g_set_printerr_handler (printerr_handler);
-
   context = g_option_context_new ("- desktop portal");
   g_option_context_set_summary (context,
       "A portal service for flatpak and other desktop containment frameworks.");
@@ -489,9 +518,22 @@ main (int argc, char *argv[])
   g_option_context_add_main_entries (context, entries, NULL);
   if (!g_option_context_parse (context, &argc, &argv, &error))
     {
-      g_printerr ("Option parsing failed: %s", error->message);
+      g_printerr ("%s: %s", g_get_application_name (), error->message);
+      g_printerr ("\n");
+      g_printerr ("Try \"%s --help\" for more information.",
+                  g_get_prgname ());
+      g_printerr ("\n");
+      g_option_context_free (context);
       return 1;
     }
+
+  if (show_version)
+    {
+      g_print (PACKAGE_STRING "\n");
+      return 0;
+    }
+
+  g_set_printerr_handler (printerr_handler);
 
   if (opt_verbose)
     g_log_set_handler (G_LOG_DOMAIN, G_LOG_LEVEL_DEBUG, message_handler, NULL);

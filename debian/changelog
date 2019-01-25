@@ -1,3 +1,54 @@
+xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
+
+  * d/upstream/metadata: Add DEP-12 metadata
+  * New upstream release
+  * d/p/notification-Handle-non-existing-directories.patch,
+    d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
+    Remove, no longer applicable
+  * d/p/Revert-Stop-building-the-icon-validator.patch,
+    d/p/Replace-the-icon-validator-with-the-one-from-Flatpak-git-.patch:
+    Build a copy of the icon validator from Flatpak git master.
+    We don't want to depend on a version of Flatpak that isn't
+    stable yet.
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 18 Jan 2019 10:10:55 +0000
+
+xdg-desktop-portal (1.1.1-1) experimental; urgency=medium
+
+  * New upstream development release
+    - Drop patches, applied upstream
+    - Build-Depend on libgdk-pixbuf2.0-dev, for icon validation
+    - Package new xdg-desktop-portal-validate-icon executable
+    - Depend on bubblewrap, for sandboxed icon validation
+  * Enable Location portal (geoclue-2.0)
+  * Standards-Version: 4.3.0 (no changes required)
+  * d/control: Set Vcs-Git branch for experimental
+  * d/p/notification-Handle-non-existing-directories.patch,
+    d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
+    Make bwrap invocation more reliable, and in particular make it
+    work on purely 32-bit systems with no /lib64 (patches taken from
+    gnome-desktop, thanks to Iain Lane and Mart Raudsepp)
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 17 Jan 2019 09:57:59 +0000
+
+xdg-desktop-portal (1.1.0-1) experimental; urgency=medium
+
+  * New upstream development release
+    - d/copyright: Update
+    - d/control: Build-depend on fontconfig, for fontconfig cache
+      invalidation in Settings portal
+    - d/control: Build-depend on flatpak, for permission-store test
+  * Don't build with Location portal yet, because geoclue-2.0 is
+    currently too old
+  * Drop patch, applied upstream
+  * d/gbp.conf: Use debian/experimental branch
+  * d/patches: Skip another build-time test when FUSE is not supported
+  * d/patches: Don't show a critical warning when a document permissions
+    entry is removed
+  * Enable Pipewire support, for screencasting
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 19 Nov 2018 18:47:57 +0000
+
 xdg-desktop-portal (1.0.3-1) unstable; urgency=medium
 
   * New upstream release
