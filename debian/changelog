@@ -1,16 +1,17 @@
 xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
 
-  * d/upstream/metadata: Add DEP-12 metadata
-  * New upstream release
-  * d/p/notification-Handle-non-existing-directories.patch,
-    d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
-    Remove, no longer applicable
+  * New upstream stable release
+  * d/watch: Only watch for stable releases
   * d/p/Revert-Stop-building-the-icon-validator.patch,
+    d/p/validate-icon-Add-a-define-for-bwrap.patch,
     d/p/Replace-the-icon-validator-with-the-one-from-Flatpak-git-.patch:
     Build a copy of the icon validator from Flatpak git master.
-    We don't want to depend on a version of Flatpak that isn't
+    We don't want to rely on a version of Flatpak that isn't
     stable yet.
-  * d/watch: Only watch for stable releases
+    - d/p/notification-Handle-non-existing-directories.patch,
+      d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
+      Remove, no longer necessary
+  * d/upstream/metadata: Add DEP-12 metadata
 
  -- Simon McVittie <smcv@debian.org>  Fri, 18 Jan 2019 10:10:55 +0000
 
