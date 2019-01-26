@@ -1,4 +1,4 @@
-xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.2.0-1) unstable; urgency=medium
 
   [ Simon McVittie ]
   * New upstream stable release
@@ -13,11 +13,12 @@ xdg-desktop-portal (1.2.0-1) UNRELEASED; urgency=medium
       d/p/notification-bind-mount-etc-ld.so.cache-to-the-sandbox.patch:
       Remove, no longer necessary
   * d/upstream/metadata: Add DEP-12 metadata
+  * Release to unstable
 
   [ Jeremy Bicha ]
   * Don't enable remote desktop support on Ubuntu. See LP bug 1802533
 
- -- Simon McVittie <smcv@debian.org>  Fri, 25 Jan 2019 23:12:16 +0000
+ -- Simon McVittie <smcv@debian.org>  Sat, 26 Jan 2019 18:31:50 +0000
 
 xdg-desktop-portal (1.1.1-1) experimental; urgency=medium
 
