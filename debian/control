@@ -14,7 +14,6 @@ Build-Depends:
  libfontconfig1-dev,
  libfuse-dev,
  libglib2.0-dev,
- libpipewire-0.2-dev (>= 0.2.2),
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.3.0
