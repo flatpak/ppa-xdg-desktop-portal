@@ -14,6 +14,7 @@ Build-Depends:
  libfontconfig1-dev,
  libfuse-dev,
  libglib2.0-dev,
+ libjson-glib-dev,
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.3.0
