@@ -35,6 +35,9 @@ PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.RemoteDesktop.xml \
 	data/org.freedesktop.portal.Location.xml \
 	data/org.freedesktop.portal.Settings.xml \
+	data/org.freedesktop.portal.Background.xml \
+	data/org.freedesktop.portal.GameMode.xml \
+	data/org.freedesktop.portal.Camera.xml \
 	$(NULL)
 
 PORTAL_IMPL_IFACE_FILES =\
@@ -54,6 +57,7 @@ PORTAL_IMPL_IFACE_FILES =\
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
 	data/org.freedesktop.impl.portal.Lockdown.xml \
+	data/org.freedesktop.impl.portal.Background.xml \
 	$(NULL)
 
 $(xdp_dbus_built_sources) : $(PORTAL_IFACE_FILES)
@@ -147,6 +151,14 @@ xdg_desktop_portal_SOURCES = \
 	src/xdp-utils.h			\
 	src/fc-monitor.c		\
 	src/fc-monitor.h		\
+	src/background.c		\
+	src/background.h		\
+	src/gamemode.c			\
+	src/gamemode.h			\
+        src/flatpak-instance.c          \
+        src/flatpak-instance.h          \
+	src/portal-impl.h		\
+	src/portal-impl.c		\
 	$(NULL)
 
 if HAVE_PIPEWIRE
@@ -155,6 +167,10 @@ xdg_desktop_portal_SOURCES += \
 	src/screen-cast.h		\
 	src/remote-desktop.c		\
 	src/remote-desktop.h		\
+	src/pipewire.c			\
+	src/pipewire.h			\
+	src/camera.c			\
+	src/camera.h			\
 	$(NULL)
 endif
 
@@ -171,7 +187,7 @@ xdg_desktop_portal_LDADD = \
 	$(GEOCLUE_LIBS) \
 	$(NULL)
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DLIBEXECDIR=\"$(libexecdir)\" \
 	-DBWRAP=\"$(BWRAP)\" \
 	$(BASE_CFLAGS) \

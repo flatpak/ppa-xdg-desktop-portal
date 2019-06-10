@@ -26,22 +26,16 @@
 #include "screen-cast.h"
 #include "remote-desktop.h"
 #include "request.h"
+#include "pipewire.h"
 #include "xdp-dbus.h"
 #include "xdp-impl-dbus.h"
 #include "xdp-utils.h"
 
-typedef struct _PipeWireRemote
-{
-  struct pw_main_loop *loop;
-  struct pw_core *core;
-  struct pw_remote *remote;
-  struct spa_hook remote_listener;
-
-  uint32_t registry_sync_seq;
-  uint32_t node_factory_id;
-
-  GError *error;
-} PipeWireRemote;
+#define PERMISSION_ITEM(item_key, item_value) \
+  ((struct spa_dict_item) { \
+    .key = item_key, \
+    .value = item_value \
+  })
 
 typedef struct _ScreenCast ScreenCast;
 typedef struct _ScreenCastClass ScreenCastClass;
@@ -57,8 +51,10 @@ struct _ScreenCastClass
 };
 
 static XdpImplScreenCast *impl;
+static int impl_version;
 static ScreenCast *screen_cast;
-static gboolean is_pipewire_initialized = FALSE;
+
+static unsigned int available_cursor_modes = 0;
 
 GType screen_cast_get_type (void);
 static void screen_cast_iface_init (XdpScreenCastIface *iface);
@@ -353,9 +349,35 @@ validate_device_types (const char *key,
   return TRUE;
 }
 
+static gboolean
+validate_cursor_mode (const char *key,
+                      GVariant *value,
+                      GVariant *options,
+                      GError **error)
+{
+  uint32_t mode = g_variant_get_uint32 (value);
+
+  if (__builtin_popcount (mode) != 1)
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Invalid cursor mode %x", mode);
+      return FALSE;
+    }
+
+  if (!(available_cursor_modes & mode))
+    {
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                   "Unavailable cursor mode %x", mode);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
 static XdpOptionKey screen_cast_select_sources_options[] = {
   { "types", G_VARIANT_TYPE_UINT32, validate_device_types },
   { "multiple", G_VARIANT_TYPE_BOOLEAN, NULL },
+  { "cursor_mode", G_VARIANT_TYPE_UINT32, validate_cursor_mode },
 };
 
 static gboolean
@@ -490,268 +512,114 @@ handle_select_sources (XdpScreenCast *object,
   return TRUE;
 }
 
-static void
-registry_event_global (void *user_data,
-                       uint32_t id,
-                       uint32_t parent_id,
-                       uint32_t permissions,
-                       uint32_t type,
-                       uint32_t version,
-                       const struct spa_dict *props)
-{
-  PipeWireRemote *remote = user_data;
-  struct pw_type *core_type = pw_core_get_type (remote->core);
-  const struct spa_dict_item *factory_object_type;
-
-  if (type != core_type->factory)
-    return;
-
-  factory_object_type = spa_dict_lookup_item (props, "factory.type.name");
-  if (!factory_object_type)
-    return;
-
-  if (strcmp (factory_object_type->value, "PipeWire:Interface:ClientNode") == 0)
-    {
-      remote->node_factory_id = id;
-      pw_main_loop_quit (remote->loop);
-    }
-}
-
-static const struct pw_registry_proxy_events registry_events = {
-  PW_VERSION_REGISTRY_PROXY_EVENTS,
-  .global = registry_event_global,
-};
-
-static void
-core_event_done (void *user_data,
-                 uint32_t seq)
-{
-  PipeWireRemote *remote = user_data;
-
-  if (remote->registry_sync_seq == seq)
-    pw_main_loop_quit (remote->loop);
-}
-
-static const struct pw_core_proxy_events core_events = {
-  PW_VERSION_CORE_PROXY_EVENTS,
-  .done = core_event_done,
-};
-
-static gboolean
-discover_node_factory_sync (PipeWireRemote *remote,
-                            GError **error)
-{
-  struct pw_type *core_type = pw_core_get_type (remote->core);
-  struct pw_core_proxy *core_proxy;
-  struct spa_hook core_listener;
-  struct pw_registry_proxy *registry_proxy;
-  struct spa_hook registry_listener;
-
-  core_proxy = pw_remote_get_core_proxy (remote->remote);
-  pw_core_proxy_add_listener (core_proxy,
-                              &core_listener,
-                              &core_events,
-                              remote);
-
-  registry_proxy = pw_core_proxy_get_registry (core_proxy,
-                                               core_type->registry,
-                                               PW_VERSION_REGISTRY, 0);
-  pw_registry_proxy_add_listener (registry_proxy,
-                                  &registry_listener,
-                                  &registry_events,
-                                  remote);
-
-  pw_core_proxy_sync(core_proxy, ++remote->registry_sync_seq);
-
-  pw_main_loop_run (remote->loop);
-
-  if (remote->node_factory_id == 0)
-    {
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "No node factory discovered");
-      return FALSE;
-    }
-
-  return TRUE;
-}
-
-static void
-on_state_changed (void *user_data,
-                  enum pw_remote_state old,
-                  enum pw_remote_state state,
-                  const char *error)
-{
-  PipeWireRemote *remote = user_data;
-
-  switch (state)
-    {
-    case PW_REMOTE_STATE_ERROR:
-      g_set_error (&remote->error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "%s", error);
-      pw_main_loop_quit (remote->loop);
-      break;
-    case PW_REMOTE_STATE_UNCONNECTED:
-      g_set_error (&remote->error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Disconnected");
-      pw_main_loop_quit (remote->loop);
-      break;
-    case PW_REMOTE_STATE_CONNECTING:
-      break;
-    case PW_REMOTE_STATE_CONNECTED:
-      pw_main_loop_quit (remote->loop);
-      break;
-    default:
-      g_warning ("Unknown PipeWire state");
-      break;
-    }
-}
-
-static const struct pw_remote_events remote_events = {
-  PW_VERSION_REMOTE_EVENTS,
-  .state_changed = on_state_changed,
-};
-
-void
-pipewire_remote_destroy (PipeWireRemote *remote)
-{
-  g_clear_pointer (&remote->remote, pw_remote_destroy);
-  g_clear_pointer (&remote->core, pw_core_destroy);
-  g_clear_pointer (&remote->loop, pw_main_loop_destroy);
-  g_clear_error (&remote->error);
-
-  g_free (remote);
-}
-
-static void
-ensure_pipewire_is_initialized (void)
-{
-  if (is_pipewire_initialized)
-    return;
-
-  pw_init (NULL, NULL);
-
-  is_pipewire_initialized = TRUE;
-}
-
-static PipeWireRemote *
-connect_pipewire_sync (GError **error)
-{
-  PipeWireRemote *remote;
-
-  ensure_pipewire_is_initialized ();
-
-  remote = g_new0 (PipeWireRemote, 1);
-
-  remote->loop = pw_main_loop_new (NULL);
-  if (!remote->loop)
-    {
-      pipewire_remote_destroy (remote);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Couldn't create PipeWire main loop");
-      return NULL;
-    }
-
-  remote->core = pw_core_new (pw_main_loop_get_loop (remote->loop), NULL);
-  if (!remote->core)
-    {
-      pipewire_remote_destroy (remote);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Couldn't create PipeWire core");
-      return NULL;
-    }
-
-  remote->remote = pw_remote_new (remote->core, NULL, 0);
-  if (!remote->remote)
-    {
-      pipewire_remote_destroy (remote);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Couldn't create PipeWire remote");
-      return NULL;
-    }
-
-  pw_remote_add_listener (remote->remote,
-                          &remote->remote_listener,
-                          &remote_events,
-                          remote);
-
-  if (pw_remote_connect (remote->remote) != 0)
-    {
-      pipewire_remote_destroy (remote);
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Couldn't connect PipeWire remote");
-      return NULL;
-    }
-
-  pw_main_loop_run (remote->loop);
-
-  switch (pw_remote_get_state (remote->remote, NULL))
-    {
-    case PW_REMOTE_STATE_ERROR:
-    case PW_REMOTE_STATE_UNCONNECTED:
-      *error = g_steal_pointer (&remote->error);
-      pipewire_remote_destroy (remote);
-      return FALSE;
-    case PW_REMOTE_STATE_CONNECTING:
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "PipeWire loop stopped unexpectedly");
-      pipewire_remote_destroy (remote);
-      return FALSE;
-    case PW_REMOTE_STATE_CONNECTED:
-      return remote;
-    default:
-      g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                   "Unexpected PipeWire state");
-      pipewire_remote_destroy (remote);
-      return FALSE;
-    }
-}
-
 uint32_t
 screen_cast_stream_get_pipewire_node_id (ScreenCastStream *stream)
 {
   return stream->id;
 }
 
+static void
+append_parent_permissions (PipeWireRemote *remote,
+                           GArray *permission_items,
+                           GList **string_stash,
+                           PipeWireGlobal *global,
+                           const char *permission)
+{
+  PipeWireGlobal *parent;
+  char *parent_permission_value;
+
+  if (global->parent_id == 0)
+    return;
+
+  parent = g_hash_table_lookup (remote->globals, GINT_TO_POINTER (global->parent_id));
+
+  if (parent->permission_set)
+    return;
+  parent->permission_set = TRUE;
+
+  append_parent_permissions (remote, permission_items, string_stash,
+                             parent, permission);
+
+  parent_permission_value = g_strdup_printf ("%u:%s",
+                                             global->parent_id,
+                                             permission);
+  *string_stash = g_list_prepend (*string_stash, parent_permission_value);
+
+  g_array_append_val (permission_items,
+                      PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_GLOBAL,
+                                       parent_permission_value));
+}
+
+static void
+append_stream_permissions (PipeWireRemote *remote,
+                           GArray *permission_items,
+                           GList **string_stash,
+                           GList *streams)
+{
+  GList *l;
+
+  for (l = streams; l; l = l->next)
+    {
+      ScreenCastStream *stream = l->data;
+      uint32_t stream_id;
+      PipeWireGlobal *stream_global;
+      char *stream_permission_value;
+
+      stream_id = screen_cast_stream_get_pipewire_node_id (stream);
+      stream_global = g_hash_table_lookup (remote->globals,
+                                           GINT_TO_POINTER (stream_id));
+
+      append_parent_permissions (remote, permission_items, string_stash,
+                                 stream_global, "r--");
+
+      stream_permission_value = g_strdup_printf ("%u:rwx", stream_id);
+      *string_stash = g_list_prepend (*string_stash, stream_permission_value);
+      g_array_append_val (permission_items,
+                          PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_GLOBAL,
+                                           stream_permission_value));
+    }
+}
+
 static PipeWireRemote *
-open_pipewire_screen_cast_remote (GList *streams,
+open_pipewire_screen_cast_remote (const char *app_id,
+                                  GList *streams,
                                   GError **error)
 {
+  struct pw_properties *pipewire_properties;
   PipeWireRemote *remote;
-  GList *l;
-  unsigned int n_streams, i;
-  struct spa_dict_item *permission_items;
-  unsigned int n_permission_items;
-  g_autofree char *node_factory_permission_string = NULL;
-  char **stream_permission_values;
+  g_autoptr(GArray) permission_items = NULL;
+  char *node_factory_permission_string;
+  GList *string_stash = NULL;
+  struct spa_dict *permission_dict;
 
-  remote = connect_pipewire_sync (error);
+  pipewire_properties = pw_properties_new ("pipewire.access.portal.app_id", app_id,
+                                           "pipewire.access.portal.media_roles", "",
+                                           NULL);
+  remote = pipewire_remote_new_sync (pipewire_properties,
+                                     NULL, NULL, NULL, NULL,
+                                     error);
   if (!remote)
     return FALSE;
 
-  if (!discover_node_factory_sync (remote, error))
-    {
-      pipewire_remote_destroy (remote);
-      return NULL;
-    }
-
-  n_streams = g_list_length (streams);
-  n_permission_items = n_streams + 4;
-  permission_items = g_new0 (struct spa_dict_item, n_permission_items);
+  permission_items = g_array_new (FALSE, TRUE, sizeof (struct spa_dict_item));
 
   /*
    * Hide all existing and future nodes (except the ones we explicitly list below.
    */
-  permission_items[0].key = PW_CORE_PROXY_PERMISSIONS_EXISTING;
-  permission_items[0].value = "---";
-  permission_items[1].key = PW_CORE_PROXY_PERMISSIONS_DEFAULT;
-  permission_items[1].value = "---";
+  g_array_append_val (permission_items,
+                      PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_EXISTING,
+                                       "---"));
+  g_array_append_val (permission_items,
+                      PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_DEFAULT,
+                                       "---"));
 
   /*
    * PipeWire:Interface:Core
    * Needs rwx to be able create the sink node using the create-object method
    */
-  permission_items[2].key = PW_CORE_PROXY_PERMISSIONS_GLOBAL;
-  permission_items[2].value = "0:rwx";
+  g_array_append_val (permission_items,
+                      PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_GLOBAL,
+                                       "0:rwx"));
 
   /*
    * PipeWire:Interface:NodeFactory
@@ -759,30 +627,22 @@ open_pipewire_screen_cast_remote (GList *streams,
    */
   node_factory_permission_string = g_strdup_printf ("%d:r--",
                                                     remote->node_factory_id);
-  permission_items[3].key = PW_CORE_PROXY_PERMISSIONS_GLOBAL;
-  permission_items[3].value = node_factory_permission_string;
+  string_stash = g_list_prepend (string_stash, node_factory_permission_string);
+  g_array_append_val (permission_items,
+                      PERMISSION_ITEM (PW_CORE_PROXY_PERMISSIONS_GLOBAL,
+                                       node_factory_permission_string));
 
-  i = 4;
-  stream_permission_values = g_new0 (char *, n_streams + 1);
-  for (l = streams; l; l = l->next)
-    {
-      ScreenCastStream *stream = l->data;
-      uint32_t stream_id;
-      char *permission_value;
+  append_stream_permissions (remote, permission_items, &string_stash, streams);
 
-      stream_id = screen_cast_stream_get_pipewire_node_id (stream);
-      permission_value = g_strdup_printf ("%u:rwx", stream_id);
-      stream_permission_values[i - 3] = permission_value;
+  permission_dict =
+    &SPA_DICT_INIT ((struct spa_dict_item *) permission_items->data,
+                    permission_items->len);
+  pw_core_proxy_permissions (pw_remote_get_core_proxy (remote->remote),
+                             permission_dict);
 
-      permission_items[i].key = PW_CORE_PROXY_PERMISSIONS_GLOBAL;
-      permission_items[i].value = permission_value;
-    }
+  g_list_free_full (string_stash, g_free);
 
-  pw_core_proxy_permissions(pw_remote_get_core_proxy (remote->remote),
-                            &SPA_DICT_INIT (permission_items,
-                                            n_permission_items));
-
-  g_strfreev (stream_permission_values);
+  pipewire_remote_roundtrip (remote);
 
   return remote;
 }
@@ -1020,7 +880,7 @@ handle_open_pipewire_remote (XdpScreenCast *object,
   Session *session;
   GList *streams;
   PipeWireRemote *remote;
-  GUnixFDList *out_fd_list;
+  g_autoptr(GUnixFDList) out_fd_list = NULL;
   int fd;
   int fd_id;
   g_autoptr(GError) error = NULL;
@@ -1068,7 +928,7 @@ handle_open_pipewire_remote (XdpScreenCast *object,
       return TRUE;
     }
 
-  remote = open_pipewire_screen_cast_remote (streams, &error);
+  remote = open_pipewire_screen_cast_remote (session->app_id, streams, &error);
   if (!remote)
     {
       g_dbus_method_invocation_return_error (invocation,
@@ -1128,14 +988,38 @@ on_supported_source_types_changed (GObject *gobject,
 }
 
 static void
+sync_supported_cursor_modes (ScreenCast *screen_cast)
+{
+
+  available_cursor_modes = xdp_impl_screen_cast_get_available_cursor_modes (impl);
+  xdp_screen_cast_set_available_cursor_modes (XDP_SCREEN_CAST (screen_cast),
+                                              available_cursor_modes);
+}
+
+static void
+on_supported_cursor_modes_changed (GObject *gobject,
+                                   GParamSpec *pspec,
+                                   ScreenCast *screen_cast)
+{
+  sync_supported_cursor_modes (screen_cast);
+}
+
+static void
 screen_cast_init (ScreenCast *screen_cast)
 {
-  xdp_screen_cast_set_version (XDP_SCREEN_CAST (screen_cast), 1);
+  xdp_screen_cast_set_version (XDP_SCREEN_CAST (screen_cast), 2);
 
   g_signal_connect (impl, "notify::supported-source-types",
                     G_CALLBACK (on_supported_source_types_changed),
                     screen_cast);
+  if (impl_version >= 2)
+    {
+      g_signal_connect (impl, "notify::supported-cursor-modes",
+                        G_CALLBACK (on_supported_cursor_modes_changed),
+                        screen_cast);
+    }
   sync_supported_source_types (screen_cast);
+  sync_supported_cursor_modes (screen_cast);
 }
 
 static void
@@ -1162,6 +1046,8 @@ screen_cast_create (GDBusConnection *connection,
       g_warning ("Failed to create screen cast proxy: %s", error->message);
       return NULL;
     }
+
+  impl_version = xdp_impl_screen_cast_get_version (impl);
 
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (impl), G_MAXINT);
 

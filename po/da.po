@@ -1,13 +1,13 @@
 # Danish translation for xdg-desktop-portal
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# scootergrisen, 2018.
+# scootergrisen, 2018-2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-01-25 09:31-0500\n"
-"PO-Revision-Date: 2018-12-06 03:17+0200\n"
+"POT-Creation-Date: 2019-05-28 16:26+0000\n"
+"PO-Revision-Date: 2019-05-21 00:00+0200\n"
 "Last-Translator: scootergrisen\n"
 "Language-Team: Danish\n"
 "Language: da\n"
@@ -16,11 +16,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/device.c:205
+#: src/background.c:259
+#, c-format
+msgid "Allow %s to run in the background?"
+msgstr "Tillad %s at køre i baggrunden?"
+
+#: src/background.c:263
+#, c-format
+msgid "%s requests to be started automatically and run in the background."
+msgstr "%s anmoder om at starte automatisk og køre i baggrunden."
+
+#: src/background.c:265
+#, c-format
+msgid "%s requests to run in the background."
+msgstr "%s anmoder om at køre i baggrunden."
+
+#: src/background.c:266
+msgid ""
+"The ‘run in background’ permission can be changed at any time from the "
+"application settings."
+msgstr ""
+"‘Kør i baggrunden’-tilladelsen kan altid ændres i programindstillingerne."
+
+#: src/background.c:271
+msgid "Don't allow"
+msgstr "Tillad ikke"
+
+#: src/background.c:272
+msgid "Allow"
+msgstr "Tillad"
+
+#: src/device.c:131
 msgid "Turn On Microphone?"
 msgstr "Tænd for mikrofonen?"
 
-#: src/device.c:206
+#: src/device.c:132
 msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
@@ -28,50 +58,50 @@ msgstr ""
 "Adgang til din mikrofon kan når som helst ændres fra "
 "privatlivsindstillingerne."
 
-#: src/device.c:210
+#: src/device.c:136
 msgid "An application wants to use your microphone."
 msgstr "Et program anmoder om at bruge din mikrofon."
 
-#: src/device.c:212
+#: src/device.c:138
 #, c-format
 msgid "%s wants to use your microphone."
 msgstr "%s anmoder om at bruge din mikrofon."
 
-#: src/device.c:218
+#: src/device.c:144
 msgid "Turn On Speakers?"
 msgstr "Tænd for højttalerne?"
 
-#: src/device.c:219
+#: src/device.c:145
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
 "Adgang til dine højttalere kan når som helst ændres fra "
 "privatlivsindstillingerne."
 
-#: src/device.c:223
+#: src/device.c:149
 msgid "An application wants to play sound."
 msgstr "Et program anmoder om at afspille lyd."
 
-#: src/device.c:225
+#: src/device.c:151
 #, c-format
 msgid "%s wants to play sound."
 msgstr "%s anmoder om at afspille lyd."
 
-#: src/device.c:231
+#: src/device.c:157
 msgid "Turn On Camera?"
 msgstr "Tænd for kameraet?"
 
-#: src/device.c:232
+#: src/device.c:158
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
 "Adgang til dit kamera kan når som helst ændres fra privatlivsindstillingerne."
 
-#: src/device.c:236
+#: src/device.c:162
 msgid "An application wants to use your camera."
 msgstr "Et program anmoder om at bruge dit kamera."
 
-#: src/device.c:238
+#: src/device.c:164
 #, c-format
 msgid "%s wants to use your camera."
 msgstr "%s anmoder om at bruge dit kamera."
