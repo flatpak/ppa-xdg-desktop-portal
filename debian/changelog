@@ -3,6 +3,7 @@ xdg-desktop-portal (1.4.2-1) UNRELEASED; urgency=medium
   * New upstream release
   * Disable pipewire (screencasting) until 0.2.6 is available in Debian
   * Build-depend on libjson-glib-dev
+  * d/copyright: Update
 
  -- Simon McVittie <smcv@debian.org>  Mon, 10 Jun 2019 08:52:13 +0100
 
