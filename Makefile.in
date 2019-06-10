@@ -131,6 +131,10 @@ check_PROGRAMS = $(am__EXEEXT_4)
 @HAVE_PIPEWIRE_TRUE@	src/screen-cast.h		\
 @HAVE_PIPEWIRE_TRUE@	src/remote-desktop.c		\
 @HAVE_PIPEWIRE_TRUE@	src/remote-desktop.h		\
+@HAVE_PIPEWIRE_TRUE@	src/pipewire.c			\
+@HAVE_PIPEWIRE_TRUE@	src/pipewire.h			\
+@HAVE_PIPEWIRE_TRUE@	src/camera.c			\
+@HAVE_PIPEWIRE_TRUE@	src/camera.h			\
 @HAVE_PIPEWIRE_TRUE@	$(NULL)
 
 @HAVE_GEOCLUE_TRUE@am__append_15 = \
@@ -260,11 +264,16 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/permissions.h src/email.c src/email.h src/settings.c \
 	src/settings.h src/session.c src/session.h src/trash.c \
 	src/trash.h src/xdp-utils.c src/xdp-utils.h src/fc-monitor.c \
-	src/fc-monitor.h src/screen-cast.c src/screen-cast.h \
-	src/remote-desktop.c src/remote-desktop.h src/location.c \
-	src/location.h
+	src/fc-monitor.h src/background.c src/background.h \
+	src/gamemode.c src/gamemode.h src/flatpak-instance.c \
+	src/flatpak-instance.h src/portal-impl.h src/portal-impl.c \
+	src/screen-cast.c src/screen-cast.h src/remote-desktop.c \
+	src/remote-desktop.h src/pipewire.c src/pipewire.h \
+	src/camera.c src/camera.h src/location.c src/location.h
 @HAVE_PIPEWIRE_TRUE@am__objects_3 = src/xdg_desktop_portal-screen-cast.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-remote-desktop.$(OBJEXT) \
+@HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-pipewire.$(OBJEXT) \
+@HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-camera.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	$(am__objects_1)
 @HAVE_GEOCLUE_TRUE@am__objects_4 =  \
 @HAVE_GEOCLUE_TRUE@	src/xdg_desktop_portal-location.$(OBJEXT) \
@@ -290,7 +299,11 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-session.$(OBJEXT) \
 	src/xdg_desktop_portal-trash.$(OBJEXT) \
 	src/xdg_desktop_portal-xdp-utils.$(OBJEXT) \
-	src/xdg_desktop_portal-fc-monitor.$(OBJEXT) $(am__objects_1) \
+	src/xdg_desktop_portal-fc-monitor.$(OBJEXT) \
+	src/xdg_desktop_portal-background.$(OBJEXT) \
+	src/xdg_desktop_portal-gamemode.$(OBJEXT) \
+	src/xdg_desktop_portal-flatpak-instance.$(OBJEXT) \
+	src/xdg_desktop_portal-portal-impl.$(OBJEXT) $(am__objects_1) \
 	$(am__objects_3) $(am__objects_4)
 am__objects_5 = src/xdg_desktop_portal-xdp-dbus.$(OBJEXT)
 am__objects_6 = src/xdg_desktop_portal-xdp-impl-dbus.$(OBJEXT)
@@ -388,12 +401,16 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po \
 	src/$(DEPDIR)/test_permission_store-xdp-utils.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-account.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-background.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-call.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-camera.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-device.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-documents.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-email.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-location.Po \
@@ -401,6 +418,8 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-notification.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-permissions.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-print.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po \
@@ -756,8 +775,7 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
-FLATPAK_CFLAGS = @FLATPAK_CFLAGS@
-FLATPAK_LIBS = @FLATPAK_LIBS@
+FLATPAK_INTERFACES_DIR = @FLATPAK_INTERFACES_DIR@
 FUSE_CFLAGS = @FUSE_CFLAGS@
 FUSE_LIBS = @FUSE_LIBS@
 GDBUS_CODEGEN = @GDBUS_CODEGEN@
@@ -989,6 +1007,9 @@ dist_introspection_DATA = \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
 	data/org.freedesktop.portal.Location.xml \
 	data/org.freedesktop.portal.Settings.xml \
+	data/org.freedesktop.portal.Background.xml \
+	data/org.freedesktop.portal.GameMode.xml \
+	data/org.freedesktop.portal.Camera.xml \
 	data/org.freedesktop.impl.portal.PermissionStore.xml \
 	data/org.freedesktop.impl.portal.Request.xml \
 	data/org.freedesktop.impl.portal.Session.xml \
@@ -1005,6 +1026,7 @@ dist_introspection_DATA = \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
 	data/org.freedesktop.impl.portal.Lockdown.xml \
+	data/org.freedesktop.impl.portal.Background.xml \
 	$(NULL)
 
 nodist_xdg_permission_store_SOURCES = \
@@ -1076,6 +1098,9 @@ PORTAL_IFACE_FILES = \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
 	data/org.freedesktop.portal.Location.xml \
 	data/org.freedesktop.portal.Settings.xml \
+	data/org.freedesktop.portal.Background.xml \
+	data/org.freedesktop.portal.GameMode.xml \
+	data/org.freedesktop.portal.Camera.xml \
 	$(NULL)
 
 PORTAL_IMPL_IFACE_FILES = \
@@ -1095,6 +1120,7 @@ PORTAL_IMPL_IFACE_FILES = \
 	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
 	data/org.freedesktop.impl.portal.Settings.xml \
 	data/org.freedesktop.impl.portal.Lockdown.xml \
+	data/org.freedesktop.impl.portal.Background.xml \
 	$(NULL)
 
 xdg_desktop_resource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/src/xdg-desktop-portal.gresource.xml)
@@ -1117,7 +1143,10 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/permissions.h src/email.c src/email.h src/settings.c \
 	src/settings.h src/session.c src/session.h src/trash.c \
 	src/trash.h src/xdp-utils.c src/xdp-utils.h src/fc-monitor.c \
-	src/fc-monitor.h $(NULL) $(am__append_14) $(am__append_15)
+	src/fc-monitor.h src/background.c src/background.h \
+	src/gamemode.c src/gamemode.h src/flatpak-instance.c \
+	src/flatpak-instance.h src/portal-impl.h src/portal-impl.c \
+	$(NULL) $(am__append_14) $(am__append_15)
 xdg_desktop_portal_LDADD = \
 	$(BASE_LIBS) \
 	$(PIPEWIRE_LIBS) \
@@ -1125,7 +1154,7 @@ xdg_desktop_portal_LDADD = \
 	$(NULL)
 
 xdg_desktop_portal_CFLAGS = \
-	-DPKGDATADIR=\"$(pkgdatadir)\" \
+	-DDATADIR=\"$(datadir)\" \
 	-DLIBEXECDIR=\"$(libexecdir)\" \
 	-DBWRAP=\"$(BWRAP)\" \
 	$(BASE_CFLAGS) \
@@ -1601,9 +1630,21 @@ src/xdg_desktop_portal-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-fc-monitor.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-background.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-gamemode.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-flatpak-instance.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-portal-impl.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-screen-cast.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-remote-desktop.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-pipewire.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-camera.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-location.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -1740,12 +1781,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_permission_store-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-account.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-background.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-call.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-camera.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-device.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-documents.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-email.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-location.Po@am__quote@ # am--include-marker
@@ -1753,6 +1798,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-permissions.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-print.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po@am__quote@ # am--include-marker
@@ -2223,6 +2270,62 @@ src/xdg_desktop_portal-fc-monitor.obj: src/fc-monitor.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-fc-monitor.obj `if test -f 'src/fc-monitor.c'; then $(CYGPATH_W) 'src/fc-monitor.c'; else $(CYGPATH_W) '$(srcdir)/src/fc-monitor.c'; fi`
 
+src/xdg_desktop_portal-background.o: src/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-background.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-background.Tpo -c -o src/xdg_desktop_portal-background.o `test -f 'src/background.c' || echo '$(srcdir)/'`src/background.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-background.Tpo src/$(DEPDIR)/xdg_desktop_portal-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/background.c' object='src/xdg_desktop_portal-background.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-background.o `test -f 'src/background.c' || echo '$(srcdir)/'`src/background.c
+
+src/xdg_desktop_portal-background.obj: src/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-background.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-background.Tpo -c -o src/xdg_desktop_portal-background.obj `if test -f 'src/background.c'; then $(CYGPATH_W) 'src/background.c'; else $(CYGPATH_W) '$(srcdir)/src/background.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-background.Tpo src/$(DEPDIR)/xdg_desktop_portal-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/background.c' object='src/xdg_desktop_portal-background.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-background.obj `if test -f 'src/background.c'; then $(CYGPATH_W) 'src/background.c'; else $(CYGPATH_W) '$(srcdir)/src/background.c'; fi`
+
+src/xdg_desktop_portal-gamemode.o: src/gamemode.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-gamemode.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-gamemode.Tpo -c -o src/xdg_desktop_portal-gamemode.o `test -f 'src/gamemode.c' || echo '$(srcdir)/'`src/gamemode.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-gamemode.Tpo src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/gamemode.c' object='src/xdg_desktop_portal-gamemode.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-gamemode.o `test -f 'src/gamemode.c' || echo '$(srcdir)/'`src/gamemode.c
+
+src/xdg_desktop_portal-gamemode.obj: src/gamemode.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-gamemode.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-gamemode.Tpo -c -o src/xdg_desktop_portal-gamemode.obj `if test -f 'src/gamemode.c'; then $(CYGPATH_W) 'src/gamemode.c'; else $(CYGPATH_W) '$(srcdir)/src/gamemode.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-gamemode.Tpo src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/gamemode.c' object='src/xdg_desktop_portal-gamemode.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-gamemode.obj `if test -f 'src/gamemode.c'; then $(CYGPATH_W) 'src/gamemode.c'; else $(CYGPATH_W) '$(srcdir)/src/gamemode.c'; fi`
+
+src/xdg_desktop_portal-flatpak-instance.o: src/flatpak-instance.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-flatpak-instance.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Tpo -c -o src/xdg_desktop_portal-flatpak-instance.o `test -f 'src/flatpak-instance.c' || echo '$(srcdir)/'`src/flatpak-instance.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Tpo src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/flatpak-instance.c' object='src/xdg_desktop_portal-flatpak-instance.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-flatpak-instance.o `test -f 'src/flatpak-instance.c' || echo '$(srcdir)/'`src/flatpak-instance.c
+
+src/xdg_desktop_portal-flatpak-instance.obj: src/flatpak-instance.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-flatpak-instance.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Tpo -c -o src/xdg_desktop_portal-flatpak-instance.obj `if test -f 'src/flatpak-instance.c'; then $(CYGPATH_W) 'src/flatpak-instance.c'; else $(CYGPATH_W) '$(srcdir)/src/flatpak-instance.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Tpo src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/flatpak-instance.c' object='src/xdg_desktop_portal-flatpak-instance.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-flatpak-instance.obj `if test -f 'src/flatpak-instance.c'; then $(CYGPATH_W) 'src/flatpak-instance.c'; else $(CYGPATH_W) '$(srcdir)/src/flatpak-instance.c'; fi`
+
+src/xdg_desktop_portal-portal-impl.o: src/portal-impl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-portal-impl.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Tpo -c -o src/xdg_desktop_portal-portal-impl.o `test -f 'src/portal-impl.c' || echo '$(srcdir)/'`src/portal-impl.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Tpo src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/portal-impl.c' object='src/xdg_desktop_portal-portal-impl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-portal-impl.o `test -f 'src/portal-impl.c' || echo '$(srcdir)/'`src/portal-impl.c
+
+src/xdg_desktop_portal-portal-impl.obj: src/portal-impl.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-portal-impl.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Tpo -c -o src/xdg_desktop_portal-portal-impl.obj `if test -f 'src/portal-impl.c'; then $(CYGPATH_W) 'src/portal-impl.c'; else $(CYGPATH_W) '$(srcdir)/src/portal-impl.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Tpo src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/portal-impl.c' object='src/xdg_desktop_portal-portal-impl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-portal-impl.obj `if test -f 'src/portal-impl.c'; then $(CYGPATH_W) 'src/portal-impl.c'; else $(CYGPATH_W) '$(srcdir)/src/portal-impl.c'; fi`
+
 src/xdg_desktop_portal-screen-cast.o: src/screen-cast.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-screen-cast.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Tpo -c -o src/xdg_desktop_portal-screen-cast.o `test -f 'src/screen-cast.c' || echo '$(srcdir)/'`src/screen-cast.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Tpo src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
@@ -2250,6 +2353,34 @@ src/xdg_desktop_portal-remote-desktop.obj: src/remote-desktop.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/remote-desktop.c' object='src/xdg_desktop_portal-remote-desktop.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-remote-desktop.obj `if test -f 'src/remote-desktop.c'; then $(CYGPATH_W) 'src/remote-desktop.c'; else $(CYGPATH_W) '$(srcdir)/src/remote-desktop.c'; fi`
+
+src/xdg_desktop_portal-pipewire.o: src/pipewire.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-pipewire.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-pipewire.Tpo -c -o src/xdg_desktop_portal-pipewire.o `test -f 'src/pipewire.c' || echo '$(srcdir)/'`src/pipewire.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-pipewire.Tpo src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pipewire.c' object='src/xdg_desktop_portal-pipewire.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-pipewire.o `test -f 'src/pipewire.c' || echo '$(srcdir)/'`src/pipewire.c
+
+src/xdg_desktop_portal-pipewire.obj: src/pipewire.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-pipewire.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-pipewire.Tpo -c -o src/xdg_desktop_portal-pipewire.obj `if test -f 'src/pipewire.c'; then $(CYGPATH_W) 'src/pipewire.c'; else $(CYGPATH_W) '$(srcdir)/src/pipewire.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-pipewire.Tpo src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/pipewire.c' object='src/xdg_desktop_portal-pipewire.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-pipewire.obj `if test -f 'src/pipewire.c'; then $(CYGPATH_W) 'src/pipewire.c'; else $(CYGPATH_W) '$(srcdir)/src/pipewire.c'; fi`
+
+src/xdg_desktop_portal-camera.o: src/camera.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-camera.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-camera.Tpo -c -o src/xdg_desktop_portal-camera.o `test -f 'src/camera.c' || echo '$(srcdir)/'`src/camera.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-camera.Tpo src/$(DEPDIR)/xdg_desktop_portal-camera.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/camera.c' object='src/xdg_desktop_portal-camera.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-camera.o `test -f 'src/camera.c' || echo '$(srcdir)/'`src/camera.c
+
+src/xdg_desktop_portal-camera.obj: src/camera.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-camera.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-camera.Tpo -c -o src/xdg_desktop_portal-camera.obj `if test -f 'src/camera.c'; then $(CYGPATH_W) 'src/camera.c'; else $(CYGPATH_W) '$(srcdir)/src/camera.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-camera.Tpo src/$(DEPDIR)/xdg_desktop_portal-camera.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/camera.c' object='src/xdg_desktop_portal-camera.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-camera.obj `if test -f 'src/camera.c'; then $(CYGPATH_W) 'src/camera.c'; else $(CYGPATH_W) '$(srcdir)/src/camera.c'; fi`
 
 src/xdg_desktop_portal-location.o: src/location.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-location.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-location.Tpo -c -o src/xdg_desktop_portal-location.o `test -f 'src/location.c' || echo '$(srcdir)/'`src/location.c
@@ -3268,12 +3399,16 @@ distclean: distclean-recursive
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po
 	-rm -f src/$(DEPDIR)/test_permission_store-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-background.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-call.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-camera.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
@@ -3281,6 +3416,8 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-notification.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-permissions.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-print.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po
@@ -3377,12 +3514,16 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po
 	-rm -f src/$(DEPDIR)/test_permission_store-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-background.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-call.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-camera.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
@@ -3390,6 +3531,8 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-notification.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-permissions.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-pipewire.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-portal-impl.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-print.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po

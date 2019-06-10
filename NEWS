@@ -1,3 +1,21 @@
+Changes in 1.4.2
+================
+
+* Build fixes
+
+Changes in 1.4.0
+================
+
+* Add a background&autostart portal
+* Add a gamemode portal
+* Add a camera portal
+* Require pipewire 0.2.6
+* inhibit: Track session state
+* documents: Fix a ref-counting bug
+* screencast: Add cursor modes
+* screencast: Memory leak fixes
+* Translation updates
+
 Changes in 1.2.0
 ================
 

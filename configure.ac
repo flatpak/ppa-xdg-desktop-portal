@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.2.0])
+AC_INIT([xdg-desktop-portal],[1.4.2])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -47,6 +47,12 @@ AC_ARG_WITH(dbus_service_dir,
 DBUS_SERVICE_DIR=$with_dbus_service_dir
 AC_SUBST(DBUS_SERVICE_DIR)
 
+AC_ARG_WITH(flatpak_interfaces_dir,
+        AS_HELP_STRING([--with-flatpak-interfaces-dir=PATH],[choose directory for Flatpak interface files, [default=PREFIX/share/dbus-1/interfaces]]),
+        [[FLATPAK_INTERFACES_DIR="$withval"]],
+	[PKG_CHECK_VAR([FLATPAK_INTERFACES_DIR], [flatpak], [interfaces_dir])])
+AC_SUBST(FLATPAK_INTERFACES_DIR)
+
 AC_ARG_WITH([systemduserunitdir],
             [AS_HELP_STRING([--with-systemduserunitdir=DIR],
                             [Directory for systemd user service files (default=PREFIX/lib/systemd/user)])],
@@ -61,7 +67,7 @@ AC_PATH_PROG([BWRAP], [bwrap])
 AC_SUBST([GLIB_COMPILE_RESOURCES], [`$PKG_CONFIG --variable glib_compile_resources gio-2.0`])
 AC_SUBST([GDBUS_CODEGEN], [`$PKG_CONFIG --variable gdbus_codegen gio-2.0`])
 
-PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0 fontconfig])
+PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0 fontconfig json-glib-1.0])
 AC_SUBST(BASE_CFLAGS)
 AC_SUBST(BASE_LIBS)
 
@@ -69,7 +75,7 @@ AC_ARG_ENABLE(pipewire,
 	      [AS_HELP_STRING([--enable-pipewire],[Enable PipeWire support. Needed for screen cast portal])],
 	      enable_pipewire=$enableval, enable_pipewire=yes)
 if test x$enable_pipewire = xyes ; then
-	PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.2 >= 0.2.2])
+	PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.2 >= 0.2.6])
 	AC_DEFINE([HAVE_PIPEWIRE],[1], [Define to enable PipeWire support])
 fi
 AM_CONDITIONAL([HAVE_PIPEWIRE],[test "$enable_pipewire" = "yes"])
@@ -136,7 +142,6 @@ fi
 GLIB_TESTS
 
 PKG_CHECK_MODULES(FUSE, [fuse])
-PKG_CHECK_MODULES(FLATPAK, [flatpak])
 
 AC_CONFIG_FILES([
 Makefile

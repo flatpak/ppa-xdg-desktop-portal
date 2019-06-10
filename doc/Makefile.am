@@ -1,7 +1,7 @@
 NULL =
 
 org.freedesktop.portal.Flatpak.xml :
-	cp $(datadir)/dbus-1/interfaces/org.freedesktop.portal.Flatpak.xml .
+	cp $(FLATPAK_INTERFACES_DIR)/org.freedesktop.portal.Flatpak.xml .
 
 portal_files = 								\
 	org.freedesktop.portal.Flatpak.xml		 		\
@@ -22,6 +22,9 @@ portal_files = 								\
 	$(top_srcdir)/data/org.freedesktop.portal.Device.xml	 	\
 	$(top_srcdir)/data/org.freedesktop.portal.Location.xml		\
 	$(top_srcdir)/data/org.freedesktop.portal.Settings.xml		\
+	$(top_srcdir)/data/org.freedesktop.portal.Background.xml		\
+	$(top_srcdir)/data/org.freedesktop.portal.GameMode.xml		\
+	$(top_srcdir)/data/org.freedesktop.portal.Camera.xml		\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Request.xml 	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Session.xml 	\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.FileChooser.xml 	\
@@ -38,6 +41,7 @@ portal_files = 								\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.Lockdown.xml	\
 	$(top_srcdir)/data/org.freedesktop.portal.Documents.xml		\
 	$(top_srcdir)/data/org.freedesktop.impl.portal.PermissionStore.xml	\
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Background.xml		\
 	$(NULL)
 
 xml_files = 								\
@@ -60,6 +64,8 @@ xml_files = 								\
 	portal-org.freedesktop.portal.Device.xml			\
 	portal-org.freedesktop.portal.Location.xml			\
 	portal-org.freedesktop.portal.Settings.xml			\
+	portal-org.freedesktop.portal.Background.xml			\
+	portal-org.freedesktop.portal.GameMode.xml			\
 	portal-org.freedesktop.impl.portal.Request.xml 			\
 	portal-org.freedesktop.impl.portal.Session.xml 			\
 	portal-org.freedesktop.impl.portal.FileChooser.xml		\
