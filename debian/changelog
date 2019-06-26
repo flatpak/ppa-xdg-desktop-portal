@@ -1,6 +1,8 @@
 xdg-desktop-portal (1.4.2-2) UNRELEASED; urgency=medium
 
   * d/salsa-ci.yml: Request standard CI on salsa.debian.org
+  * d/p/test-doc-portal-Check-for-FUSE-support-more-thoroughly.patch:
+    Skip tests when FUSE is non-functional, even if we are root
 
  -- Simon McVittie <smcv@debian.org>  Sun, 23 Jun 2019 20:12:37 +0100
 
