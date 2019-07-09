@@ -6,7 +6,7 @@ Uploaders:
  Simon McVittie <smcv@debian.org>,
 Build-Depends:
  dbus,
- debhelper (>= 10),
+ debhelper-compat (= 12),
  fuse <!nocheck>,
  libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
