@@ -1,14 +1,15 @@
 From: Simon McVittie <smcv@debian.org>
 Date: Fri, 25 Jan 2019 19:13:33 +0000
-Subject: Replace the icon validator with the one from Flatpak git master
+Subject: Replace the icon validator with the one from Flatpak 1.4.2
 
-We don't want to depend on a version of Flatpak that isn't out yet.
+For now we still want to avoid relying on Flatpak, since that dependency
+would be quite circular.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
 ---
  src/notification.c  |  14 +---
- src/validate-icon.c | 210 ++++++++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 207 insertions(+), 17 deletions(-)
+ src/validate-icon.c | 212 ++++++++++++++++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 207 insertions(+), 19 deletions(-)
 
 diff --git a/src/notification.c b/src/notification.c
 index 1367114..2301380 100644
@@ -54,10 +55,10 @@ index 1367114..2301380 100644
      }
  
 diff --git a/src/validate-icon.c b/src/validate-icon.c
-index 2bab74f..6413cab 100644
+index 2bab74f..9e88507 100644
 --- a/src/validate-icon.c
 +++ b/src/validate-icon.c
-@@ -1,15 +1,54 @@
+@@ -1,9 +1,35 @@
 +/*
 + * Copyright © 2018 Red Hat, Inc
 + *
@@ -80,6 +81,7 @@ index 2bab74f..6413cab 100644
 +
  #include <gdk-pixbuf/gdk-pixbuf.h>
 +#include <glib/gstdio.h>
++#include <errno.h>
 +#include <unistd.h>
  
  static int
@@ -93,27 +95,16 @@ index 2bab74f..6413cab 100644
    int width, height;
    const char *name;
    const char *allowed_formats[] = { "png", "jpeg", "svg", NULL };
-   g_autoptr(GdkPixbuf) pixbuf = NULL;
+@@ -11,7 +37,7 @@ validate_icon (const char *filename)
    g_autoptr(GError) error = NULL;
  
-+  max_width = g_ascii_strtoll (arg_width, NULL, 10);
-+  if (max_width < 16 || max_width > 4096)
-+    {
-+      g_printerr ("Bad width limit: %s\n", arg_width);
-+      return 1;
-+    }
-+
-+  max_height = g_ascii_strtoll (arg_height, NULL, 10);
-+  if (max_height < 16 || max_height > 4096)
-+    {
-+      g_printerr ("Bad height limit: %s\n", arg_height);
-+      return 1;
-+    }
-+
    format = gdk_pixbuf_get_file_info (filename, &width, &height);
-   if (format == NULL) 
+-  if (format == NULL) 
++  if (format == NULL)
      {
-@@ -20,11 +59,11 @@ validate_icon (const char *filename)
+       g_printerr ("Format not recognized\n");
+       return 1;
+@@ -20,13 +46,35 @@ validate_icon (const char *filename)
    name = gdk_pixbuf_format_get_name (format);
    if (!g_strv_contains (allowed_formats, name))
      {
@@ -123,14 +114,40 @@ index 2bab74f..6413cab 100644
      }
  
 -  if (width > 256 || height > 256)
++  if (!g_str_equal (name, "svg"))
++    {
++      max_width = g_ascii_strtoll (arg_width, NULL, 10);
++      if (max_width < 16 || max_width > 4096)
++        {
++          g_printerr ("Bad width limit: %s\n", arg_width);
++          return 1;
++        }
++
++      max_height = g_ascii_strtoll (arg_height, NULL, 10);
++      if (max_height < 16 || max_height > 4096)
++        {
++          g_printerr ("Bad height limit: %s\n", arg_height);
++          return 1;
++        }
++    }
++  else
++    {
++      /* Sanity check for vector files */
++      max_height = max_width = 4096;
++    }
++
 +  if (width > max_width || height > max_height)
      {
-       g_printerr ("Image too large (%dx%d)\n", width, height);
+-      g_printerr ("Image too large (%dx%d)\n", width, height);
++      g_printerr ("Image too large (%dx%d). Max. size %dx%d\n", width, height, max_width, max_height);
        return 1;
-@@ -40,14 +79,173 @@ validate_icon (const char *filename)
+     }
+ 
+@@ -40,14 +88,162 @@ validate_icon (const char *filename)
    return 0;
  }
  
++G_GNUC_NULL_TERMINATED
 +static void
 +add_args (GPtrArray *argv_array, ...)
 +{
@@ -181,14 +198,11 @@ index 2bab74f..6413cab 100644
 +  const char * const usrmerged_dirs[] = { "bin", "lib64", "lib", "sbin" };
 +  int i;
 +  g_autoptr(GPtrArray) args = g_ptr_array_new_with_free_func (g_free);
-+  g_autofree char *err = NULL;
-+  int status;
-+  g_autoptr(GError) error = NULL;
 +  char validate_icon[PATH_MAX + 1];
 +  ssize_t symlink_size;
 +
 +  symlink_size = readlink ("/proc/self/exe", validate_icon, sizeof (validate_icon) - 1);
-+  if (symlink_size < 0)
++  if (symlink_size < 0 || (size_t) symlink_size >= sizeof (validate_icon))
 +    {
 +      g_printerr ("Error: failed to read /proc/self/exe\n");
 +      return 1;
@@ -206,7 +220,7 @@ index 2bab74f..6413cab 100644
 +            "--ro-bind", validate_icon, validate_icon,
 +            NULL);
 +
-+ /* These directories might be symlinks into /usr/... */
++  /* These directories might be symlinks into /usr/... */
 +  for (i = 0; i < G_N_ELEMENTS (usrmerged_dirs); i++)
 +    {
 +      g_autofree char *absolute_dir = g_strdup_printf ("/%s", usrmerged_dirs[i]);
@@ -250,23 +264,14 @@ index 2bab74f..6413cab 100644
 +  g_ptr_array_add (args, NULL);
 +
 +  {
-+    g_autofree char *cmdline = g_strjoinv (" ", (char **)args->pdata);
++    g_autofree char *cmdline = g_strjoinv (" ", (char **) args->pdata);
 +    g_debug ("Icon validation: Spawning %s", cmdline);
 +  }
 +
-+  if (!g_spawn_sync (NULL, (char **)args->pdata, NULL, 0, NULL, NULL, NULL, &err, &status, &error))
-+    {
-+      g_debug ("Icon validation: %s", error->message);
-+      return 1;
-+    }
-+
-+  if (!g_spawn_check_exit_status (status, NULL))
-+    {
-+      g_debug ("Icon validation: %s", err);
-+      return 1;
-+    }
-+
-+  return 0;
++  execvpe (flatpak_get_bwrap (), (char **) args->pdata, NULL);
++  /* If we get here, then execvpe() failed. */
++  g_printerr ("Icon validation: execvpe %s: %s\n", flatpak_get_bwrap (), g_strerror (errno));
++  return 1;
 +}
 +
 +static gboolean opt_sandbox;
