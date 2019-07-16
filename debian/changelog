@@ -9,6 +9,7 @@ xdg-desktop-portal (1.4.2-2) UNRELEASED; urgency=medium
       at this compat level
   * d/p/Replace-the-icon-validator-with-the-one-from-Flatpak-1.4..patch:
     Update icon validator to the one from Flatpak 1.4.2
+  * Mark autopkgtest as flaky due to #931726
 
  -- Simon McVittie <smcv@debian.org>  Sun, 23 Jun 2019 20:12:37 +0100
 
