@@ -17,7 +17,7 @@ Build-Depends:
  libjson-glib-dev,
  xmlto,
 Rules-Requires-Root: no
-Standards-Version: 4.4.0
+Standards-Version: 4.4.1
 Homepage: https://github.com/flatpak/xdg-desktop-portal
 Vcs-Git: https://salsa.debian.org/debian/xdg-desktop-portal.git
 Vcs-Browser: https://salsa.debian.org/debian/xdg-desktop-portal
