@@ -1,8 +1,10 @@
-xdg-desktop-portal (1.4.2-3) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.4.2-3) unstable; urgency=medium
 
   * Standards-Version: 4.4.1 (no changes required)
+  * Re-enable pipewire (screen recording) support now that v0.2.7 is
+    available
 
- -- Simon McVittie <smcv@debian.org>  Tue, 01 Oct 2019 10:37:08 +0100
+ -- Simon McVittie <smcv@debian.org>  Sat, 02 Nov 2019 10:12:41 +0000
 
 xdg-desktop-portal (1.4.2-2) unstable; urgency=medium
 
