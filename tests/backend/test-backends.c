@@ -5,10 +5,16 @@
 
 #include "src/xdp-impl-dbus.h"
 
+#include "access.h"
 #include "account.h"
+#include "appchooser.h"
 #include "email.h"
 #include "filechooser.h"
+#include "inhibit.h"
+#include "lockdown.h"
+#include "print.h"
 #include "screenshot.h"
+#include "wallpaper.h"
 
 #define BACKEND_BUS_NAME "org.freedesktop.impl.portal.Test"
 #define BACKEND_OBJECT_PATH "/org/freedesktop/portal/desktop"
@@ -20,10 +26,16 @@ on_bus_acquired (GDBusConnection *connection,
                  const gchar     *name,
                  gpointer         user_data)
 {
-  account_init (connection);
-  email_init (connection);
-  file_chooser_init (connection);
-  screenshot_init (connection);
+  access_init (connection, BACKEND_OBJECT_PATH);
+  account_init (connection, BACKEND_OBJECT_PATH);
+  appchooser_init (connection, BACKEND_OBJECT_PATH);
+  email_init (connection, BACKEND_OBJECT_PATH);
+  file_chooser_init (connection, BACKEND_OBJECT_PATH);
+  inhibit_init (connection, BACKEND_OBJECT_PATH);
+  lockdown_init (connection, BACKEND_OBJECT_PATH);
+  print_init (connection, BACKEND_OBJECT_PATH);
+  screenshot_init (connection, BACKEND_OBJECT_PATH);
+  wallpaper_init (connection, BACKEND_OBJECT_PATH);
 }
 
 static void

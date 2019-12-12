@@ -75,30 +75,13 @@ Permission
 device_get_permission_sync (const char *app_id,
                             const char *device)
 {
-  char **permissions;
-
-  permissions = get_permissions_sync (app_id, PERMISSION_TABLE, device);
-  if (!permissions)
-    {
-      return PERMISSION_UNSET;
-    }
-  else
-    {
-      Permission permission;
-
-      g_debug ("device: %s %s, app %s -> %s",
-               PERMISSION_TABLE, device, app_id, permissions[0]);
-
-      permission = permissions_to_tristate (permissions);
-      g_strfreev (permissions);
-      return permission;
-    }
+  return get_permission_sync (app_id, PERMISSION_TABLE, device);
 }
 
 gboolean
 device_query_permission_sync (const char *app_id,
                               const char *device,
-                              const char *request_handle)
+                              Request    *request)
 {
   Permission permission;
   gboolean allowed;
@@ -114,6 +97,7 @@ device_query_permission_sync (const char *app_id,
       g_autoptr(GVariant) results = NULL;
       g_autoptr(GError) error = NULL;
       g_autoptr(GAppInfo) info = NULL;
+      g_autoptr(XdpImplRequest) impl_request = NULL;
 
       if (app_id[0] != 0)
         {
@@ -164,10 +148,20 @@ device_query_permission_sync (const char *app_id,
             subtitle = g_strdup_printf (_("%s wants to use your camera."), g_app_info_get_display_name (info));
         }
 
+      impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
+                                                      G_DBUS_PROXY_FLAGS_NONE,
+                                                      g_dbus_proxy_get_name (G_DBUS_PROXY (impl)),
+                                                      request->id,
+                                                      NULL, &error);
+      if (!impl_request)
+        return FALSE;
+
+      request_set_impl_request (request, impl_request);
+
       g_debug ("Calling backend for device access to: %s", device);
 
       if (!xdp_impl_access_call_access_dialog_sync (impl,
-                                                    request_handle,
+                                                    request->id,
                                                     app_id,
                                                     "",
                                                     title,
@@ -185,15 +179,7 @@ device_query_permission_sync (const char *app_id,
       allowed = response == 0;
 
       if (permission == PERMISSION_UNSET)
-        {
-          char **permissions;
-
-          permissions = permissions_from_tristate (allowed ? PERMISSION_YES
-                                                           : PERMISSION_NO);
-          set_permissions_sync (app_id, PERMISSION_TABLE, device,
-                                (const char * const *)permissions);
-          g_strfreev (permissions);
-        }
+        set_permission_sync (app_id, PERMISSION_TABLE, device, allowed ? PERMISSION_YES : PERMISSION_NO);
     }
   else
     allowed = permission == PERMISSION_YES ? TRUE : FALSE;
@@ -217,7 +203,7 @@ handle_access_device_in_thread (GTask *task,
   app_id = (const char *)g_object_get_data (G_OBJECT (request), "app-id");
   device = (const char *)g_object_get_data (G_OBJECT (request), "device");
 
-  allowed = device_query_permission_sync (app_id, device, request->id);
+  allowed = device_query_permission_sync (app_id, device, request);
 
   if (request->exported)
     {

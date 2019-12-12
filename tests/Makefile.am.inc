@@ -1,10 +1,6 @@
 test_programs =
 
-TESTS_ENVIRONMENT = FLATPAK_TESTS_DEBUG=1 \
-	FLATPAK_TRIGGERSDIR=$$(cd $(top_srcdir) && pwd)/triggers \
-	FLATPAK_DBUSPROXY=$$(cd $(top_builddir) && pwd)/flatpak-dbus-proxy \
-	GI_TYPELIB_PATH=$$(cd $(top_builddir) && pwd)$${GI_TYPELIB_PATH:+:$$GI_TYPELIB_PATH} \
-	LD_LIBRARY_PATH=$$(cd $(top_builddir)/.libs && pwd)$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH} \
+TESTS_ENVIRONMENT = \
 	PATH=$$(cd $(top_builddir) && pwd):$${PATH} \
 	$(NULL)
 
@@ -39,19 +35,31 @@ test_portals_LDADD += $(LIBPORTAL_LIBS)
 test_portals_SOURCES += \
 	tests/account.c \
 	tests/account.h \
+        tests/camera.c \
+        tests/camera.h \
 	tests/email.c \
 	tests/email.h \
 	tests/filechooser.c \
 	tests/filechooser.h \
+        tests/inhibit.c \
+        tests/inhibit.h \
+        tests/openuri.c \
+        tests/openuri.h \
+	tests/print.c \
+	tests/print.h \
 	tests/screenshot.c \
 	tests/screenshot.h \
 	tests/trash.c \
 	tests/trash.h \
+	tests/wallpaper.c \
+	tests/wallpaper.h \
 	$(NULL)
 endif
 nodist_test_portals_SOURCES = \
 	src/xdp-dbus.c \
+	src/xdp-impl-dbus.c \
 	src/xdp-utils.c \
+        document-portal/permission-store-dbus.c \
 	$(NULL)
 test_programs += test-portals
 
@@ -94,6 +102,10 @@ test_programs += \
 	test-doc-portal \
 	test-permission-store \
 	$(NULL)
+
+EXTRA_DIST += \
+        tests/portals/test.portal \
+        $(BNULL)
 
 DISTCLEANFILES += \
 	tests/services/org.freedesktop.portal.Documents.service \

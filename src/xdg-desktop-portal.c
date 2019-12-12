@@ -205,6 +205,10 @@ on_bus_acquired (GDBusConnection *connection,
   PortalImplementation *implementation2;
   g_autoptr(GError) error = NULL;
   XdpImplLockdown *lockdown;
+  GQuark portal_errors G_GNUC_UNUSED;
+
+  /* make sure errors are registered */
+  portal_errors = XDG_DESKTOP_PORTAL_ERROR;
 
   xdp_connection_track_name_owners (connection, peer_died_cb);
   init_document_proxy (connection);
@@ -274,8 +278,8 @@ on_bus_acquired (GDBusConnection *connection,
                                     location_create (connection, implementation->dbus_name, lockdown));
 #endif
 
-#if HAVE_PIPEWIRE
-      export_portal_implementation (connection, camera_create (connection));
+#ifdef HAVE_PIPEWIRE
+      export_portal_implementation (connection, camera_create (connection, lockdown));
 #endif
     }
 
@@ -300,7 +304,7 @@ on_bus_acquired (GDBusConnection *connection,
     export_portal_implementation (connection,
 				  secret_create (connection, implementation->dbus_name));
 
-#if HAVE_PIPEWIRE
+#ifdef HAVE_PIPEWIRE
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.ScreenCast");
   if (implementation != NULL)
     export_portal_implementation (connection,
