@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-10-29 16:11-0400\n"
+"POT-Creation-Date: 2019-11-27 14:51-0500\n"
 "PO-Revision-Date: 2016-09-14 12:54+0200\n"
 "Last-Translator: Мирослав Николић <miroslavnikolic@rocketmail.com>\n"
 "Language-Team: српски <gnome-sr@googlegroups.org>\n"
@@ -111,34 +111,34 @@ msgstr "Један програм жели да користи вашу каме
 msgid "%s wants to use your camera."
 msgstr "„%s“ жели да користи вашу камерицу."
 
-#: src/location.c:518
+#: src/location.c:526
 msgid "Deny Access"
 msgstr ""
 
-#: src/location.c:520
+#: src/location.c:528
 msgid "Grant Access"
 msgstr ""
 
-#: src/location.c:526
+#: src/location.c:534
 msgid "Grant Access to Your Location?"
 msgstr ""
 
-#: src/location.c:527
+#: src/location.c:535
 #, fuzzy
 msgid "An application wants to use your location."
 msgstr "Један програм жели да користи вашу камерицу."
 
-#: src/location.c:539
+#: src/location.c:547
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr ""
 
-#: src/location.c:543
+#: src/location.c:551
 #, fuzzy, c-format
 msgid "%s wants to use your location."
 msgstr "„%s“ жели да користи вашу камерицу."
 
-#: src/location.c:546
+#: src/location.c:554
 #, fuzzy
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""

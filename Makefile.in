@@ -148,6 +148,8 @@ check_PROGRAMS = $(am__EXEEXT_4)
 @HAVE_LIBPORTAL_TRUE@am__append_18 = \
 @HAVE_LIBPORTAL_TRUE@	tests/account.c \
 @HAVE_LIBPORTAL_TRUE@	tests/account.h \
+@HAVE_LIBPORTAL_TRUE@	tests/background.c \
+@HAVE_LIBPORTAL_TRUE@	tests/background.h \
 @HAVE_LIBPORTAL_TRUE@        tests/camera.c \
 @HAVE_LIBPORTAL_TRUE@        tests/camera.h \
 @HAVE_LIBPORTAL_TRUE@	tests/email.c \
@@ -156,6 +158,10 @@ check_PROGRAMS = $(am__EXEEXT_4)
 @HAVE_LIBPORTAL_TRUE@	tests/filechooser.h \
 @HAVE_LIBPORTAL_TRUE@        tests/inhibit.c \
 @HAVE_LIBPORTAL_TRUE@        tests/inhibit.h \
+@HAVE_LIBPORTAL_TRUE@        tests/location.c \
+@HAVE_LIBPORTAL_TRUE@        tests/location.h \
+@HAVE_LIBPORTAL_TRUE@        tests/notification.c \
+@HAVE_LIBPORTAL_TRUE@        tests/notification.h \
 @HAVE_LIBPORTAL_TRUE@        tests/openuri.c \
 @HAVE_LIBPORTAL_TRUE@        tests/openuri.h \
 @HAVE_LIBPORTAL_TRUE@	tests/print.c \
@@ -244,13 +250,16 @@ am__objects_1 =
 am_test_backends_OBJECTS =  \
 	tests/backend/test_backends-test-backends.$(OBJEXT) \
 	tests/backend/test_backends-request.$(OBJEXT) \
+	tests/backend/test_backends-session.$(OBJEXT) \
 	tests/backend/test_backends-access.$(OBJEXT) \
 	tests/backend/test_backends-account.$(OBJEXT) \
 	tests/backend/test_backends-appchooser.$(OBJEXT) \
+	tests/backend/test_backends-background.$(OBJEXT) \
 	tests/backend/test_backends-email.$(OBJEXT) \
 	tests/backend/test_backends-filechooser.$(OBJEXT) \
 	tests/backend/test_backends-inhibit.$(OBJEXT) \
 	tests/backend/test_backends-lockdown.$(OBJEXT) \
+	tests/backend/test_backends-notification.$(OBJEXT) \
 	tests/backend/test_backends-print.$(OBJEXT) \
 	tests/backend/test_backends-screenshot.$(OBJEXT) \
 	tests/backend/test_backends-wallpaper.$(OBJEXT) \
@@ -293,18 +302,23 @@ test_permission_store_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(test_permission_store_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am__test_portals_SOURCES_DIST = tests/test-portals.c tests/account.c \
-	tests/account.h tests/camera.c tests/camera.h tests/email.c \
-	tests/email.h tests/filechooser.c tests/filechooser.h \
-	tests/inhibit.c tests/inhibit.h tests/openuri.c \
+	tests/account.h tests/background.c tests/background.h \
+	tests/camera.c tests/camera.h tests/email.c tests/email.h \
+	tests/filechooser.c tests/filechooser.h tests/inhibit.c \
+	tests/inhibit.h tests/location.c tests/location.h \
+	tests/notification.c tests/notification.h tests/openuri.c \
 	tests/openuri.h tests/print.c tests/print.h tests/screenshot.c \
 	tests/screenshot.h tests/trash.c tests/trash.h \
 	tests/wallpaper.c tests/wallpaper.h
 @HAVE_LIBPORTAL_TRUE@am__objects_2 =  \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-account.$(OBJEXT) \
+@HAVE_LIBPORTAL_TRUE@	tests/test_portals-background.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-camera.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-email.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-filechooser.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-inhibit.$(OBJEXT) \
+@HAVE_LIBPORTAL_TRUE@	tests/test_portals-location.$(OBJEXT) \
+@HAVE_LIBPORTAL_TRUE@	tests/test_portals-notification.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-openuri.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-print.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-screenshot.$(OBJEXT) \
@@ -535,10 +549,13 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po \
 	tests/$(DEPDIR)/test_permission_store-test-permission-store.Po \
 	tests/$(DEPDIR)/test_portals-account.Po \
+	tests/$(DEPDIR)/test_portals-background.Po \
 	tests/$(DEPDIR)/test_portals-camera.Po \
 	tests/$(DEPDIR)/test_portals-email.Po \
 	tests/$(DEPDIR)/test_portals-filechooser.Po \
 	tests/$(DEPDIR)/test_portals-inhibit.Po \
+	tests/$(DEPDIR)/test_portals-location.Po \
+	tests/$(DEPDIR)/test_portals-notification.Po \
 	tests/$(DEPDIR)/test_portals-openuri.Po \
 	tests/$(DEPDIR)/test_portals-print.Po \
 	tests/$(DEPDIR)/test_portals-screenshot.Po \
@@ -549,13 +566,16 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	tests/backend/$(DEPDIR)/test_backends-access.Po \
 	tests/backend/$(DEPDIR)/test_backends-account.Po \
 	tests/backend/$(DEPDIR)/test_backends-appchooser.Po \
+	tests/backend/$(DEPDIR)/test_backends-background.Po \
 	tests/backend/$(DEPDIR)/test_backends-email.Po \
 	tests/backend/$(DEPDIR)/test_backends-filechooser.Po \
 	tests/backend/$(DEPDIR)/test_backends-inhibit.Po \
 	tests/backend/$(DEPDIR)/test_backends-lockdown.Po \
+	tests/backend/$(DEPDIR)/test_backends-notification.Po \
 	tests/backend/$(DEPDIR)/test_backends-print.Po \
 	tests/backend/$(DEPDIR)/test_backends-request.Po \
 	tests/backend/$(DEPDIR)/test_backends-screenshot.Po \
+	tests/backend/$(DEPDIR)/test_backends-session.Po \
 	tests/backend/$(DEPDIR)/test_backends-test-backends.Po \
 	tests/backend/$(DEPDIR)/test_backends-wallpaper.Po
 am__mv = mv -f
@@ -1316,12 +1336,16 @@ test_backends_SOURCES = \
 	tests/backend/test-backends.c \
 	tests/backend/request.h \
 	tests/backend/request.c \
+	tests/backend/session.h \
+	tests/backend/session.c \
 	tests/backend/access.c \
 	tests/backend/access.h \
 	tests/backend/account.c \
 	tests/backend/account.h \
 	tests/backend/appchooser.c \
 	tests/backend/appchooser.h \
+	tests/backend/background.c \
+	tests/backend/background.h \
 	tests/backend/email.c \
 	tests/backend/email.h \
 	tests/backend/filechooser.c \
@@ -1330,6 +1354,8 @@ test_backends_SOURCES = \
 	tests/backend/inhibit.h \
 	tests/backend/lockdown.c \
 	tests/backend/lockdown.h \
+	tests/backend/notification.c \
+	tests/backend/notification.h \
 	tests/backend/print.c \
 	tests/backend/print.h \
 	tests/backend/screenshot.c \
@@ -1716,6 +1742,9 @@ tests/backend/test_backends-test-backends.$(OBJEXT):  \
 tests/backend/test_backends-request.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
+tests/backend/test_backends-session.$(OBJEXT):  \
+	tests/backend/$(am__dirstamp) \
+	tests/backend/$(DEPDIR)/$(am__dirstamp)
 tests/backend/test_backends-access.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
@@ -1723,6 +1752,9 @@ tests/backend/test_backends-account.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
 tests/backend/test_backends-appchooser.$(OBJEXT):  \
+	tests/backend/$(am__dirstamp) \
+	tests/backend/$(DEPDIR)/$(am__dirstamp)
+tests/backend/test_backends-background.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
 tests/backend/test_backends-email.$(OBJEXT):  \
@@ -1735,6 +1767,9 @@ tests/backend/test_backends-inhibit.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
 tests/backend/test_backends-lockdown.$(OBJEXT):  \
+	tests/backend/$(am__dirstamp) \
+	tests/backend/$(DEPDIR)/$(am__dirstamp)
+tests/backend/test_backends-notification.$(OBJEXT):  \
 	tests/backend/$(am__dirstamp) \
 	tests/backend/$(DEPDIR)/$(am__dirstamp)
 tests/backend/test_backends-print.$(OBJEXT):  \
@@ -1794,6 +1829,8 @@ tests/test_portals-test-portals.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-account.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_portals-background.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-camera.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-email.$(OBJEXT): tests/$(am__dirstamp) \
@@ -1801,6 +1838,10 @@ tests/test_portals-email.$(OBJEXT): tests/$(am__dirstamp) \
 tests/test_portals-filechooser.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-inhibit.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_portals-location.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_portals-notification.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-openuri.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
@@ -2089,10 +2130,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_permission_store-test-permission-store.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-account.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-background.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-camera.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-email.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-filechooser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-inhibit.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-location.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-openuri.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-print.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-screenshot.Po@am__quote@ # am--include-marker
@@ -2103,13 +2147,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-access.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-account.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-appchooser.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-background.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-email.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-filechooser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-inhibit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-lockdown.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-print.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-request.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-screenshot.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-session.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-test-backends.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-wallpaper.Po@am__quote@ # am--include-marker
 
@@ -2171,6 +2218,20 @@ tests/backend/test_backends-request.obj: tests/backend/request.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-request.obj `if test -f 'tests/backend/request.c'; then $(CYGPATH_W) 'tests/backend/request.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/request.c'; fi`
 
+tests/backend/test_backends-session.o: tests/backend/session.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-session.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-session.Tpo -c -o tests/backend/test_backends-session.o `test -f 'tests/backend/session.c' || echo '$(srcdir)/'`tests/backend/session.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-session.Tpo tests/backend/$(DEPDIR)/test_backends-session.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/session.c' object='tests/backend/test_backends-session.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-session.o `test -f 'tests/backend/session.c' || echo '$(srcdir)/'`tests/backend/session.c
+
+tests/backend/test_backends-session.obj: tests/backend/session.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-session.obj -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-session.Tpo -c -o tests/backend/test_backends-session.obj `if test -f 'tests/backend/session.c'; then $(CYGPATH_W) 'tests/backend/session.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/session.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-session.Tpo tests/backend/$(DEPDIR)/test_backends-session.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/session.c' object='tests/backend/test_backends-session.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-session.obj `if test -f 'tests/backend/session.c'; then $(CYGPATH_W) 'tests/backend/session.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/session.c'; fi`
+
 tests/backend/test_backends-access.o: tests/backend/access.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-access.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-access.Tpo -c -o tests/backend/test_backends-access.o `test -f 'tests/backend/access.c' || echo '$(srcdir)/'`tests/backend/access.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-access.Tpo tests/backend/$(DEPDIR)/test_backends-access.Po
@@ -2212,6 +2273,20 @@ tests/backend/test_backends-appchooser.obj: tests/backend/appchooser.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/appchooser.c' object='tests/backend/test_backends-appchooser.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-appchooser.obj `if test -f 'tests/backend/appchooser.c'; then $(CYGPATH_W) 'tests/backend/appchooser.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/appchooser.c'; fi`
+
+tests/backend/test_backends-background.o: tests/backend/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-background.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-background.Tpo -c -o tests/backend/test_backends-background.o `test -f 'tests/backend/background.c' || echo '$(srcdir)/'`tests/backend/background.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-background.Tpo tests/backend/$(DEPDIR)/test_backends-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/background.c' object='tests/backend/test_backends-background.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-background.o `test -f 'tests/backend/background.c' || echo '$(srcdir)/'`tests/backend/background.c
+
+tests/backend/test_backends-background.obj: tests/backend/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-background.obj -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-background.Tpo -c -o tests/backend/test_backends-background.obj `if test -f 'tests/backend/background.c'; then $(CYGPATH_W) 'tests/backend/background.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/background.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-background.Tpo tests/backend/$(DEPDIR)/test_backends-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/background.c' object='tests/backend/test_backends-background.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-background.obj `if test -f 'tests/backend/background.c'; then $(CYGPATH_W) 'tests/backend/background.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/background.c'; fi`
 
 tests/backend/test_backends-email.o: tests/backend/email.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-email.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-email.Tpo -c -o tests/backend/test_backends-email.o `test -f 'tests/backend/email.c' || echo '$(srcdir)/'`tests/backend/email.c
@@ -2268,6 +2343,20 @@ tests/backend/test_backends-lockdown.obj: tests/backend/lockdown.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/lockdown.c' object='tests/backend/test_backends-lockdown.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-lockdown.obj `if test -f 'tests/backend/lockdown.c'; then $(CYGPATH_W) 'tests/backend/lockdown.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/lockdown.c'; fi`
+
+tests/backend/test_backends-notification.o: tests/backend/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-notification.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-notification.Tpo -c -o tests/backend/test_backends-notification.o `test -f 'tests/backend/notification.c' || echo '$(srcdir)/'`tests/backend/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-notification.Tpo tests/backend/$(DEPDIR)/test_backends-notification.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/notification.c' object='tests/backend/test_backends-notification.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-notification.o `test -f 'tests/backend/notification.c' || echo '$(srcdir)/'`tests/backend/notification.c
+
+tests/backend/test_backends-notification.obj: tests/backend/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-notification.obj -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-notification.Tpo -c -o tests/backend/test_backends-notification.obj `if test -f 'tests/backend/notification.c'; then $(CYGPATH_W) 'tests/backend/notification.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/notification.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/backend/$(DEPDIR)/test_backends-notification.Tpo tests/backend/$(DEPDIR)/test_backends-notification.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/backend/notification.c' object='tests/backend/test_backends-notification.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -c -o tests/backend/test_backends-notification.obj `if test -f 'tests/backend/notification.c'; then $(CYGPATH_W) 'tests/backend/notification.c'; else $(CYGPATH_W) '$(srcdir)/tests/backend/notification.c'; fi`
 
 tests/backend/test_backends-print.o: tests/backend/print.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_backends_CFLAGS) $(CFLAGS) -MT tests/backend/test_backends-print.o -MD -MP -MF tests/backend/$(DEPDIR)/test_backends-print.Tpo -c -o tests/backend/test_backends-print.o `test -f 'tests/backend/print.c' || echo '$(srcdir)/'`tests/backend/print.c
@@ -2423,6 +2512,20 @@ tests/test_portals-account.obj: tests/account.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-account.obj `if test -f 'tests/account.c'; then $(CYGPATH_W) 'tests/account.c'; else $(CYGPATH_W) '$(srcdir)/tests/account.c'; fi`
 
+tests/test_portals-background.o: tests/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-background.o -MD -MP -MF tests/$(DEPDIR)/test_portals-background.Tpo -c -o tests/test_portals-background.o `test -f 'tests/background.c' || echo '$(srcdir)/'`tests/background.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-background.Tpo tests/$(DEPDIR)/test_portals-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/background.c' object='tests/test_portals-background.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-background.o `test -f 'tests/background.c' || echo '$(srcdir)/'`tests/background.c
+
+tests/test_portals-background.obj: tests/background.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-background.obj -MD -MP -MF tests/$(DEPDIR)/test_portals-background.Tpo -c -o tests/test_portals-background.obj `if test -f 'tests/background.c'; then $(CYGPATH_W) 'tests/background.c'; else $(CYGPATH_W) '$(srcdir)/tests/background.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-background.Tpo tests/$(DEPDIR)/test_portals-background.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/background.c' object='tests/test_portals-background.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-background.obj `if test -f 'tests/background.c'; then $(CYGPATH_W) 'tests/background.c'; else $(CYGPATH_W) '$(srcdir)/tests/background.c'; fi`
+
 tests/test_portals-camera.o: tests/camera.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-camera.o -MD -MP -MF tests/$(DEPDIR)/test_portals-camera.Tpo -c -o tests/test_portals-camera.o `test -f 'tests/camera.c' || echo '$(srcdir)/'`tests/camera.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-camera.Tpo tests/$(DEPDIR)/test_portals-camera.Po
@@ -2478,6 +2581,34 @@ tests/test_portals-inhibit.obj: tests/inhibit.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/inhibit.c' object='tests/test_portals-inhibit.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-inhibit.obj `if test -f 'tests/inhibit.c'; then $(CYGPATH_W) 'tests/inhibit.c'; else $(CYGPATH_W) '$(srcdir)/tests/inhibit.c'; fi`
+
+tests/test_portals-location.o: tests/location.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-location.o -MD -MP -MF tests/$(DEPDIR)/test_portals-location.Tpo -c -o tests/test_portals-location.o `test -f 'tests/location.c' || echo '$(srcdir)/'`tests/location.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-location.Tpo tests/$(DEPDIR)/test_portals-location.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/location.c' object='tests/test_portals-location.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-location.o `test -f 'tests/location.c' || echo '$(srcdir)/'`tests/location.c
+
+tests/test_portals-location.obj: tests/location.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-location.obj -MD -MP -MF tests/$(DEPDIR)/test_portals-location.Tpo -c -o tests/test_portals-location.obj `if test -f 'tests/location.c'; then $(CYGPATH_W) 'tests/location.c'; else $(CYGPATH_W) '$(srcdir)/tests/location.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-location.Tpo tests/$(DEPDIR)/test_portals-location.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/location.c' object='tests/test_portals-location.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-location.obj `if test -f 'tests/location.c'; then $(CYGPATH_W) 'tests/location.c'; else $(CYGPATH_W) '$(srcdir)/tests/location.c'; fi`
+
+tests/test_portals-notification.o: tests/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-notification.o -MD -MP -MF tests/$(DEPDIR)/test_portals-notification.Tpo -c -o tests/test_portals-notification.o `test -f 'tests/notification.c' || echo '$(srcdir)/'`tests/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-notification.Tpo tests/$(DEPDIR)/test_portals-notification.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/notification.c' object='tests/test_portals-notification.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-notification.o `test -f 'tests/notification.c' || echo '$(srcdir)/'`tests/notification.c
+
+tests/test_portals-notification.obj: tests/notification.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-notification.obj -MD -MP -MF tests/$(DEPDIR)/test_portals-notification.Tpo -c -o tests/test_portals-notification.obj `if test -f 'tests/notification.c'; then $(CYGPATH_W) 'tests/notification.c'; else $(CYGPATH_W) '$(srcdir)/tests/notification.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-notification.Tpo tests/$(DEPDIR)/test_portals-notification.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/notification.c' object='tests/test_portals-notification.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-notification.obj `if test -f 'tests/notification.c'; then $(CYGPATH_W) 'tests/notification.c'; else $(CYGPATH_W) '$(srcdir)/tests/notification.c'; fi`
 
 tests/test_portals-openuri.o: tests/openuri.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-openuri.o -MD -MP -MF tests/$(DEPDIR)/test_portals-openuri.Tpo -c -o tests/test_portals-openuri.o `test -f 'tests/openuri.c' || echo '$(srcdir)/'`tests/openuri.c
@@ -4166,10 +4297,13 @@ distclean: distclean-recursive
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
+	-rm -f tests/$(DEPDIR)/test_portals-background.Po
 	-rm -f tests/$(DEPDIR)/test_portals-camera.Po
 	-rm -f tests/$(DEPDIR)/test_portals-email.Po
 	-rm -f tests/$(DEPDIR)/test_portals-filechooser.Po
 	-rm -f tests/$(DEPDIR)/test_portals-inhibit.Po
+	-rm -f tests/$(DEPDIR)/test_portals-location.Po
+	-rm -f tests/$(DEPDIR)/test_portals-notification.Po
 	-rm -f tests/$(DEPDIR)/test_portals-openuri.Po
 	-rm -f tests/$(DEPDIR)/test_portals-print.Po
 	-rm -f tests/$(DEPDIR)/test_portals-screenshot.Po
@@ -4180,13 +4314,16 @@ distclean: distclean-recursive
 	-rm -f tests/backend/$(DEPDIR)/test_backends-access.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-account.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-appchooser.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-background.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-email.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-filechooser.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-inhibit.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-lockdown.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-notification.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-print.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-request.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-screenshot.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-session.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-test-backends.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-wallpaper.Po
 	-rm -f Makefile
@@ -4311,10 +4448,13 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
+	-rm -f tests/$(DEPDIR)/test_portals-background.Po
 	-rm -f tests/$(DEPDIR)/test_portals-camera.Po
 	-rm -f tests/$(DEPDIR)/test_portals-email.Po
 	-rm -f tests/$(DEPDIR)/test_portals-filechooser.Po
 	-rm -f tests/$(DEPDIR)/test_portals-inhibit.Po
+	-rm -f tests/$(DEPDIR)/test_portals-location.Po
+	-rm -f tests/$(DEPDIR)/test_portals-notification.Po
 	-rm -f tests/$(DEPDIR)/test_portals-openuri.Po
 	-rm -f tests/$(DEPDIR)/test_portals-print.Po
 	-rm -f tests/$(DEPDIR)/test_portals-screenshot.Po
@@ -4325,13 +4465,16 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f tests/backend/$(DEPDIR)/test_backends-access.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-account.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-appchooser.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-background.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-email.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-filechooser.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-inhibit.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-lockdown.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-notification.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-print.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-request.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-screenshot.Po
+	-rm -f tests/backend/$(DEPDIR)/test_backends-session.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-test-backends.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-wallpaper.Po
 	-rm -f Makefile

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-10-29 16:11-0400\n"
+"POT-Creation-Date: 2019-11-27 14:51-0500\n"
 "PO-Revision-Date: 2019-10-24 16:06+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
@@ -107,33 +107,33 @@ msgstr "Nějaká aplikace chce používat vaši kameru."
 msgid "%s wants to use your camera."
 msgstr "Aplikace %s chce používat vaši kameru."
 
-#: src/location.c:518
+#: src/location.c:526
 msgid "Deny Access"
 msgstr "Zamítnout přístup"
 
-#: src/location.c:520
+#: src/location.c:528
 msgid "Grant Access"
 msgstr "Schválit přístup"
 
-#: src/location.c:526
+#: src/location.c:534
 msgid "Grant Access to Your Location?"
 msgstr "Schválit přístup k vaší poloze?"
 
-#: src/location.c:527
+#: src/location.c:535
 msgid "An application wants to use your location."
 msgstr "Aplikace chce přistupovat k vaší poloze."
 
-#: src/location.c:539
+#: src/location.c:547
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr "Schválit pro %s přístup k vaší poloze?"
 
-#: src/location.c:543
+#: src/location.c:551
 #, c-format
 msgid "%s wants to use your location."
 msgstr "Aplikace %s chce přistupovat k vaší poloze."
 
-#: src/location.c:546
+#: src/location.c:554
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
 "Přístup ke službám pro určování polohy můžete kdykoliv změnit v nastavení "
