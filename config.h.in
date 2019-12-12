@@ -7,6 +7,9 @@
 /* The prefix for our gettext translation domains. */
 #undef GETTEXT_PACKAGE
 
+/* Ignore massive GTimeVal deprecation warnings in 2.62 */
+#undef GLIB_VERSION_MIN_REQUIRED
+
 /* Define to 1 if you have the Mac OS X function CFLocaleCopyCurrent in the
    CoreFoundation framework. */
 #undef HAVE_CFLOCALECOPYCURRENT

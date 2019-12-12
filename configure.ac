@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.5.1])
+AC_INIT([xdg-desktop-portal],[1.5.2])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -71,6 +71,10 @@ PKG_CHECK_MODULES(BASE, [glib-2.0 gio-2.0 gio-unix-2.0 fontconfig json-glib-1.0]
 AC_SUBST(BASE_CFLAGS)
 AC_SUBST(BASE_LIBS)
 
+PKG_CHECK_MODULES(GLIB260, glib-2.0 >= 2.60,
+                  [AC_DEFINE(GLIB_VERSION_MIN_REQUIRED, GLIB_VERSION_2_60, [Ignore massive GTimeVal deprecation warnings in 2.62])],
+                  [true])
+
 AC_ARG_ENABLE(libportal,
 	      [AS_HELP_STRING([--enable-libportal],[Enable libportal support. Needed for tests])],
 	      enable_libportal=$enableval, enable_libportal=yes)
@@ -98,15 +102,6 @@ if test x$enable_pipewire = xyes ; then
 fi
 AM_CONDITIONAL([HAVE_PIPEWIRE],[test "$enable_pipewire" = "yes"])
 
-AC_ARG_ENABLE(geoclue,
-	      [AS_HELP_STRING([--enable-geoclue],[Enable Geoclue support. Needed for location portal])],
-	      enable_geoclue=$enableval, enable_geoclue=yes)
-if test x$enable_geoclue = xyes ; then
-	PKG_CHECK_MODULES(GEOCLUE, [libgeoclue-2.0 >= 2.5.2])
-	AC_DEFINE([HAVE_GEOCLUE],[1], [Define to enable Geoclue support])
-fi
-AM_CONDITIONAL([HAVE_GEOCLUE],[test "$enable_geoclue" = "yes"])
-
 AC_ARG_ENABLE(docbook-docs,
         [AS_HELP_STRING([--enable-docbook-docs],[build documentation (requires xmlto)])],
         enable_docbook_docs=$enableval, enable_docbook_docs=auto)
@@ -126,7 +121,7 @@ if test x$enable_docbook_docs = xauto ; then
 fi
 if test x$enable_docbook_docs = xyes; then
         if test x$have_docbook = xno; then
-                AC_MSG_ERROR([Building DocBook docs explicitly required, but DocBook not found])
+                AC_MSG_ERROR([Building DocBook docs explicitly required, but xmlto not found])
         fi
         AC_MSG_RESULT(yes)
 else

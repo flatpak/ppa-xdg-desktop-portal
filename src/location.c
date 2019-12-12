@@ -193,7 +193,6 @@ location_session_start (LocationSession *loc_session)
 {
   g_autoptr(GDBusConnection) system_bus = NULL;
   g_autoptr(GVariant) ret = NULL;
-  g_autoptr(GVariant) ret2 = NULL;
   g_autoptr(GError) error = NULL;
   char *client_id;
 
@@ -280,8 +279,8 @@ location_session_start (LocationSession *loc_session)
  * access, and use EXACT as the accuracy.
  */
 
-#define PERMISSIONS_TABLE "location"
-#define PERMISSIONS_ID "location"
+#define PERMISSION_TABLE "location"
+#define PERMISSION_ID "location"
 
 static struct { const char *name; GClueAccuracyLevel level; } accuracy_levels[] = {
   { "NONE", GCLUE_ACCURACY_LEVEL_NONE },
@@ -327,10 +326,7 @@ get_location_permissions (const char *app_id,
                           GClueAccuracyLevel *accuracy,
                           gint64 *last_used)
 {
-  g_autoptr(GVariant) out_perms = NULL;
-  g_autoptr(GVariant) out_data = NULL;
-  g_autoptr(GError) error = NULL;
-  const char **perms;
+  g_auto(GStrv) perms = NULL;
 
   if (app_id == NULL)
     {
@@ -340,23 +336,9 @@ get_location_permissions (const char *app_id,
       return TRUE;
     }
 
-  if (!xdp_impl_permission_store_call_lookup_sync (get_permission_store (),
-                                                   PERMISSIONS_TABLE,
-                                                   PERMISSIONS_ID,
-                                                   &out_perms,
-                                                   &out_data,
-                                                   NULL,
-                                                   &error))
-    {
-      g_dbus_error_strip_remote_error (error);
-      g_debug ("Error getting permissions: %s", error->message);
-      return FALSE;
-    }
+  perms = get_permissions_sync (app_id, PERMISSION_TABLE, PERMISSION_ID);
 
-  if (out_perms == NULL)
-    return FALSE;
-
-  if (!g_variant_lookup (out_perms, app_id, "^a&s", &perms))
+  if (perms == NULL)
     return FALSE;
 
   if (g_strv_length ((char **)perms) < 2)
@@ -392,18 +374,7 @@ set_location_permissions (const char *app_id,
 
   g_debug ("set permission store accuracy: %d -> %s", accuracy, permissions[0]);
 
-  if (!xdp_impl_permission_store_call_set_permission_sync (get_permission_store (),
-                                                           PERMISSIONS_TABLE,
-                                                           TRUE,
-                                                           PERMISSIONS_ID,
-                                                           app_id,
-                                                           permissions,
-                                                           NULL,
-                                                           &error))
-    {
-      g_dbus_error_strip_remote_error (error);
-      g_warning ("Error setting permissions: %s", error->message);
-    }
+  set_permissions_sync (app_id, PERMISSION_TABLE, PERMISSION_ID, permissions);
 }
 
 /*** Location boilerplace ***/
@@ -523,8 +494,6 @@ handle_start_in_thread_func (GTask *task,
   parent_window = (const char *)g_object_get_data (G_OBJECT (request), "parent-window");
 
   app_id = xdp_app_info_get_id (request->app_info);
-  if (app_id[0] == '\0' && getenv("TEST_LOCATION"))
-    app_id = "org.gnome.PortalTest";
 
   if (!get_location_permissions (app_id, &accuracy, &last_used))
     {

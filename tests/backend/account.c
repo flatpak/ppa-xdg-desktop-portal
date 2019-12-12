@@ -8,8 +8,6 @@
 #include "request.h"
 #include "account.h"
 
-#define BACKEND_OBJECT_PATH "/org/freedesktop/portal/desktop"
-
 typedef struct {
   XdpImplAccount *impl;
   GDBusMethodInvocation *invocation;
@@ -166,7 +164,8 @@ handle_get_user_information (XdpImplAccount *object,
 }
 
 void
-account_init (GDBusConnection *connection)
+account_init (GDBusConnection *connection,
+              const char *object_path)
 {
   g_autoptr(GError) error = NULL;
   GDBusInterfaceSkeleton *helper;
@@ -175,10 +174,7 @@ account_init (GDBusConnection *connection)
 
   g_signal_connect (helper, "handle-get-user-information", G_CALLBACK (handle_get_user_information), NULL);
 
-  if (!g_dbus_interface_skeleton_export (helper,
-                                         connection,
-                                         BACKEND_OBJECT_PATH,
-                                         &error))
+  if (!g_dbus_interface_skeleton_export (helper, connection, object_path, &error))
     {
       g_error ("Failed to export %s skeleton: %s\n",
                g_dbus_interface_skeleton_get_info (helper)->name,
@@ -186,5 +182,5 @@ account_init (GDBusConnection *connection)
       exit (1);
     }
 
-  g_debug ("providing %s at %s", g_dbus_interface_skeleton_get_info (helper)->name, BACKEND_OBJECT_PATH);
+  g_debug ("providing %s at %s", g_dbus_interface_skeleton_get_info (helper)->name, object_path);
 }
