@@ -54,6 +54,7 @@
 #include "background.h"
 #include "gamemode.h"
 #include "camera.h"
+#include "secret.h"
 
 static GMainLoop *loop = NULL;
 
@@ -288,6 +289,11 @@ on_bus_acquired (GDBusConnection *connection,
     export_portal_implementation (connection,
                                   email_create (connection, implementation->dbus_name));
 
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Secret");
+  if (implementation != NULL)
+    export_portal_implementation (connection,
+				  secret_create (connection, implementation->dbus_name));
+
 #if HAVE_PIPEWIRE
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.ScreenCast");
   if (implementation != NULL)
@@ -356,7 +362,6 @@ main (int argc, char *argv[])
       g_printerr ("Try \"%s --help\" for more information.",
                   g_get_prgname ());
       g_printerr ("\n");
-      g_option_context_free (context);
       return 1;
     }
 

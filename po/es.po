@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-05-28 16:26+0000\n"
-"PO-Revision-Date: 2018-02-20 14:43-0600\n"
+"POT-Creation-Date: 2019-10-04 10:28-0400\n"
+"PO-Revision-Date: 2019-08-17 05:36-0500\n"
 "Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -15,39 +15,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Poedit 2.2.3\n"
 
 #: src/background.c:259
 #, c-format
 msgid "Allow %s to run in the background?"
-msgstr ""
+msgstr "¿Quiere permitir que %s se ejecute en segundo plano?"
 
 #: src/background.c:263
 #, c-format
 msgid "%s requests to be started automatically and run in the background."
-msgstr ""
+msgstr "%s solicita iniciarse automáticamente y ejecutarse en segundo plano."
 
 #: src/background.c:265
 #, c-format
 msgid "%s requests to run in the background."
-msgstr ""
+msgstr "%s solicita ejecutarse en segundo plano."
 
 #: src/background.c:266
-#, fuzzy
 msgid ""
 "The ‘run in background’ permission can be changed at any time from the "
 "application settings."
 msgstr ""
-"El acceso a los altavoces se puede cambiar en cualquier momento a través de "
-"la configuración de privacidad."
+"El permiso «ejecución en segundo plano» puede modificarse en cualquier "
+"momento a través de la configuración de privacidad."
 
 #: src/background.c:271
 msgid "Don't allow"
-msgstr ""
+msgstr "No permitir"
 
 #: src/background.c:272
 msgid "Allow"
-msgstr ""
+msgstr "Permitir"
 
 #: src/device.c:131
 msgid "Turn On Microphone?"
@@ -58,7 +57,7 @@ msgid ""
 "Access to your microphone can be changed at any time from the privacy "
 "settings."
 msgstr ""
-"El acceso al micrófono se puede cambiar en cualquier momento a través de la "
+"El acceso al micrófono puede modificarse en cualquier momento a través de la "
 "configuración de privacidad."
 
 #: src/device.c:136
@@ -78,7 +77,7 @@ msgstr "¿Quiere encender los altavoces?"
 msgid ""
 "Access to your speakers can be changed at any time from the privacy settings."
 msgstr ""
-"El acceso a los altavoces se puede cambiar en cualquier momento a través de "
+"El acceso a los altavoces puede modificarse en cualquier momento a través de "
 "la configuración de privacidad."
 
 #: src/device.c:149
@@ -98,7 +97,7 @@ msgstr "¿Quiere encender la cámara?"
 msgid ""
 "Access to your camera can be changed at any time from the privacy settings."
 msgstr ""
-"El acceso a la cámara se puede cambiar en cualquier momento a través de la "
+"El acceso a la cámara puede modificarse en cualquier momento a través de la "
 "configuración de privacidad."
 
 #: src/device.c:162
@@ -112,38 +111,36 @@ msgstr "%s intenta utilizar la cámara."
 
 #: src/location.c:549
 msgid "Deny Access"
-msgstr ""
+msgstr "Denegar acceso"
 
 #: src/location.c:551
 msgid "Grant Access"
-msgstr ""
+msgstr "Conceder acceso"
 
 #: src/location.c:557
 msgid "Grant Access to Your Location?"
-msgstr ""
+msgstr "¿Quiere conceder acceso a su ubicación?"
 
 #: src/location.c:558
-#, fuzzy
 msgid "An application wants to use your location."
-msgstr "Una aplicación intenta utilizar la cámara."
+msgstr "Una aplicación intenta utilizar su ubicación."
 
 #: src/location.c:570
 #, c-format
 msgid "Give %s Access to Your Location?"
-msgstr ""
+msgstr "¿Quiere conceder a %s acceso a su ubicación?"
 
 #: src/location.c:574
-#, fuzzy, c-format
+#, c-format
 msgid "%s wants to use your location."
-msgstr "%s intenta utilizar la cámara."
+msgstr "%s intenta utilizar su ubicación."
 
 #: src/location.c:577
-#, fuzzy
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
-"El acceso a los altavoces se puede cambiar en cualquier momento a través de "
+"El acceso a la ubicación puede modificarse en cualquier momento a través de "
 "la configuración de privacidad."
 
 #: src/settings.c:229
 msgid "Requested setting not found"
-msgstr ""
+msgstr "No se encontró la configuración solicitada"

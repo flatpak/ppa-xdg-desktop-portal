@@ -1,3 +1,14 @@
+Changes in 1.5.0
+================
+
+* Add a secret portal that is meant be used via
+    libsecret inside the sandbox. One backend for
+    this will live in gnome-keyring, others are
+    possible
+* Fix a file descriptor leak
+* Reduce log spam
+* Translation updates
+
 Changes in 1.4.2
 ================
 

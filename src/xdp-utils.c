@@ -441,7 +441,12 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
 
   id = g_key_file_get_string (metadata, group, "name", error);
   if (id == NULL)
-    return NULL;
+    {
+      close (info_fd);
+      return NULL;
+    }
+
+  close (info_fd);
 
   app_info = xdp_app_info_new (XDP_APP_INFO_KIND_FLATPAK);
   app_info->id = g_steal_pointer (&id);
@@ -1468,6 +1473,7 @@ map_pids (DIR     *proc,
   guint count = 0;
 
   res = g_alloca (sizeof (pid_t) * n_pids);
+  memset (res, 0, sizeof (pid_t) * n_pids);
 
   while ((de = readdir (proc)) != NULL)
     {
@@ -1512,14 +1518,31 @@ map_pids (DIR     *proc,
           return FALSE;
         }
 
-      res[idx] = outside;
-      count++;
+      /* this handles the first occurrence, already identified by find_pid,
+       * as well as duplicate entries */
+      for (guint i = idx; i < n_pids; i++)
+        {
+          if (pids[i] == inside)
+            {
+              res[idx] = outside;
+              count++;
+            }
+        }
     }
 
   if (count != n_pids)
     {
-      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
-                           "Some process ids could not be found");
+      g_autoptr(GString) str = NULL;
+
+      str = g_string_new ("Process ids could not be found: ");
+
+      for (guint i = 0; i < n_pids; i++)
+        if (res[i] == 0)
+          g_string_append_printf (str, "%d, ", (guint32) pids[i]);
+
+      g_string_truncate (str, str->len - 2);
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND, str->str);
+
       return FALSE;
     }
 
@@ -1528,18 +1551,16 @@ map_pids (DIR     *proc,
   return TRUE;
 }
 
-static pid_t
-xdp_app_info_get_child_pid (XdpAppInfo *app_info,
-                            GError    **error)
+static JsonNode *
+xdg_app_info_load_brwap_info (XdpAppInfo *app_info,
+                              GError    **error)
 {
   g_autoptr(JsonParser) parser = NULL;
+  g_autoptr(JsonNode) root = NULL;
   g_autofree char *instance = NULL;
   g_autofree char *data = NULL;
-  JsonNode *root;
-  JsonObject *cpo;
   gsize len;
   char *path;
-  pid_t pid;
 
   g_return_val_if_fail (app_info != NULL, 0);
 
@@ -1564,7 +1585,7 @@ xdp_app_info_get_child_pid (XdpAppInfo *app_info,
       return 0;
     }
 
-  root = json_parser_get_root (parser);
+  root = json_parser_steal_root (parser);
   if (!root)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -1579,12 +1600,45 @@ xdp_app_info_get_child_pid (XdpAppInfo *app_info,
       return 0;
     }
 
+  return g_steal_pointer (&root);
+}
+
+static ino_t
+xdp_app_info_get_pid_namespace (JsonNode *root,
+                                GError  **error)
+{
+  JsonNode *node;
+  JsonObject *cpo;
+  gint64 nsid;
+
+  /* xdg_app_info_load_brwap_info assures root is of type object */
+  cpo = json_node_get_object (root);
+  node = json_object_get_member (cpo, "pid-namespace");
+
+  if (node == NULL || !JSON_NODE_HOLDS_VALUE (node))
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                           "pid-namespace missing");
+      return 0;
+    }
+
+  nsid = json_node_get_int (node);
+  return (ino_t) nsid;
+}
+
+static pid_t
+xdp_app_info_get_child_pid (JsonNode *root,
+                            GError  **error)
+{
+  JsonObject *cpo;
+  pid_t pid;
+
   cpo = json_node_get_object (root);
 
   pid = json_object_get_int_member (cpo, "child-pid");
   if (pid == 0)
-    g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
-                 "Could not parse '%s': child-pid missing", path);
+    g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_NOT_FOUND,
+                         "child-pid missing");
 
   return pid;
 }
@@ -1596,6 +1650,7 @@ xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
                            DIR         *proc,
                            GError     **error)
 {
+  g_autoptr(JsonNode) root = NULL;
   xdp_lockguard GMutex *guard = NULL;
   xdp_autofd int fd = -1;
   pid_t pid;
@@ -1607,7 +1662,22 @@ xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
   if (app_info->u.flatpak.pidns_id != 0)
     return TRUE;
 
-  pid = xdp_app_info_get_child_pid (app_info, error);
+  root = xdg_app_info_load_brwap_info (app_info, error);
+  if (root == NULL)
+    return FALSE;
+
+  /* newer versions of bubblewrap contain the namespace
+   * information directly, so we don' thave to go via the
+   * child-pid; if this fails, we fallback to the old way */
+  ns = xdp_app_info_get_pid_namespace (root, NULL);
+  if (ns != 0)
+    {
+      g_debug ("Using pid namespace info from bwrap info");
+      app_info->u.flatpak.pidns_id = ns;
+      return TRUE;
+    }
+
+  pid = xdp_app_info_get_child_pid (root, error);
   if (pid == 0)
     return FALSE;
 
