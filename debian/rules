@@ -13,6 +13,9 @@ else
 	CONFFLAGS += --enable-pipewire
 endif
 
+# ITP #946605
+CONFFLAGS += --disable-libportal
+
 %:
 	dh $@
 

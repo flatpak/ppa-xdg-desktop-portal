@@ -12,10 +12,10 @@ Signed-off-by: Simon McVittie <smcv@debian.org>
  2 files changed, 207 insertions(+), 19 deletions(-)
 
 diff --git a/src/notification.c b/src/notification.c
-index 1367114..2301380 100644
+index 5412609..35c779c 100644
 --- a/src/notification.c
 +++ b/src/notification.c
-@@ -401,7 +401,7 @@ validate_icon_more (GVariant *v)
+@@ -366,7 +366,7 @@ validate_icon_more (GVariant *v)
    int status;
    g_autofree char *err = NULL;
    g_autoptr(GError) error = NULL;
@@ -24,7 +24,7 @@ index 1367114..2301380 100644
    const char *args[6];
  
    if (G_IS_THEMED_ICON (icon))
-@@ -417,12 +417,6 @@ validate_icon_more (GVariant *v)
+@@ -382,12 +382,6 @@ validate_icon_more (GVariant *v)
        return FALSE;
      }
  
@@ -37,7 +37,7 @@ index 1367114..2301380 100644
    bytes = g_bytes_icon_get_bytes (G_BYTES_ICON (icon));
    fd = g_file_open_tmp ("iconXXXXXX", &name, &error); 
    if (fd == -1)
-@@ -455,14 +449,12 @@ validate_icon_more (GVariant *v)
+@@ -420,14 +414,12 @@ validate_icon_more (GVariant *v)
    if (!g_spawn_sync (NULL, (char **)args, NULL, 0, NULL, NULL, NULL, &err, &status, &error))
      {
        g_debug ("Icon validation: %s", error->message);

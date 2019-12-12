@@ -1,6 +1,9 @@
-xdg-desktop-portal (1.4.2-4) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.5.3-1) UNRELEASED; urgency=medium
 
   * Branch for experimental
+  * New upstream development release
+    - d/patches: Rebase
+    - d/rules: Explicitly disable libportal-based tests (ITP: #946605)
 
  -- Simon McVittie <smcv@debian.org>  Thu, 12 Dec 2019 07:49:45 +0000
 
