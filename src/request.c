@@ -66,6 +66,7 @@ handle_close (XdpRequest *object,
   Request *request = (Request *)object;
   g_autoptr(GError) error = NULL;
 
+  g_debug ("Handling Close");
   REQUEST_AUTOLOCK (request);
 
   if (request->exported)
@@ -294,12 +295,20 @@ get_token (GDBusMethodInvocation *invocation)
     {
       // no request objects
     }
+  else if (strcmp (interface, "org.freedesktop.portal.Trash") == 0)
+    {
+      // no request objects
+    }
   else if (strcmp (interface, "org.freedesktop.portal.Background") == 0)
     {
         if (strcmp (method, "RequestBackground") == 0 )
           {
             options = g_variant_get_child_value (parameters, 1);
           }
+    }
+  else if (strcmp (interface, "org.freedesktop.portal.Wallpaper") == 0)
+    {
+      options = g_variant_get_child_value (parameters, 2);
     }
   else if (strcmp (interface, "org.freedesktop.portal.Camera") == 0)
     {
