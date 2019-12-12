@@ -1,3 +1,9 @@
+xdg-desktop-portal (1.4.2-4) UNRELEASED; urgency=medium
+
+  * Branch for experimental
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 12 Dec 2019 07:49:45 +0000
+
 xdg-desktop-portal (1.4.2-3) unstable; urgency=medium
 
   * Standards-Version: 4.4.1 (no changes required)
