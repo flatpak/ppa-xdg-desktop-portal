@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-05-28 16:26+0000\n"
-"PO-Revision-Date: 2018-11-09 15:34+0100\n"
+"POT-Creation-Date: 2019-10-04 10:28-0400\n"
+"PO-Revision-Date: 2019-06-04 18:24+0200\n"
 "Last-Translator: Daniel Rusek <mail@asciiwolf.com>\n"
 "Language-Team: Czech <gnome-cs-list@gnome.org>\n"
 "Language: cs\n"
@@ -18,39 +18,37 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Poedit 2.2\n"
+"X-Generator: Poedit 2.2.3\n"
 
 #: src/background.c:259
 #, c-format
 msgid "Allow %s to run in the background?"
-msgstr ""
+msgstr "Povolit aplikaci %s běh na pozadí?"
 
 #: src/background.c:263
 #, c-format
 msgid "%s requests to be started automatically and run in the background."
-msgstr ""
+msgstr "Aplikace %s požaduje automatické spouštění a běh na pozadí."
 
 #: src/background.c:265
 #, c-format
 msgid "%s requests to run in the background."
-msgstr ""
+msgstr "Aplikace %s požaduje běh na pozadí."
 
 #: src/background.c:266
-#, fuzzy
 msgid ""
 "The ‘run in background’ permission can be changed at any time from the "
 "application settings."
 msgstr ""
-"Přístup ke službám pro určování polohy lze kdykoliv změnit v nastavení "
-"soukromí."
+"Oprávnění pro „běh na pozadí“ lze kdykoliv změnit v nastavení aplikace."
 
 #: src/background.c:271
 msgid "Don't allow"
-msgstr ""
+msgstr "Nepovolit"
 
 #: src/background.c:272
 msgid "Allow"
-msgstr ""
+msgstr "Povolit"
 
 #: src/device.c:131
 msgid "Turn On Microphone?"
