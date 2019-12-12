@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: xdg-desktop-portal master\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-10-29 16:11-0400\n"
-"PO-Revision-Date: 2019-09-08 17:44-0300\n"
+"POT-Creation-Date: 2019-11-27 14:51-0500\n"
+"PO-Revision-Date: 2019-11-24 22:29-0300\n"
 "Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Brazilian Portuguese <gnome-pt_br-list@gnome.org>\n"
 "Language: pt_BR\n"
@@ -26,13 +26,12 @@ msgstr "Permitir que %s execute em segundo plano?"
 #: src/background.c:263
 #, c-format
 msgid "%s requests to be started automatically and run in the background."
-msgstr ""
-"%s requisita ser iniciado automaticamente e executado em segundo plano."
+msgstr "%s solicita ser iniciado automaticamente e executado em segundo plano."
 
 #: src/background.c:265
 #, c-format
 msgid "%s requests to run in the background."
-msgstr "%s requisita ser executado em segundo plano."
+msgstr "%s solicita ser executado em segundo plano."
 
 #: src/background.c:266
 msgid ""
@@ -111,33 +110,33 @@ msgstr "Um aplicativo deseja usar sua câmera."
 msgid "%s wants to use your camera."
 msgstr "%s deseja usar sua câmera."
 
-#: src/location.c:518
+#: src/location.c:526
 msgid "Deny Access"
 msgstr "Negar acesso"
 
-#: src/location.c:520
+#: src/location.c:528
 msgid "Grant Access"
 msgstr "Conceder acesso"
 
-#: src/location.c:526
+#: src/location.c:534
 msgid "Grant Access to Your Location?"
 msgstr "Conceder acesso à sua localização?"
 
-#: src/location.c:527
+#: src/location.c:535
 msgid "An application wants to use your location."
 msgstr "Um aplicativo deseja usar sua localização."
 
-#: src/location.c:539
+#: src/location.c:547
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr "Dar %s acesso a sua localização?"
 
-#: src/location.c:543
+#: src/location.c:551
 #, c-format
 msgid "%s wants to use your location."
 msgstr "%s deseja usar sua localização."
 
-#: src/location.c:546
+#: src/location.c:554
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
 "Acesso à localização pode ser alterado a qualquer tempo a partir das "
@@ -149,30 +148,31 @@ msgstr "A configuração requisitada não foi encontrada"
 
 #: src/wallpaper.c:163
 msgid "Deny"
-msgstr ""
+msgstr "Negar"
 
 #: src/wallpaper.c:171
-#, fuzzy
 msgid "Allow Applications to Set Backgrounds?"
-msgstr "Permitir que %s execute em segundo plano?"
+msgstr "Permitir que aplicativos definam planos de fundo?"
 
 #: src/wallpaper.c:172
 msgid "An application is requesting to be able to change the background image."
 msgstr ""
+"Um aplicativo está solicitando a capacidade de alterar a imagem de plano de "
+"fundo."
 
 #: src/wallpaper.c:184
-#, fuzzy, c-format
+#, c-format
 msgid "Allow %s to Set Backgrounds?"
-msgstr "Permitir que %s execute em segundo plano?"
+msgstr "Permitir que %s defina planos de fundo?"
 
 #: src/wallpaper.c:185
-#, fuzzy, c-format
+#, c-format
 msgid "%s is requesting to be able to change the background image."
-msgstr "%s requisita ser executado em segundo plano."
+msgstr ""
+"%s está solicitando a capacidade de alterar a imagem de plano de fundo."
 
 #: src/wallpaper.c:188
-#, fuzzy
 msgid "This permission can be changed at any time from the privacy settings."
 msgstr ""
-"Acesso à localização pode ser alterado a qualquer tempo a partir das "
+"Essa permissão pode ser alterada a qualquer momento a partir das "
 "configurações de privacidades."

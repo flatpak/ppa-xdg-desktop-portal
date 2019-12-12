@@ -35,6 +35,8 @@ test_portals_LDADD += $(LIBPORTAL_LIBS)
 test_portals_SOURCES += \
 	tests/account.c \
 	tests/account.h \
+	tests/background.c \
+	tests/background.h \
         tests/camera.c \
         tests/camera.h \
 	tests/email.c \
@@ -43,6 +45,10 @@ test_portals_SOURCES += \
 	tests/filechooser.h \
         tests/inhibit.c \
         tests/inhibit.h \
+        tests/location.c \
+        tests/location.h \
+        tests/notification.c \
+        tests/notification.h \
         tests/openuri.c \
         tests/openuri.h \
 	tests/print.c \

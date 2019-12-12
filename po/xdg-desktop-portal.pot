@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: xdg-desktop-portal 1.5.2\n"
+"Project-Id-Version: xdg-desktop-portal 1.5.3\n"
 "Report-Msgid-Bugs-To: https://github.com/flatpak/xdg-desktop-portal/issues\n"
-"POT-Creation-Date: 2019-10-29 16:11-0400\n"
+"POT-Creation-Date: 2019-11-27 14:51-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -101,33 +101,33 @@ msgstr ""
 msgid "%s wants to use your camera."
 msgstr ""
 
-#: src/location.c:518
+#: src/location.c:526
 msgid "Deny Access"
 msgstr ""
 
-#: src/location.c:520
+#: src/location.c:528
 msgid "Grant Access"
 msgstr ""
 
-#: src/location.c:526
+#: src/location.c:534
 msgid "Grant Access to Your Location?"
 msgstr ""
 
-#: src/location.c:527
+#: src/location.c:535
 msgid "An application wants to use your location."
 msgstr ""
 
-#: src/location.c:539
+#: src/location.c:547
 #, c-format
 msgid "Give %s Access to Your Location?"
 msgstr ""
 
-#: src/location.c:543
+#: src/location.c:551
 #, c-format
 msgid "%s wants to use your location."
 msgstr ""
 
-#: src/location.c:546
+#: src/location.c:554
 msgid "Location access can be changed at any time from the privacy settings."
 msgstr ""
 

@@ -1,4 +1,5 @@
 #include <config.h>
+#include <config.h>
 
 #include <gio/gio.h>
 
@@ -8,10 +9,13 @@
 
 #ifdef HAVE_LIBPORTAL
 #include "account.h"
+#include "background.h"
 #include "camera.h"
 #include "email.h"
 #include "filechooser.h"
 #include "inhibit.h"
+#include "location.h"
+#include "notification.h"
 #include "openuri.h"
 #include "print.h"
 #include "screenshot.h"
@@ -78,6 +82,7 @@ global_setup (void)
   gboolean name_appeared = FALSE;
   guint name_timeout;
   const char *argv[3];
+  GQuark portal_errors G_GNUC_UNUSED;
 
   g_mkdtemp (outdir);
   g_print ("outdir: %s\n", outdir);
@@ -174,6 +179,9 @@ global_setup (void)
                                                NULL,
                                                &error);
   g_assert_no_error (error);
+
+  /* make sure errors are registered */
+  portal_errors = XDG_DESKTOP_PORTAL_ERROR;
 }
 
 static void
@@ -210,7 +218,7 @@ global_teardown (void)
 #define check_pipewire(name) \
  if (strcmp (name , "camera") == 0) \
    { \
-     g_test_skip ("Skipping test that require pipewire"); \
+     g_test_skip ("Skipping tests that require pipewire"); \
      return; \
    }
 #endif
@@ -221,7 +229,7 @@ global_teardown (void)
 #define check_geoclue(name) \
  if (strcmp (name , "location") == 0) \
    { \
-     g_test_skip ("Skipping test that require location"); \
+     g_test_skip ("Skipping tests that require geoclue"); \
      return; \
    }
 #endif
@@ -252,13 +260,15 @@ test_##pp##_exists (void) \
 }
 
 DEFINE_TEST_EXISTS(account, ACCOUNT, 1)
+DEFINE_TEST_EXISTS(background, BACKGROUND, 1)
 DEFINE_TEST_EXISTS(camera, CAMERA, 1)
-DEFINE_TEST_EXISTS(email, EMAIL, 2)
-DEFINE_TEST_EXISTS(file_chooser, FILE_CHOOSER, 1)
+DEFINE_TEST_EXISTS(email, EMAIL, 3)
+DEFINE_TEST_EXISTS(file_chooser, FILE_CHOOSER, 2)
 DEFINE_TEST_EXISTS(game_mode, GAME_MODE, 3)
 DEFINE_TEST_EXISTS(inhibit, INHIBIT, 3)
 DEFINE_TEST_EXISTS(location, LOCATION, 1)
 DEFINE_TEST_EXISTS(network_monitor, NETWORK_MONITOR, 3)
+DEFINE_TEST_EXISTS(notification, NOTIFICATION, 1)
 DEFINE_TEST_EXISTS(open_uri, OPEN_URI, 3)
 DEFINE_TEST_EXISTS(print, PRINT, 1)
 DEFINE_TEST_EXISTS(proxy_resolver, PROXY_RESOLVER, 1)
@@ -275,6 +285,7 @@ main (int argc, char **argv)
   g_test_init (&argc, &argv, NULL);
 
   g_test_add_func ("/portal/account/exists", test_account_exists);
+  g_test_add_func ("/portal/background/exists", test_background_exists);
   g_test_add_func ("/portal/camera/exists", test_camera_exists);
   g_test_add_func ("/portal/email/exists", test_email_exists);
   g_test_add_func ("/portal/filechooser/exists", test_file_chooser_exists);
@@ -282,6 +293,7 @@ main (int argc, char **argv)
   g_test_add_func ("/portal/inhibit/exists", test_inhibit_exists);
   g_test_add_func ("/portal/location/exists", test_location_exists);
   g_test_add_func ("/portal/networkmonitor/exists", test_network_monitor_exists);
+  g_test_add_func ("/portal/notification/exists", test_notification_exists);
   g_test_add_func ("/portal/openuri/exists", test_open_uri_exists);
   g_test_add_func ("/portal/print/exists", test_print_exists);
   g_test_add_func ("/portal/proxyresolver/exists", test_proxy_resolver_exists);
@@ -374,8 +386,10 @@ main (int argc, char **argv)
   g_test_add_func ("/portal/inhibit/cancel", test_inhibit_cancel);
   g_test_add_func ("/portal/inhibit/parallel", test_inhibit_parallel);
   g_test_add_func ("/portal/inhibit/permissions", test_inhibit_permissions);
+  g_test_add_func ("/portal/inhibit/monitor", test_inhibit_monitor);
 
   g_test_add_func ("/portal/openuri/http", test_open_uri_http);
+  g_test_add_func ("/portal/openuri/http2", test_open_uri_http2);
   g_test_add_func ("/portal/openuri/file", test_open_uri_file);
   g_test_add_func ("/portal/openuri/delay", test_open_uri_delay);
   g_test_add_func ("/portal/openuri/close", test_open_uri_close);
@@ -388,6 +402,20 @@ main (int argc, char **argv)
   g_test_add_func ("/portal/wallpaper/cancel1", test_wallpaper_cancel1);
   g_test_add_func ("/portal/wallpaper/cancel2", test_wallpaper_cancel2);
   g_test_add_func ("/portal/wallpaper/permission", test_wallpaper_permission);
+
+  g_test_add_func ("/portal/location/basic", test_location_basic);
+  g_test_add_func ("/portal/location/accuracy", test_location_accuracy);
+
+  g_test_add_func ("/portal/background/basic1", test_background_basic1);
+  g_test_add_func ("/portal/background/basic2", test_background_basic2);
+  g_test_add_func ("/portal/background/commandline", test_background_commandline);
+  g_test_add_func ("/portal/background/reason", test_background_reason);
+
+  g_test_add_func ("/portal/notification/basic", test_notification_basic);
+  g_test_add_func ("/portal/notification/buttons", test_notification_buttons);
+  g_test_add_func ("/portal/notification/bad-arg", test_notification_bad_arg);
+  g_test_add_func ("/portal/notification/bad-priority", test_notification_bad_priority);
+  g_test_add_func ("/portal/notification/bad-button", test_notification_bad_button);
 #endif
 
   global_setup ();
