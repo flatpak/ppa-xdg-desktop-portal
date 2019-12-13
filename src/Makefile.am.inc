@@ -23,6 +23,7 @@ PORTAL_IFACE_FILES =\
 	data/org.freedesktop.portal.Trash.xml \
 	data/org.freedesktop.portal.OpenURI.xml \
 	data/org.freedesktop.portal.Print.xml \
+	data/org.freedesktop.portal.MemoryMonitor.xml \
 	data/org.freedesktop.portal.NetworkMonitor.xml \
 	data/org.freedesktop.portal.ProxyResolver.xml \
 	data/org.freedesktop.portal.Screenshot.xml \
@@ -121,6 +122,8 @@ xdg_desktop_portal_SOURCES = \
 	src/open-uri.h			\
 	src/print.c			\
 	src/print.h			\
+	src/memory-monitor.c		\
+	src/memory-monitor.h		\
 	src/network-monitor.c		\
 	src/network-monitor.h		\
 	src/proxy-resolver.c		\
@@ -155,8 +158,6 @@ xdg_desktop_portal_SOURCES = \
 	src/wallpaper.h			\
 	src/xdp-utils.c			\
 	src/xdp-utils.h			\
-	src/fc-monitor.c		\
-	src/fc-monitor.h		\
 	src/background.c		\
 	src/background.h		\
 	src/gamemode.c			\

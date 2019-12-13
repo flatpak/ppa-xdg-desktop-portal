@@ -1,5 +1,5 @@
 /*
- * Copyright © 2019 Red Hat, Inc
+ * Copyright © 2018 Red Hat, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,13 +15,13 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
- *       Felipe Borges <feborges@redhat.com>
+ *       Matthias Clasen <mclasen@redhat.com>
  */
 
 #pragma once
 
 #include <gio/gio.h>
 
-GDBusInterfaceSkeleton * wallpaper_create (GDBusConnection *connection,
-					   const char *dbus_name_access,
-					   const char *dbus_name_wallpaper);
+GDBusInterfaceSkeleton *file_transfer_create (void);
+
+void stop_file_transfers_for_sender (const char *name);

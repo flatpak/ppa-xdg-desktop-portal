@@ -353,7 +353,8 @@ testdb_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/file-chooser.c src/file-chooser.h src/open-uri.c \
-	src/open-uri.h src/print.c src/print.h src/network-monitor.c \
+	src/open-uri.h src/print.c src/print.h src/memory-monitor.c \
+	src/memory-monitor.h src/network-monitor.c \
 	src/network-monitor.h src/proxy-resolver.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
@@ -363,9 +364,8 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/permissions.h src/email.c src/email.h src/settings.c \
 	src/settings.h src/session.c src/session.h src/trash.c \
 	src/trash.h src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
-	src/xdp-utils.h src/fc-monitor.c src/fc-monitor.h \
-	src/background.c src/background.h src/gamemode.c \
-	src/gamemode.h src/secret.c src/secret.h \
+	src/xdp-utils.h src/background.c src/background.h \
+	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
 	src/portal-impl.h src/portal-impl.c src/screen-cast.c \
 	src/screen-cast.h src/remote-desktop.c src/remote-desktop.h \
@@ -384,6 +384,7 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-file-chooser.$(OBJEXT) \
 	src/xdg_desktop_portal-open-uri.$(OBJEXT) \
 	src/xdg_desktop_portal-print.$(OBJEXT) \
+	src/xdg_desktop_portal-memory-monitor.$(OBJEXT) \
 	src/xdg_desktop_portal-network-monitor.$(OBJEXT) \
 	src/xdg_desktop_portal-proxy-resolver.$(OBJEXT) \
 	src/xdg_desktop_portal-screenshot.$(OBJEXT) \
@@ -401,7 +402,6 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-trash.$(OBJEXT) \
 	src/xdg_desktop_portal-wallpaper.$(OBJEXT) \
 	src/xdg_desktop_portal-xdp-utils.$(OBJEXT) \
-	src/xdg_desktop_portal-fc-monitor.$(OBJEXT) \
 	src/xdg_desktop_portal-background.$(OBJEXT) \
 	src/xdg_desktop_portal-gamemode.$(OBJEXT) \
 	src/xdg_desktop_portal-secret.$(OBJEXT) \
@@ -432,6 +432,7 @@ am__objects_9 =  \
 am_xdg_document_portal_OBJECTS =  \
 	src/xdg_document_portal-xdp-utils.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-portal.$(OBJEXT) \
+	document-portal/xdg_document_portal-file-transfer.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-store.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-portal-fuse.$(OBJEXT) \
 	$(am__objects_9) $(am__objects_1)
@@ -491,6 +492,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	document-portal/$(DEPDIR)/xdg_document_portal-document-portal-fuse.Po \
 	document-portal/$(DEPDIR)/xdg_document_portal-document-portal.Po \
 	document-portal/$(DEPDIR)/xdg_document_portal-document-store.Po \
+	document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po \
 	document-portal/$(DEPDIR)/xdg_document_portal-permission-db.Po \
 	document-portal/$(DEPDIR)/xdg_document_portal-permission-store-dbus.Po \
 	document-portal/$(DEPDIR)/xdg_permission_store-permission-db.Po \
@@ -515,13 +517,13 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-device.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-documents.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-email.Po \
-	src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-location.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-notification.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po \
@@ -1135,48 +1137,50 @@ AM_CPPFLAGS = \
 lib_LTLIBRARIES = 
 introspectiondir = $(datadir)/dbus-1/interfaces
 dist_introspection_DATA = \
+	data/org.freedesktop.portal.Account.xml \
+	data/org.freedesktop.portal.Background.xml \
+	data/org.freedesktop.portal.Camera.xml \
+	data/org.freedesktop.portal.Device.xml \
 	data/org.freedesktop.portal.Documents.xml \
-	data/org.freedesktop.portal.Request.xml \
-	data/org.freedesktop.portal.Session.xml \
+	data/org.freedesktop.portal.Email.xml \
 	data/org.freedesktop.portal.FileChooser.xml \
-	data/org.freedesktop.portal.Trash.xml \
+	data/org.freedesktop.portal.FileTransfer.xml \
+	data/org.freedesktop.portal.GameMode.xml \
+	data/org.freedesktop.portal.Inhibit.xml \
+	data/org.freedesktop.portal.Location.xml \
+	data/org.freedesktop.portal.MemoryMonitor.xml \
+	data/org.freedesktop.portal.NetworkMonitor.xml \
+	data/org.freedesktop.portal.Notification.xml \
 	data/org.freedesktop.portal.OpenURI.xml \
 	data/org.freedesktop.portal.Print.xml \
-	data/org.freedesktop.portal.NetworkMonitor.xml \
 	data/org.freedesktop.portal.ProxyResolver.xml \
-	data/org.freedesktop.portal.Screenshot.xml \
-	data/org.freedesktop.portal.Notification.xml \
-	data/org.freedesktop.portal.Inhibit.xml \
-	data/org.freedesktop.portal.Device.xml \
-	data/org.freedesktop.portal.Account.xml \
-	data/org.freedesktop.portal.Email.xml \
-	data/org.freedesktop.portal.ScreenCast.xml \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
-	data/org.freedesktop.portal.Location.xml \
-	data/org.freedesktop.portal.Settings.xml \
-	data/org.freedesktop.portal.Background.xml \
-	data/org.freedesktop.portal.GameMode.xml \
-	data/org.freedesktop.portal.Camera.xml \
+	data/org.freedesktop.portal.Request.xml \
+	data/org.freedesktop.portal.ScreenCast.xml \
+	data/org.freedesktop.portal.Screenshot.xml \
 	data/org.freedesktop.portal.Secret.xml \
+	data/org.freedesktop.portal.Session.xml \
+	data/org.freedesktop.portal.Settings.xml \
+	data/org.freedesktop.portal.Trash.xml \
 	data/org.freedesktop.portal.Wallpaper.xml \
-	data/org.freedesktop.impl.portal.PermissionStore.xml \
-	data/org.freedesktop.impl.portal.Request.xml \
-	data/org.freedesktop.impl.portal.Session.xml \
-	data/org.freedesktop.impl.portal.FileChooser.xml \
-	data/org.freedesktop.impl.portal.AppChooser.xml \
-	data/org.freedesktop.impl.portal.Print.xml \
-	data/org.freedesktop.impl.portal.Screenshot.xml \
-	data/org.freedesktop.impl.portal.Notification.xml \
-	data/org.freedesktop.impl.portal.Inhibit.xml \
 	data/org.freedesktop.impl.portal.Access.xml \
 	data/org.freedesktop.impl.portal.Account.xml \
-	data/org.freedesktop.impl.portal.Email.xml \
-	data/org.freedesktop.impl.portal.ScreenCast.xml \
-	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
-	data/org.freedesktop.impl.portal.Settings.xml \
-	data/org.freedesktop.impl.portal.Lockdown.xml \
+	data/org.freedesktop.impl.portal.AppChooser.xml \
 	data/org.freedesktop.impl.portal.Background.xml \
+	data/org.freedesktop.impl.portal.Email.xml \
+	data/org.freedesktop.impl.portal.FileChooser.xml \
+	data/org.freedesktop.impl.portal.Inhibit.xml \
+	data/org.freedesktop.impl.portal.Lockdown.xml \
+	data/org.freedesktop.impl.portal.Notification.xml \
+	data/org.freedesktop.impl.portal.PermissionStore.xml \
+	data/org.freedesktop.impl.portal.Print.xml \
+	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
+	data/org.freedesktop.impl.portal.Request.xml \
+	data/org.freedesktop.impl.portal.ScreenCast.xml \
+	data/org.freedesktop.impl.portal.Screenshot.xml \
 	data/org.freedesktop.impl.portal.Secret.xml \
+	data/org.freedesktop.impl.portal.Session.xml \
+	data/org.freedesktop.impl.portal.Settings.xml \
 	data/org.freedesktop.impl.portal.Wallpaper.xml	\
 	$(NULL)
 
@@ -1215,7 +1219,10 @@ nodist_xdg_document_portal_SOURCES = \
 xdg_document_portal_SOURCES = \
 	src/xdp-utils.c	\
 	src/xdp-utils.h	\
+	document-portal/document-portal.h		\
 	document-portal/document-portal.c		\
+	document-portal/file-transfer.h			\
+	document-portal/file-transfer.c			\
 	document-portal/document-enums.h		\
 	document-portal/document-store.h		\
 	document-portal/document-store.c		\
@@ -1237,6 +1244,7 @@ PORTAL_IFACE_FILES = \
 	data/org.freedesktop.portal.Trash.xml \
 	data/org.freedesktop.portal.OpenURI.xml \
 	data/org.freedesktop.portal.Print.xml \
+	data/org.freedesktop.portal.MemoryMonitor.xml \
 	data/org.freedesktop.portal.NetworkMonitor.xml \
 	data/org.freedesktop.portal.ProxyResolver.xml \
 	data/org.freedesktop.portal.Screenshot.xml \
@@ -1288,7 +1296,8 @@ nodist_xdg_desktop_portal_SOURCES = \
 
 xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/file-chooser.c src/file-chooser.h src/open-uri.c \
-	src/open-uri.h src/print.c src/print.h src/network-monitor.c \
+	src/open-uri.h src/print.c src/print.h src/memory-monitor.c \
+	src/memory-monitor.h src/network-monitor.c \
 	src/network-monitor.h src/proxy-resolver.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
@@ -1298,9 +1307,8 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/permissions.h src/email.c src/email.h src/settings.c \
 	src/settings.h src/session.c src/session.h src/trash.c \
 	src/trash.h src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
-	src/xdp-utils.h src/fc-monitor.c src/fc-monitor.h \
-	src/background.c src/background.h src/gamemode.c \
-	src/gamemode.h src/secret.c src/secret.h \
+	src/xdp-utils.h src/background.c src/background.h \
+	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
 	src/portal-impl.h src/portal-impl.c $(NULL) $(am__append_14) \
 	$(am__append_15)
@@ -1895,6 +1903,8 @@ src/xdg_desktop_portal-open-uri.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-print.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-memory-monitor.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-network-monitor.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-proxy-resolver.$(OBJEXT): src/$(am__dirstamp) \
@@ -1928,8 +1938,6 @@ src/xdg_desktop_portal-trash.$(OBJEXT): src/$(am__dirstamp) \
 src/xdg_desktop_portal-wallpaper.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
-	src/$(DEPDIR)/$(am__dirstamp)
-src/xdg_desktop_portal-fc-monitor.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-background.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -1966,6 +1974,9 @@ xdg-desktop-portal$(EXEEXT): $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_
 src/xdg_document_portal-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 document-portal/xdg_document_portal-document-portal.$(OBJEXT):  \
+	document-portal/$(am__dirstamp) \
+	document-portal/$(DEPDIR)/$(am__dirstamp)
+document-portal/xdg_document_portal-file-transfer.$(OBJEXT):  \
 	document-portal/$(am__dirstamp) \
 	document-portal/$(DEPDIR)/$(am__dirstamp)
 document-portal/xdg_document_portal-document-store.$(OBJEXT):  \
@@ -2072,6 +2083,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-document-portal-fuse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-document-portal.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-document-store.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-permission-db.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_document_portal-permission-store-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/$(DEPDIR)/xdg_permission_store-permission-db.Po@am__quote@ # am--include-marker
@@ -2096,13 +2108,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-device.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-documents.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-email.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-location.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-notification.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po@am__quote@ # am--include-marker
@@ -2848,6 +2860,20 @@ src/xdg_desktop_portal-print.obj: src/print.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-print.obj `if test -f 'src/print.c'; then $(CYGPATH_W) 'src/print.c'; else $(CYGPATH_W) '$(srcdir)/src/print.c'; fi`
 
+src/xdg_desktop_portal-memory-monitor.o: src/memory-monitor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-memory-monitor.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Tpo -c -o src/xdg_desktop_portal-memory-monitor.o `test -f 'src/memory-monitor.c' || echo '$(srcdir)/'`src/memory-monitor.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Tpo src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/memory-monitor.c' object='src/xdg_desktop_portal-memory-monitor.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-memory-monitor.o `test -f 'src/memory-monitor.c' || echo '$(srcdir)/'`src/memory-monitor.c
+
+src/xdg_desktop_portal-memory-monitor.obj: src/memory-monitor.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-memory-monitor.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Tpo -c -o src/xdg_desktop_portal-memory-monitor.obj `if test -f 'src/memory-monitor.c'; then $(CYGPATH_W) 'src/memory-monitor.c'; else $(CYGPATH_W) '$(srcdir)/src/memory-monitor.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Tpo src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/memory-monitor.c' object='src/xdg_desktop_portal-memory-monitor.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-memory-monitor.obj `if test -f 'src/memory-monitor.c'; then $(CYGPATH_W) 'src/memory-monitor.c'; else $(CYGPATH_W) '$(srcdir)/src/memory-monitor.c'; fi`
+
 src/xdg_desktop_portal-network-monitor.o: src/network-monitor.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-network-monitor.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Tpo -c -o src/xdg_desktop_portal-network-monitor.o `test -f 'src/network-monitor.c' || echo '$(srcdir)/'`src/network-monitor.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Tpo src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Po
@@ -3086,20 +3112,6 @@ src/xdg_desktop_portal-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
 
-src/xdg_desktop_portal-fc-monitor.o: src/fc-monitor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-fc-monitor.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Tpo -c -o src/xdg_desktop_portal-fc-monitor.o `test -f 'src/fc-monitor.c' || echo '$(srcdir)/'`src/fc-monitor.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Tpo src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/fc-monitor.c' object='src/xdg_desktop_portal-fc-monitor.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-fc-monitor.o `test -f 'src/fc-monitor.c' || echo '$(srcdir)/'`src/fc-monitor.c
-
-src/xdg_desktop_portal-fc-monitor.obj: src/fc-monitor.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-fc-monitor.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Tpo -c -o src/xdg_desktop_portal-fc-monitor.obj `if test -f 'src/fc-monitor.c'; then $(CYGPATH_W) 'src/fc-monitor.c'; else $(CYGPATH_W) '$(srcdir)/src/fc-monitor.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Tpo src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/fc-monitor.c' object='src/xdg_desktop_portal-fc-monitor.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-fc-monitor.obj `if test -f 'src/fc-monitor.c'; then $(CYGPATH_W) 'src/fc-monitor.c'; else $(CYGPATH_W) '$(srcdir)/src/fc-monitor.c'; fi`
-
 src/xdg_desktop_portal-background.o: src/background.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-background.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-background.Tpo -c -o src/xdg_desktop_portal-background.o `test -f 'src/background.c' || echo '$(srcdir)/'`src/background.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-background.Tpo src/$(DEPDIR)/xdg_desktop_portal-background.Po
@@ -3323,6 +3335,20 @@ document-portal/xdg_document_portal-document-portal.obj: document-portal/documen
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='document-portal/document-portal.c' object='document-portal/xdg_document_portal-document-portal.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o document-portal/xdg_document_portal-document-portal.obj `if test -f 'document-portal/document-portal.c'; then $(CYGPATH_W) 'document-portal/document-portal.c'; else $(CYGPATH_W) '$(srcdir)/document-portal/document-portal.c'; fi`
+
+document-portal/xdg_document_portal-file-transfer.o: document-portal/file-transfer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT document-portal/xdg_document_portal-file-transfer.o -MD -MP -MF document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Tpo -c -o document-portal/xdg_document_portal-file-transfer.o `test -f 'document-portal/file-transfer.c' || echo '$(srcdir)/'`document-portal/file-transfer.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Tpo document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='document-portal/file-transfer.c' object='document-portal/xdg_document_portal-file-transfer.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o document-portal/xdg_document_portal-file-transfer.o `test -f 'document-portal/file-transfer.c' || echo '$(srcdir)/'`document-portal/file-transfer.c
+
+document-portal/xdg_document_portal-file-transfer.obj: document-portal/file-transfer.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT document-portal/xdg_document_portal-file-transfer.obj -MD -MP -MF document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Tpo -c -o document-portal/xdg_document_portal-file-transfer.obj `if test -f 'document-portal/file-transfer.c'; then $(CYGPATH_W) 'document-portal/file-transfer.c'; else $(CYGPATH_W) '$(srcdir)/document-portal/file-transfer.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Tpo document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='document-portal/file-transfer.c' object='document-portal/xdg_document_portal-file-transfer.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o document-portal/xdg_document_portal-file-transfer.obj `if test -f 'document-portal/file-transfer.c'; then $(CYGPATH_W) 'document-portal/file-transfer.c'; else $(CYGPATH_W) '$(srcdir)/document-portal/file-transfer.c'; fi`
 
 document-portal/xdg_document_portal-document-store.o: document-portal/document-store.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT document-portal/xdg_document_portal-document-store.o -MD -MP -MF document-portal/$(DEPDIR)/xdg_document_portal-document-store.Tpo -c -o document-portal/xdg_document_portal-document-store.o `test -f 'document-portal/document-store.c' || echo '$(srcdir)/'`document-portal/document-store.c
@@ -4239,6 +4265,7 @@ distclean: distclean-recursive
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-portal-fuse.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-portal.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-store.Po
+	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-permission-db.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-permission-store-dbus.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_permission_store-permission-db.Po
@@ -4263,13 +4290,13 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
-	-rm -f src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-notification.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po
@@ -4390,6 +4417,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-portal-fuse.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-portal.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-document-store.Po
+	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-file-transfer.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-permission-db.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_document_portal-permission-store-dbus.Po
 	-rm -f document-portal/$(DEPDIR)/xdg_permission_store-permission-db.Po
@@ -4414,13 +4442,13 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
-	-rm -f src/$(DEPDIR)/xdg_desktop_portal-fc-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-network-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-notification.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po
@@ -4576,13 +4604,14 @@ document-portal/permission-store-dbus.c: data/org.freedesktop.impl.portal.Permis
 		$(srcdir)/data/org.freedesktop.impl.portal.PermissionStore.xml	\
 		$(NULL)
 
-document-portal/document-portal-dbus.c: data/org.freedesktop.portal.Documents.xml Makefile
+document-portal/document-portal-dbus.c: data/org.freedesktop.portal.Documents.xml data/org.freedesktop.portal.FileTransfer.xml Makefile
 	mkdir -p $(builddir)/document-portal
 	$(AM_V_GEN) $(GDBUS_CODEGEN)				\
 		--interface-prefix org.freedesktop.portal.	\
 		--c-namespace XdpDbus				\
 		--generate-c-code $(builddir)/document-portal/document-portal-dbus	\
 		$(srcdir)/data/org.freedesktop.portal.Documents.xml	\
+		$(srcdir)/data/org.freedesktop.portal.FileTransfer.xml	\
 		$(NULL)
 
 document-portal/%-dbus.h: document-portal/%-dbus.c
