@@ -29,6 +29,12 @@ set_openuri_permissions (const char *type,
   permissions[2] = threshold_s;
   permissions[3] = NULL;
 
+  xdp_impl_permission_store_call_delete_sync (permission_store,
+                                              "desktop-used-apps",
+                                              type,
+                                              NULL,
+                                              NULL);
+
   xdp_impl_permission_store_call_set_permission_sync (permission_store,
                                                       "desktop-used-apps",
                                                       TRUE,
@@ -49,6 +55,23 @@ unset_openuri_permissions (const char *type)
                                               NULL,
                                               NULL);
   /* Ignore the error here, since this fails if the table doesn't exist */
+}
+
+static void
+enable_paranoid_mode (const char *type)
+{
+  GVariantBuilder data_builder;
+
+  /* turn on paranoid mode to ensure we get a backend call */
+  g_variant_builder_init (&data_builder, G_VARIANT_TYPE_VARDICT);
+  g_variant_builder_add (&data_builder, "{sv}", "always-ask", g_variant_new_boolean (TRUE));
+  xdp_impl_permission_store_call_set_value_sync (permission_store,
+                                                 "desktop-used-apps",
+                                                 TRUE,
+                                                 type,
+                                                 g_variant_new_variant (g_variant_builder_end (&data_builder)),
+                                                 NULL,
+                                                 NULL);
 }
 
 static void
@@ -101,6 +124,7 @@ test_open_uri_http (void)
   g_autofree char *path = NULL;
 
   unset_openuri_permissions ("x-scheme-handler/http");
+  enable_paranoid_mode ("x-scheme-handler/http");
 
   keyfile = g_key_file_new ();
 
@@ -115,7 +139,7 @@ test_open_uri_http (void)
   portal = xdp_portal_new ();
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -129,10 +153,20 @@ test_open_uri_http2 (void)
   g_autoptr(GError) error = NULL;
   g_autofree char *path = NULL;
   g_autoptr(GAppInfo) app = NULL;
+  g_autofree char *app_id = NULL;
 
   app = g_app_info_get_default_for_type ("x-scheme-handler/http", FALSE);
 
-  set_openuri_permissions ("x-scheme-handler/http", g_app_info_get_id (app), 3, 3);
+  if (app == NULL)
+    {
+      g_test_skip ("No default handler for x-scheme-handler/http set");
+      return;
+    }
+
+  app_id = g_strndup (g_app_info_get_id (app), strlen (g_app_info_get_id (app)) - strlen (".desktop"));
+
+  unset_openuri_permissions ("text/plain");
+  set_openuri_permissions ("x-scheme-handler/http", app_id, 3, 3);
 
   keyfile = g_key_file_new ();
 
@@ -148,7 +182,7 @@ test_open_uri_http2 (void)
   portal = xdp_portal_new ();
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -164,6 +198,7 @@ test_open_uri_file (void)
   g_autofree char *uri = NULL;
 
   unset_openuri_permissions ("text/plain");
+  enable_paranoid_mode ("text/plain");
 
   keyfile = g_key_file_new ();
 
@@ -185,7 +220,7 @@ test_open_uri_file (void)
   uri = g_strconcat ("file://", path, NULL);
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, uri, FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, uri, FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -201,6 +236,7 @@ test_open_uri_delay (void)
   g_autofree char *uri = NULL;
 
   unset_openuri_permissions ("text/plain");
+  enable_paranoid_mode ("text/plain");
 
   keyfile = g_key_file_new ();
 
@@ -222,7 +258,7 @@ test_open_uri_delay (void)
   uri = g_strconcat ("file://", path, NULL);
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, uri, FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, uri, FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -238,6 +274,7 @@ test_open_uri_cancel (void)
   g_autofree char *uri = NULL;
 
   unset_openuri_permissions ("text/plain");
+  enable_paranoid_mode ("text/plain");
 
   keyfile = g_key_file_new ();
 
@@ -259,7 +296,7 @@ test_open_uri_cancel (void)
   uri = g_strconcat ("file://", path, NULL);
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, uri, FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, uri, FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -287,6 +324,7 @@ test_open_uri_close (void)
   GCancellable *cancellable;
 
   unset_openuri_permissions ("text/plain");
+  enable_paranoid_mode ("text/plain");
 
   keyfile = g_key_file_new ();
 
@@ -311,7 +349,7 @@ test_open_uri_close (void)
   uri = g_strconcat ("file://", path, NULL);
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, uri, FALSE, cancellable, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, uri, FALSE, FALSE, cancellable, open_uri_cb, keyfile);
 
   g_timeout_add (100, cancel_call, cancellable);
 
@@ -344,7 +382,7 @@ test_open_uri_lockdown (void)
   portal = xdp_portal_new ();
 
   got_info = 0;
-  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, NULL, open_uri_cb, keyfile);
+  xdp_portal_open_uri (portal, NULL, "http://www.flatpak.org", FALSE, FALSE, NULL, open_uri_cb, keyfile);
 
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
@@ -402,6 +440,12 @@ test_open_directory (void)
   keyfile = g_key_file_new ();
 
   app = g_app_info_get_default_for_type ("inode/directory", FALSE);
+
+  if (app == NULL)
+    {
+      g_test_skip ("No default handler for inode/directory set");
+      return;
+    }
 
   g_key_file_set_integer (keyfile, "backend", "delay", 200);
   g_key_file_set_integer (keyfile, "backend", "response", 0);

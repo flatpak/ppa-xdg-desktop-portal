@@ -38,6 +38,7 @@
 #include "file-chooser.h"
 #include "open-uri.h"
 #include "print.h"
+#include "memory-monitor.h"
 #include "network-monitor.h"
 #include "proxy-resolver.h"
 #include "screenshot.h"
@@ -206,6 +207,7 @@ on_bus_acquired (GDBusConnection *connection,
   g_autoptr(GError) error = NULL;
   XdpImplLockdown *lockdown;
   GQuark portal_errors G_GNUC_UNUSED;
+  GPtrArray *impls;
 
   /* make sure errors are registered */
   portal_errors = XDG_DESKTOP_PORTAL_ERROR;
@@ -224,13 +226,15 @@ on_bus_acquired (GDBusConnection *connection,
   else
     lockdown = xdp_impl_lockdown_skeleton_new ();
 
+  export_portal_implementation (connection, memory_monitor_create (connection));
   export_portal_implementation (connection, network_monitor_create (connection));
   export_portal_implementation (connection, proxy_resolver_create (connection));
   export_portal_implementation (connection, trash_create (connection));
   export_portal_implementation (connection, game_mode_create (connection));
 
-  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Settings");
-  export_portal_implementation (connection, settings_create (connection, implementation ? implementation->dbus_name : NULL));
+  impls = find_all_portal_implementations ("org.freedesktop.impl.portal.Settings");
+  export_portal_implementation (connection, settings_create (connection, impls));
+  g_ptr_array_free (impls, TRUE);
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.FileChooser");
   if (implementation != NULL)
@@ -256,11 +260,6 @@ on_bus_acquired (GDBusConnection *connection,
   if (implementation != NULL)
     export_portal_implementation (connection,
                                   notification_create (connection, implementation->dbus_name));
-
-  implementation = find_portal_implementation ("org.freedesktop.impl.portal.Wallpaper");
-  if (implementation != NULL)
-    export_portal_implementation (connection,
-                                  wallpaper_create (connection, implementation->dbus_name));
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Inhibit");
   if (implementation != NULL)
@@ -288,6 +287,13 @@ on_bus_acquired (GDBusConnection *connection,
                                   background_create (connection,
                                                      implementation->dbus_name,
                                                      implementation2->dbus_name));
+
+  implementation2 = find_portal_implementation ("org.freedesktop.impl.portal.Wallpaper");
+  if (implementation != NULL && implementation2 != NULL)
+    export_portal_implementation (connection,
+                                  wallpaper_create (connection,
+                                                    implementation->dbus_name,
+                                                    implementation2->dbus_name));
 
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Account");
   if (implementation != NULL)
