@@ -14,7 +14,11 @@ else
 endif
 
 # ITP #946605
+ifeq ($(filter pkg.libportal.enable,$(DEB_BUILD_PROFILES)),)
 CONFFLAGS += --disable-libportal
+else
+CONFFLAGS += --enable-libportal
+endif
 
 %:
 	dh $@

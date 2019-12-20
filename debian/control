@@ -16,6 +16,7 @@ Build-Depends:
  libglib2.0-dev,
  libjson-glib-dev,
  libpipewire-0.2-dev (>= 0.2.7),
+ libportal-dev (>= 0.3) <pkg.libportal.enable>,
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.4.1

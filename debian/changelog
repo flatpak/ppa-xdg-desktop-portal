@@ -4,6 +4,8 @@ xdg-desktop-portal (1.6.0-1) UNRELEASED; urgency=medium
     - d/watch: Only watch for stable releases
     - d/gbp.conf: Use debian/master, upstream/1.6.x branches
   * Mention #946913 in previous changelog entry
+  * Add "unsafe" pkg.libportal.enable build option to enable extra tests
+    while libportal is not yet API-stable
 
  -- Simon McVittie <smcv@debian.org>  Fri, 20 Dec 2019 14:59:30 +0000
 
