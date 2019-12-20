@@ -1,9 +1,21 @@
+xdg-desktop-portal (1.6.0-1) UNRELEASED; urgency=medium
+
+  * New upstream stable release
+    - d/watch: Only watch for stable releases
+    - d/gbp.conf: Use debian/master, upstream/1.6.x branches
+  * Mention #946913 in previous changelog entry
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 20 Dec 2019 14:59:30 +0000
+
 xdg-desktop-portal (1.5.4-1) experimental; urgency=medium
 
   * Branch for experimental
   * New upstream development release
     - d/patches: Rebase
     - d/rules: Explicitly disable libportal-based tests (ITP: #946605)
+    - Only log one warning if unable to track which apps are "in the
+      background, for example x-d-p-gtk in a non-GNOME environment
+      (Closes: #946913)
 
  -- Simon McVittie <smcv@debian.org>  Fri, 13 Dec 2019 23:23:14 +0000
 
