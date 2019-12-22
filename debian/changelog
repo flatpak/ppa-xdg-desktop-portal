@@ -6,6 +6,9 @@ xdg-desktop-portal (1.6.0-1) UNRELEASED; urgency=medium
   * Mention #946913 in previous changelog entry
   * Add "unsafe" pkg.libportal.enable build option to enable extra tests
     while libportal is not yet API-stable
+  * d/p/Fix-the-build-on-old-glib.patch,
+    d/p/xml-Avoid-fancy-quotes.patch:
+    Add post-release fixes from upstream
 
  -- Simon McVittie <smcv@debian.org>  Fri, 20 Dec 2019 14:59:30 +0000
 

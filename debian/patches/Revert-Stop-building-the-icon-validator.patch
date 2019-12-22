@@ -11,7 +11,7 @@ This reverts commit 2fb498f92f8e1c41049dedf887690083fa12f6d1.
  create mode 100644 src/validate-icon.c
 
 diff --git a/configure.ac b/configure.ac
-index a677da3..96036fd 100644
+index 89902fa..21ee5d7 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -155,6 +155,7 @@ fi
@@ -23,7 +23,7 @@ index a677da3..96036fd 100644
  AC_CONFIG_FILES([
  Makefile
 diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
-index 4e734a2..aa67eb9 100644
+index 6f2913d..dd0c7e9 100644
 --- a/src/Makefile.am.inc
 +++ b/src/Makefile.am.inc
 @@ -1,5 +1,6 @@
@@ -33,7 +33,7 @@ index 4e734a2..aa67eb9 100644
  	$(NULL)
  
  service_in_files += \
-@@ -208,3 +209,7 @@ xdg_desktop_portal_CPPFLAGS = \
+@@ -209,3 +210,7 @@ xdg_desktop_portal_CPPFLAGS = \
  	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"        \
  	-DLOCALEDIR=\"$(localedir)\"			\
  	$(NULL)

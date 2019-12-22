@@ -1,0 +1,113 @@
+From: Matthias Clasen <mclasen@redhat.com>
+Date: Fri, 20 Dec 2019 09:37:13 -0500
+Subject: Fix the build on old glib
+
+Add backports for new api that we're using in tests.
+
+Origin: upstream, 1.7.0, commit:f3fe2617a0867f52772cc31b1956b28d9c39d7aa
+---
+ tests/Makefile.am.inc         |  2 ++
+ tests/backend/Makefile.am.inc |  2 ++
+ tests/backend/email.c         |  1 +
+ tests/filechooser.c           |  2 ++
+ tests/glib-backports.c        | 24 ++++++++++++++++++++++++
+ tests/glib-backports.h        |  8 ++++++++
+ 6 files changed, 39 insertions(+)
+ create mode 100644 tests/glib-backports.c
+ create mode 100644 tests/glib-backports.h
+
+diff --git a/tests/Makefile.am.inc b/tests/Makefile.am.inc
+index f653f04..0503089 100644
+--- a/tests/Makefile.am.inc
++++ b/tests/Makefile.am.inc
+@@ -59,6 +59,8 @@ test_portals_SOURCES += \
+ 	tests/trash.h \
+ 	tests/wallpaper.c \
+ 	tests/wallpaper.h \
++        tests/glib-backports.c \
++        tests/glib-backports.h \
+ 	$(NULL)
+ endif
+ nodist_test_portals_SOURCES = \
+diff --git a/tests/backend/Makefile.am.inc b/tests/backend/Makefile.am.inc
+index 3048e03..575a09f 100644
+--- a/tests/backend/Makefile.am.inc
++++ b/tests/backend/Makefile.am.inc
+@@ -33,6 +33,8 @@ test_backends_SOURCES = \
+ 	tests/backend/screenshot.h \
+         tests/backend/wallpaper.c \
+         tests/backend/wallpaper.h \
++        tests/glib-backports.c \
++        tests/glib-backports.h \
+ 	$(NULL)
+ nodist_test_backends_SOURCES = src/xdp-impl-dbus.c
+ 
+diff --git a/tests/backend/email.c b/tests/backend/email.c
+index 7d8844f..2b895dc 100644
+--- a/tests/backend/email.c
++++ b/tests/backend/email.c
+@@ -3,6 +3,7 @@
+ #include <gio/gio.h>
+ 
+ #include "src/xdp-impl-dbus.h"
++#include "tests/glib-backports.h"
+ 
+ #include "email.h"
+ #include "request.h"
+diff --git a/tests/filechooser.c b/tests/filechooser.c
+index a5f9b2c..4b2313c 100644
+--- a/tests/filechooser.c
++++ b/tests/filechooser.c
+@@ -2,6 +2,8 @@
+ 
+ #include "account.h"
+ 
++#include "glib-backports.h"
++
+ #include <libportal/portal.h>
+ #include "src/xdp-utils.h"
+ #include "src/xdp-impl-dbus.h"
+diff --git a/tests/glib-backports.c b/tests/glib-backports.c
+new file mode 100644
+index 0000000..256dc37
+--- /dev/null
++++ b/tests/glib-backports.c
+@@ -0,0 +1,24 @@
++#include "glib-backports.h"
++
++#if !GLIB_CHECK_VERSION(2,60,0)
++
++gboolean
++g_strv_equal (const gchar * const *strv1,
++              const gchar * const *strv2)
++{
++  g_return_val_if_fail (strv1 != NULL, FALSE);
++  g_return_val_if_fail (strv2 != NULL, FALSE);
++
++  if (strv1 == strv2)
++    return TRUE;
++
++  for (; *strv1 != NULL && *strv2 != NULL; strv1++, strv2++)
++    {
++      if (!g_str_equal (*strv1, *strv2))
++        return FALSE;
++    }
++
++  return (*strv1 == NULL && *strv2 == NULL);
++}
++
++#endif
+diff --git a/tests/glib-backports.h b/tests/glib-backports.h
+new file mode 100644
+index 0000000..62d317b
+--- /dev/null
++++ b/tests/glib-backports.h
+@@ -0,0 +1,8 @@
++#pragma once
++
++#include <glib.h>
++
++#if !GLIB_CHECK_VERSION(2,60,0)
++gboolean              g_strv_equal     (const gchar * const *strv1,
++                                        const gchar * const *strv2);
++#endif
