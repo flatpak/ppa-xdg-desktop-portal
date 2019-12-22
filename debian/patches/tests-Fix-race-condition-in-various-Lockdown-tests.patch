@@ -1,0 +1,277 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 22 Dec 2019 17:49:27 +0000
+Subject: tests: Fix race condition in various Lockdown tests
+
+On the client side, functions like xdp_impl_lockdown_set_disable_printing
+initiate an asynchronous property-set operation but do not wait for it
+to finish. As a result, if we want other modules to have caught up with
+the change, we have to wait for the set to succeed.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ tests/Makefile.am.inc |  2 ++
+ tests/camera.c        | 17 +++++++++++++++--
+ tests/filechooser.c   | 16 ++++++++++++++--
+ tests/openuri.c       | 16 ++++++++++++++--
+ tests/print.c         | 30 ++++++++++++++++++++++++++----
+ tests/utils.c         | 28 ++++++++++++++++++++++++++++
+ tests/utils.h         |  9 +++++++++
+ 7 files changed, 108 insertions(+), 10 deletions(-)
+ create mode 100644 tests/utils.c
+ create mode 100644 tests/utils.h
+
+diff --git a/tests/Makefile.am.inc b/tests/Makefile.am.inc
+index 0503089..27acc5d 100644
+--- a/tests/Makefile.am.inc
++++ b/tests/Makefile.am.inc
+@@ -59,6 +59,8 @@ test_portals_SOURCES += \
+ 	tests/trash.h \
+ 	tests/wallpaper.c \
+ 	tests/wallpaper.h \
++	tests/utils.c \
++	tests/utils.h \
+         tests/glib-backports.c \
+         tests/glib-backports.h \
+ 	$(NULL)
+diff --git a/tests/camera.c b/tests/camera.c
+index 4fefbe4..51fc711 100644
+--- a/tests/camera.c
++++ b/tests/camera.c
+@@ -6,6 +6,8 @@
+ #include "src/xdp-utils.h"
+ #include "src/xdp-impl-dbus.h"
+ 
++#include "utils.h"
++
+ extern char outdir[];
+ 
+ static int got_info;
+@@ -238,7 +240,13 @@ test_camera_lockdown (void)
+ 
+   require_pipewire ();
+   reset_camera_permissions ();
+-  xdp_impl_lockdown_set_disable_camera (lockdown, TRUE);
++
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-camera",
++                           g_variant_new_boolean (TRUE),
++                           &error);
++  g_assert_no_error (error);
+ 
+   keyfile = g_key_file_new ();
+ 
+@@ -261,7 +269,12 @@ test_camera_lockdown (void)
+   while (!got_info)
+     g_main_context_iteration (NULL, TRUE);
+ 
+-  xdp_impl_lockdown_set_disable_camera (lockdown, FALSE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-camera",
++                           g_variant_new_boolean (FALSE),
++                           &error);
++  g_assert_no_error (error);
+ }
+ 
+ /* Test the effect of the user denying the access dialog */
+diff --git a/tests/filechooser.c b/tests/filechooser.c
+index 4b2313c..ebe8d9f 100644
+--- a/tests/filechooser.c
++++ b/tests/filechooser.c
+@@ -8,6 +8,8 @@
+ #include "src/xdp-utils.h"
+ #include "src/xdp-impl-dbus.h"
+ 
++#include "utils.h"
++
+ extern XdpImplLockdown *lockdown;
+ 
+ extern char outdir[];
+@@ -872,7 +874,12 @@ test_save_file_lockdown (void)
+     NULL
+   };
+ 
+-  xdp_impl_lockdown_set_disable_save_to_disk (lockdown, TRUE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-save-to-disk",
++                           g_variant_new_boolean (TRUE),
++                           &error);
++  g_assert_no_error (error);
+ 
+   keyfile = g_key_file_new ();
+ 
+@@ -895,7 +902,12 @@ test_save_file_lockdown (void)
+   while (!got_info)
+     g_main_context_iteration (NULL, TRUE);
+ 
+-  xdp_impl_lockdown_set_disable_save_to_disk (lockdown, FALSE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-save-to-disk",
++                           g_variant_new_boolean (FALSE),
++                           &error);
++  g_assert_no_error (error);
+ }
+ 
+ void
+diff --git a/tests/openuri.c b/tests/openuri.c
+index ddff074..df3a754 100644
+--- a/tests/openuri.c
++++ b/tests/openuri.c
+@@ -6,6 +6,8 @@
+ #include "src/xdp-utils.h"
+ #include "src/xdp-impl-dbus.h"
+ 
++#include "utils.h"
++
+ extern XdpImplLockdown *lockdown;
+ extern XdpImplPermissionStore *permission_store;
+ 
+@@ -365,7 +367,12 @@ test_open_uri_lockdown (void)
+   g_autoptr(GError) error = NULL;
+   g_autofree char *path = NULL;
+ 
+-  xdp_impl_lockdown_set_disable_application_handlers (lockdown, TRUE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-application-handlers",
++                           g_variant_new_boolean (TRUE),
++                           &error);
++  g_assert_no_error (error);
+ 
+   keyfile = g_key_file_new ();
+ 
+@@ -387,7 +394,12 @@ test_open_uri_lockdown (void)
+   while (!got_info)
+     g_main_context_iteration (NULL, TRUE);
+ 
+-  xdp_impl_lockdown_set_disable_application_handlers (lockdown, FALSE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-application-handlers",
++                           g_variant_new_boolean (FALSE),
++                           &error);
++  g_assert_no_error (error);
+ }
+ 
+ static void
+diff --git a/tests/print.c b/tests/print.c
+index 1b9be72..a436040 100644
+--- a/tests/print.c
++++ b/tests/print.c
+@@ -6,6 +6,8 @@
+ #include "src/xdp-utils.h"
+ #include "src/xdp-impl-dbus.h"
+ 
++#include "utils.h"
++
+ extern XdpImplLockdown *lockdown;
+ 
+ extern char outdir[];
+@@ -186,7 +188,12 @@ test_prepare_print_lockdown (void)
+   g_autoptr(GError) error = NULL;
+   g_autofree char *path = NULL;
+ 
+-  xdp_impl_lockdown_set_disable_printing (lockdown, TRUE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-printing",
++                           g_variant_new_boolean (TRUE),
++                           &error);
++  g_assert_no_error (error);
+ 
+   keyfile = g_key_file_new ();
+ 
+@@ -208,7 +215,12 @@ test_prepare_print_lockdown (void)
+   while (!got_info)
+     g_main_context_iteration (NULL, TRUE);
+ 
+-  xdp_impl_lockdown_set_disable_printing (lockdown, FALSE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-printing",
++                           g_variant_new_boolean (FALSE),
++                           &error);
++  g_assert_no_error (error);
+ }
+ 
+ void
+@@ -426,7 +438,12 @@ test_print_lockdown (void)
+   g_autofree char *path = NULL;
+   g_autoptr(GDBusConnection) session_bus = NULL;
+ 
+-  xdp_impl_lockdown_set_disable_printing (lockdown, TRUE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-printing",
++                           g_variant_new_boolean (TRUE),
++                           &error);
++  g_assert_no_error (error);
+ 
+   keyfile = g_key_file_new ();
+ 
+@@ -448,7 +465,12 @@ test_print_lockdown (void)
+   while (!got_info)
+     g_main_context_iteration (NULL, TRUE);
+ 
+-  xdp_impl_lockdown_set_disable_printing (lockdown, FALSE);
++  tests_set_property_sync (G_DBUS_PROXY (lockdown),
++                           "org.freedesktop.impl.portal.Lockdown",
++                           "disable-printing",
++                           g_variant_new_boolean (FALSE),
++                           &error);
++  g_assert_no_error (error);
+ }
+ 
+ void
+diff --git a/tests/utils.c b/tests/utils.c
+new file mode 100644
+index 0000000..bb9e740
+--- /dev/null
++++ b/tests/utils.c
+@@ -0,0 +1,28 @@
++#include <config.h>
++
++#include "utils.h"
++
++/*
++ * Set a property. Unlike gdbus-codegen-generated wrapper functions, this
++ * waits for the property change to take effect.
++ *
++ * If @value is floating, ownership is taken.
++ */
++gboolean
++tests_set_property_sync (GDBusProxy *proxy,
++                         const char *iface,
++                         const char *property,
++                         GVariant *value,
++                         GError **error)
++{
++  g_autoptr (GVariant) res = NULL;
++
++  res = g_dbus_proxy_call_sync (proxy,
++                                "org.freedesktop.DBus.Properties.Set",
++                                g_variant_new ("(ssv)", iface, property, value),
++                                G_DBUS_CALL_FLAGS_NONE,
++                                -1,
++                                NULL,
++                                error);
++  return (res != NULL);
++}
+diff --git a/tests/utils.h b/tests/utils.h
+new file mode 100644
+index 0000000..699dc8d
+--- /dev/null
++++ b/tests/utils.h
+@@ -0,0 +1,9 @@
++#pragma once
++
++#include <gio/gio.h>
++
++gboolean tests_set_property_sync (GDBusProxy *proxy,
++                                  const char *iface,
++                                  const char *property,
++                                  GVariant *value,
++                                  GError **error);

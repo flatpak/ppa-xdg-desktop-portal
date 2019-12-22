@@ -1,0 +1,78 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 22 Dec 2019 21:52:00 +0000
+Subject: tests: Install test-backends
+
+This is necessary for test-portals to work when run as an installed-test.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ Makefile.am                   |  1 +
+ tests/backend/Makefile.am.inc | 14 ++++++++------
+ tests/test-portals.c          |  4 +++-
+ 3 files changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/Makefile.am b/Makefile.am
+index 09cdde4..ef77657 100644
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -6,6 +6,7 @@ noinst_LTLIBRARIES = $(NULL)
+ noinst_SCRIPTS =
+ noinst_DATA =
+ libexec_PROGRAMS = $(NULL)
++test_extra_programs =
+ CLEANFILES = $(NULL)
+ DISTCLEANFILES= $(NULL)
+ BUILT_SOURCES = $(NULL)
+diff --git a/tests/backend/Makefile.am.inc b/tests/backend/Makefile.am.inc
+index 575a09f..cf1e7c6 100644
+--- a/tests/backend/Makefile.am.inc
++++ b/tests/backend/Makefile.am.inc
+@@ -1,9 +1,9 @@
+-test_backends_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
+-test_backends_LDADD = \
++tests_test_backends_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
++tests_test_backends_LDADD = \
+ 	$(AM_LDADD) \
+ 	$(BASE_LIBS) \
+ 	$(NULL)
+-test_backends_SOURCES = \
++tests_test_backends_SOURCES = \
+ 	tests/backend/test-backends.c \
+ 	tests/backend/request.h \
+ 	tests/backend/request.c \
+@@ -36,8 +36,10 @@ test_backends_SOURCES = \
+         tests/glib-backports.c \
+         tests/glib-backports.h \
+ 	$(NULL)
+-nodist_test_backends_SOURCES = src/xdp-impl-dbus.c
++nodist_tests_test_backends_SOURCES = src/xdp-impl-dbus.c
+ 
+-noinst_PROGRAMS += \
+-	test-backends \
++# We build this in a tests/ subdirectory so that it can be accessed
++# via G_TEST_BUILT
++test_extra_programs += \
++	tests/test-backends \
+ 	$(NULL)
+diff --git a/tests/test-portals.c b/tests/test-portals.c
+index 34dcc5c..c2db1ea 100644
+--- a/tests/test-portals.c
++++ b/tests/test-portals.c
+@@ -76,6 +76,7 @@ static void
+ global_setup (void)
+ {
+   GError *error = NULL;
++  g_autofree gchar *backends_executable = NULL;
+   g_autofree gchar *services = NULL;
+   g_autofree gchar *portal_dir = NULL;
+   g_autoptr(GSubprocessLauncher) launcher = NULL;
+@@ -118,7 +119,8 @@ global_setup (void)
+   g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
+   g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
+  
+-  argv[0] = "test-backends";
++  backends_executable = g_test_build_filename (G_TEST_BUILT, "test-backends", NULL);
++  argv[0] = backends_executable;
+   argv[1] = g_test_verbose () ? "--verbose" : NULL;
+   argv[2] = NULL;
+ 

@@ -9,6 +9,16 @@ xdg-desktop-portal (1.6.0-1) UNRELEASED; urgency=medium
   * d/p/Fix-the-build-on-old-glib.patch,
     d/p/xml-Avoid-fancy-quotes.patch:
     Add post-release fixes from upstream
+  * d/p/open-uri-Fix-criticals-if-no-default-handler-for-desired-.patch,
+    d/p/tests-Fix-race-condition-in-various-Lockdown-tests.patch,
+    d/p/tests-Skip-Location-tests-if-we-have-no-D-Bus-system-bus.patch,
+    d/p/tests-Install-test-backends.patch,
+    d/p/tests-When-installed-look-for-executables-in-libexecdir.patch,
+    d/p/tests-Install-test.portal-for-installed-tests.patch:
+    Fix some test failures when libportal is enabled
+  * d/p/tests-Divert-service-stdout-to-stderr.patch,
+    d/p/tests-Always-produce-verbose-output-from-subprocesses.patch:
+    Improve test diagnostics
 
  -- Simon McVittie <smcv@debian.org>  Fri, 20 Dec 2019 14:59:30 +0000
 

@@ -1,0 +1,77 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 22 Dec 2019 21:20:13 +0000
+Subject: tests: Divert service stdout to stderr
+
+These tests produce structured TAP output on stdout, so we cannot run
+any subprocesses that would produce unstructured stdout. Unfortunately,
+by default g_debug() writes to stdout, so running with G_MESSAGES_DEBUG
+to get better logging from the various subprocesses breaks the test.
+Use stderr instead.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+---
+ tests/test-portals.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/tests/test-portals.c b/tests/test-portals.c
+index d3dd858..4a2f67a 100644
+--- a/tests/test-portals.c
++++ b/tests/test-portals.c
+@@ -39,6 +39,17 @@ static GSubprocess *backends;
+ XdpImplPermissionStore *permission_store;
+ XdpImplLockdown *lockdown;
+ 
++int
++xdup (int oldfd)
++{
++  int newfd = dup (oldfd);
++
++  if (newfd < 0)
++    g_error ("Unable to duplicate fd %d: %s", oldfd, g_strerror (errno));
++
++  return newfd;
++}
++
+ static void
+ name_appeared_cb (GDBusConnection *bus,
+                   const char *name,
+@@ -85,6 +96,7 @@ global_setup (void)
+   GQuark portal_errors G_GNUC_UNUSED;
+   static gboolean name_appeared;
+   guint watch;
++  int copy_of_stderr;
+ 
+   g_mkdtemp (outdir);
+   g_print ("outdir: %s\n", outdir);
+@@ -118,7 +130,10 @@ global_setup (void)
+   g_subprocess_launcher_setenv (launcher, "DBUS_SESSION_BUS_ADDRESS", g_test_dbus_get_bus_address (dbus), TRUE);
+   g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
+   g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
+- 
++  copy_of_stderr = xdup (STDERR_FILENO);
++  g_subprocess_launcher_take_stdout_fd (launcher, copy_of_stderr);
++  copy_of_stderr = -1;    /* ownership taken */
++
+   backends_executable = g_test_build_filename (G_TEST_BUILT, "test-backends", NULL);
+   argv[0] = backends_executable;
+   argv[1] = g_test_verbose () ? "--verbose" : NULL;
+@@ -156,6 +171,9 @@ global_setup (void)
+   g_subprocess_launcher_setenv (launcher, "XDG_DESKTOP_PORTAL_DIR", portal_dir, TRUE);
+   g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
+   g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
++  copy_of_stderr = xdup (STDERR_FILENO);
++  g_subprocess_launcher_take_stdout_fd (launcher, copy_of_stderr);
++  copy_of_stderr = -1;    /* ownership taken */
+ 
+   /* When running uninstalled we rely on this being added to PATH */
+   if (g_getenv ("XDP_UNINSTALLED") != NULL)
+@@ -195,6 +213,9 @@ global_setup (void)
+   g_subprocess_launcher_setenv (launcher, "DBUS_SESSION_BUS_ADDRESS", g_test_dbus_get_bus_address (dbus), TRUE);
+   g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
+   g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
++  copy_of_stderr = xdup (STDERR_FILENO);
++  g_subprocess_launcher_take_stdout_fd (launcher, copy_of_stderr);
++  copy_of_stderr = -1;    /* ownership taken */
+ 
+   /* When running uninstalled we rely on this being added to PATH */
+   if (g_getenv ("XDP_UNINSTALLED") != NULL)
