@@ -19,6 +19,9 @@ xdg-desktop-portal (1.6.0-1) UNRELEASED; urgency=medium
   * d/p/tests-Divert-service-stdout-to-stderr.patch,
     d/p/tests-Always-produce-verbose-output-from-subprocesses.patch:
     Improve test diagnostics
+  * d/p/Replace-the-icon-validator-with-the-one-from-Flatpak-1.6..patch:
+    Relabel the icon validator as coming from Flatpak 1.6.0
+    (it's the same as 1.4.2)
 
  -- Simon McVittie <smcv@debian.org>  Fri, 20 Dec 2019 14:59:30 +0000
 
