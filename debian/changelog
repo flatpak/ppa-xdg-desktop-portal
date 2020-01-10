@@ -1,6 +1,7 @@
 xdg-desktop-portal (1.6.0-2) UNRELEASED; urgency=medium
 
   * Fix Vcs-Git to point to default branch again
+  * Set upstream metadata fields: Repository.
 
  -- Simon McVittie <smcv@debian.org>  Thu, 26 Dec 2019 12:52:05 +0000
 
