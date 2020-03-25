@@ -1,11 +1,3 @@
-Fix-the-build-on-old-glib.patch
-xml-Avoid-fancy-quotes.patch
-open-uri-Fix-criticals-if-no-default-handler-for-desired-.patch
-tests-Fix-race-condition-in-various-Lockdown-tests.patch
-tests-Install-test-backends.patch
-tests-When-installed-look-for-executables-in-libexecdir.patch
-tests-Install-test.portal-for-installed-tests.patch
-tests-Skip-Location-tests-if-we-have-no-D-Bus-system-bus.patch
 tests-Divert-service-stdout-to-stderr.patch
 tests-Always-produce-verbose-output-from-subprocesses.patch
 Revert-Stop-building-the-icon-validator.patch

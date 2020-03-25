@@ -6,6 +6,7 @@ xdg-desktop-portal (1.7.0-1) UNRELEASED; urgency=medium
     - d/gbp.conf: Use upstream/latest branch
   * New upstream development release
   * Disable pipewire until 0.3.x is available (#954022)
+  * Drop patches that were applied upstream
   * Set upstream metadata fields: Repository.
   * Remove obsolete field Name from debian/upstream/metadata (already
     present in machine-readable debian/copyright).

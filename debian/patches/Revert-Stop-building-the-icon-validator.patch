@@ -11,10 +11,10 @@ This reverts commit 2fb498f92f8e1c41049dedf887690083fa12f6d1.
  create mode 100644 src/validate-icon.c
 
 diff --git a/configure.ac b/configure.ac
-index 89902fa..21ee5d7 100644
+index 4b9b0c7..81ae599 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -155,6 +155,7 @@ fi
+@@ -175,6 +175,7 @@ fi
  GLIB_TESTS
  
  PKG_CHECK_MODULES(FUSE, [fuse])
