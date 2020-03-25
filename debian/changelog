@@ -12,6 +12,7 @@ xdg-desktop-portal (1.7.0-1) UNRELEASED; urgency=medium
     present in machine-readable debian/copyright).
   * Standards-Version: 4.5.0 (no changes required)
   * d/p/tests-Divert-service-stdout-to-stderr.patch: Simplify
+  * tests: Depend on procps, for /bin/kill
 
  -- Simon McVittie <smcv@debian.org>  Thu, 26 Dec 2019 12:52:05 +0000
 

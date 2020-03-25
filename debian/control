@@ -17,6 +17,7 @@ Build-Depends:
  libglib2.0-dev,
  libjson-glib-dev,
  libportal-dev (>= 0.3) <pkg.libportal.enable>,
+ procps <!nocheck>,
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.5.0
@@ -83,6 +84,7 @@ Architecture: any
 Depends:
  dbus,
  geoclue-2.0,
+ procps,
  xdg-desktop-portal,
  ${misc:Depends},
  ${shlibs:Depends},
