@@ -16,9 +16,7 @@ Build-Depends:
  libfuse-dev,
  libglib2.0-dev,
  libjson-glib-dev,
- libpipewire-0.2-dev (>= 0.2.7),
  libportal-dev (>= 0.3) <pkg.libportal.enable>,
- pipewire (>= 0.2.7) <!nocheck pkg.libportal.enable>,
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.5.0
@@ -85,7 +83,6 @@ Architecture: any
 Depends:
  dbus,
  geoclue-2.0,
- pipewire,
  xdg-desktop-portal,
  ${misc:Depends},
  ${shlibs:Depends},
