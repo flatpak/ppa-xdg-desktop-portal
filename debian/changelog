@@ -14,6 +14,7 @@ xdg-desktop-portal (1.7.0-1) UNRELEASED; urgency=medium
   * d/p/tests-Divert-service-stdout-to-stderr.patch: Simplify
   * tests: Depend on procps, for /bin/kill
   * tests: Depend on python3 and python3-gi
+  * Add a patch to skip (more) FUSE tests on buildds
 
  -- Simon McVittie <smcv@debian.org>  Thu, 26 Dec 2019 12:52:05 +0000
 
