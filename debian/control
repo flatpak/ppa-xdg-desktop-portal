@@ -18,6 +18,8 @@ Build-Depends:
  libjson-glib-dev,
  libportal-dev (>= 0.3) <pkg.libportal.enable>,
  procps <!nocheck>,
+ python3 <!nocheck>,
+ python3-gi <!nocheck>,
  xmlto,
 Rules-Requires-Root: no
 Standards-Version: 4.5.0
@@ -85,6 +87,8 @@ Depends:
  dbus,
  geoclue-2.0,
  procps,
+ python3,
+ python3-gi,
  xdg-desktop-portal,
  ${misc:Depends},
  ${shlibs:Depends},
