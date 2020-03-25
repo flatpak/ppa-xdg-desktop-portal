@@ -1,4 +1,4 @@
-xdg-desktop-portal (1.7.0-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.7.0-1) experimental; urgency=medium
 
   * Switch to experimental branch
     - d/watch: Watch for development releases
@@ -16,7 +16,7 @@ xdg-desktop-portal (1.7.0-1) UNRELEASED; urgency=medium
   * tests: Depend on python3 and python3-gi
   * Add a patch to skip (more) FUSE tests on buildds
 
- -- Simon McVittie <smcv@debian.org>  Thu, 26 Dec 2019 12:52:05 +0000
+ -- Simon McVittie <smcv@debian.org>  Wed, 25 Mar 2020 16:00:52 +0000
 
 xdg-desktop-portal (1.6.0-1) unstable; urgency=medium
 
