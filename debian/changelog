@@ -1,8 +1,8 @@
-xdg-desktop-portal (1.7.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.7.1-1) experimental; urgency=medium
 
   * New upstream development release
 
- -- Simon McVittie <smcv@debian.org>  Mon, 30 Mar 2020 10:04:40 +0100
+ -- Simon McVittie <smcv@debian.org>  Mon, 30 Mar 2020 10:19:22 +0100
 
 xdg-desktop-portal (1.7.0-1) experimental; urgency=medium
 
