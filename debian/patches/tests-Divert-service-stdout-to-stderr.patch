@@ -14,7 +14,7 @@ Signed-off-by: Simon McVittie <smcv@debian.org>
  1 file changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/tests/test-portals.c b/tests/test-portals.c
-index 9566ebf..5eb5a03 100644
+index 8bfb25d..fac569a 100644
 --- a/tests/test-portals.c
 +++ b/tests/test-portals.c
 @@ -39,6 +39,17 @@ static GSubprocess *backends;

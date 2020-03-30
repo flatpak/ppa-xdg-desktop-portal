@@ -10,7 +10,7 @@ Signed-off-by: Simon McVittie <smcv@debian.org>
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/tests/test-portals.c b/tests/test-portals.c
-index 5eb5a03..425054d 100644
+index fac569a..5e6a81c 100644
 --- a/tests/test-portals.c
 +++ b/tests/test-portals.c
 @@ -133,7 +133,7 @@ global_setup (void)
