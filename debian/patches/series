@@ -3,4 +3,3 @@ tests-Always-produce-verbose-output-from-subprocesses.patch
 Revert-Stop-building-the-icon-validator.patch
 validate-icon-Add-a-define-for-bwrap.patch
 Replace-the-icon-validator-with-the-one-from-Flatpak-1.6..patch
-tests-Skip-more-tests-if-FUSE-doesn-t-work.patch
