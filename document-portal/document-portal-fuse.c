@@ -24,6 +24,64 @@
 #include "document-store.h"
 #include "src/xdp-utils.h"
 
+#ifndef O_FSYNC
+#define O_FSYNC O_SYNC
+#endif
+
+/* Inode ownership model
+ *
+ * The document portal exposes something as a filesystem that it
+ * doesn't have full control over. For instance at any point some
+ * other process can rename an exposed file on the real filesystem and
+ * we won't be told about this. This means that in general we always
+ * return 0 for the cacheable lifetimes of entries and file attributes.
+ * (Except for the virtual directories we have full control of, the
+ * below only discusses real files).
+ *
+ * However, even though we don't have full control of the underlying
+ * filesystem the *kernel* has. This means we can used that to get
+ * the correct semantics.
+ *
+ * For example, assume that a directory is held opened by a process
+ * (for example, it could be the CWD of the process). When we opened
+ * the directory via a LOOKUP operation we returned an inode to it,
+ * and for as long as the kernel has this inode around (i.e.  until it
+ * sent a FORGET message) it can send operations on this inode without
+ * looking it up again. For example if the above process used a
+ * relative path.
+ *
+ * Now, consider the case where the app chdir():ed into the fuse
+ * directory, but after that the backing directory was renamed ouside
+ * the fuse filesystem. The fuse inode representation for the inode
+ * cannot be the directory name, because the expected semantics is
+ * that further relative pathnames from the app will still resolve
+ * to the same directory independent of its location in the tree.
+ *
+ * The way we do this is to keep a O_PATH file descriptor around for
+ * each underlying inode. This is represented by the XdpPhysicalInode
+ * type and we have a hashtable from backing dev+inode to a these
+ * so that we can use one fd per backing inode even when the file
+ * is visible in many places.
+ *
+ * Since we don't do any caching, each LOOKUP operation will do a
+ * statat() on the underlying filesystem. However, we then use the
+ * result of that to lookup (via backing dev+ino) the previous inode
+ * (as long as it still lives) if the backing file was unchanged.
+ *
+ * One problem with this approach is that the kernel tends to keep
+ * inodes alive for a very long time even if they are *only*
+ * references by the dcache (event though we will not really use the
+ * dcache info due to the 0 valid time). This is unfortunate, because
+ * it means we will keep a lot of file descriptor open. But, we
+ * can't know if the kernel needs the inode for some non-dcache use
+ * so we can't close the file descriptors.
+ *
+ * To work around this we regularly emit entry invalidation calls
+ * to the kernel, which will make it forget the inodes that are
+ * only pinned by the dcache.
+ */
+
+
 #define NON_DOC_DIR_PERMS 0500
 #define DOC_DIR_PERMS_FILE 0700
 #define DOC_DIR_PERMS_DIR 0500
@@ -54,12 +112,14 @@ typedef enum {
 } XdpDomainType;
 
 typedef struct _XdpDomain XdpDomain;
+typedef struct _XdpInode XdpInode;
 
 struct _XdpDomain {
   gint ref_count; /* atomic */
   XdpDomainType type;
 
   XdpDomain *parent;
+  XdpInode *parent_inode; /* Inode of the parent domain (NULL for root) */
 
   char *doc_id; /* NULL for root, by-app, app */
   char *app_id; /* NULL for root, by-app, non-app id */
@@ -78,6 +138,8 @@ struct _XdpDomain {
   guint64 doc_dir_device;
   guint64 doc_dir_inode;
   guint32 doc_flags;
+
+  int doc_queued_invalidate; /* Access atomically, 1 if queued invalidate */
 
   /* Below is mutable, protected by mutex */
   GMutex  tempfile_mutex;
@@ -107,24 +169,28 @@ typedef struct {
                       used as key in domain->tempfiles */
   char *tempname;  /* Real filename on disk.
                       This can be NULLed to avoid unlink at finalize */
-  XdpPhysicalInode *physical;
-  XdpDomain *domain;
+  XdpInode *inode;
 } XdpTempfile;
 
 static XdpTempfile *xdp_tempfile_ref   (XdpTempfile *tempfile);
 static void         xdp_tempfile_unref (XdpTempfile *tempfile);
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (XdpTempfile, xdp_tempfile_unref)
 
-typedef struct {
-  gint ref_count; /* atomic, includes kernel_ref_count */
+struct _XdpInode {
+  guint64 ino;
+  gint ref_count; /* atomic, includes one ref if kernel_ref_count != 0 */
   gint kernel_ref_count; /* atomic */
 
   XdpDomain *domain;
 
   /* The below are only used for XDP_DOMAIN_DOCUMENT inodes */
   XdpPhysicalInode *physical;
-
-} XdpInode;
+  /* The root of the domain, or NULL for the domain.  We use this to
+   * keep the root document inode alive so that when the kernel
+   * forgets it and then looks it up we will not get a new inode and
+   * thus a new domain. */
+  XdpInode *domain_root_inode;
+};
 
 typedef struct {
   int fd;
@@ -147,10 +213,16 @@ static XdpInode *xdp_inode_ref (XdpInode *inode);
 static void xdp_inode_unref (XdpInode *inode);
 
 /* Lookup by inode for verification */
-static GHashTable *all_inodes;
+static GHashTable *all_inodes; /* guint64 -> XdpInode */
+static guint64 next_virtual_inode = FUSE_ROOT_ID; /* root is the first inode created, so it gets this */
 G_LOCK_DEFINE (all_inodes);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC (XdpInode, xdp_inode_unref)
+
+static int ensure_docdir_inode (XdpInode *parent,
+                                int o_path_fd_in, /* Takes ownership */
+                                struct fuse_entry_param *e,
+                                XdpInode **inode_out);
 
 static gboolean
 app_can_write_doc (PermissionDbEntry *entry, const char *app_id)
@@ -394,6 +466,7 @@ xdp_domain_unref (XdpDomain *domain)
         g_assert (g_hash_table_size (domain->inodes) == 0);
       g_clear_pointer (&domain->inodes, g_hash_table_unref);
       g_clear_pointer (&domain->parent, xdp_domain_unref);
+      g_clear_pointer (&domain->parent_inode, xdp_inode_unref);
       g_clear_pointer (&domain->tempfiles, g_hash_table_unref);
       g_mutex_clear (&domain->tempfile_mutex);
       g_free (domain);
@@ -428,20 +501,24 @@ xdp_domain_new_root (void)
 }
 
 static XdpDomain *
-xdp_domain_new_by_app (XdpDomain *root_domain)
+xdp_domain_new_by_app (XdpInode *root_inode)
 {
+  XdpDomain *root_domain = root_inode->domain;
   XdpDomain *domain = _xdp_domain_new (XDP_DOMAIN_BY_APP);
   domain->parent = xdp_domain_ref (root_domain);
+  domain->parent_inode = xdp_inode_ref (root_inode);
   domain->inodes = g_hash_table_new (g_str_hash, g_str_equal);
   return domain;
 }
 
 static XdpDomain *
-xdp_domain_new_app (XdpDomain *parent,
+xdp_domain_new_app (XdpInode *parent_inode,
                     const char *app_id)
 {
+  XdpDomain *parent = parent_inode->domain;
   XdpDomain *domain = _xdp_domain_new (XDP_DOMAIN_APP);
   domain->parent = xdp_domain_ref (parent);
+  domain->parent_inode = xdp_inode_ref (parent_inode);
   domain->app_id = g_strdup (app_id);
   domain->inodes = g_hash_table_new (g_str_hash, g_str_equal);
   return domain;
@@ -544,14 +621,14 @@ xdp_tempfile_ref (XdpTempfile *tempfile)
 }
 
 static XdpTempfile *
-xdp_tempfile_new (XdpDomain  *domain,
+xdp_tempfile_new (XdpInode   *inode,
                   const char *name,
                   const char *tempname)
 {
   XdpTempfile *tempfile = g_new0 (XdpTempfile, 1);
 
   tempfile->ref_count = 1;
-  tempfile->domain = xdp_domain_ref (domain);
+  tempfile->inode = xdp_inode_ref (inode);
   tempfile->name = g_strdup (name);
   tempfile->tempname = g_strdup (tempname);
 
@@ -565,13 +642,12 @@ xdp_tempfile_unref (XdpTempfile *tempfile)
     {
       if (tempfile->tempname)
         {
-          g_autofree char *temppath = g_build_filename (tempfile->domain->doc_path, tempfile->tempname, NULL);
+          g_autofree char *temppath = g_build_filename (tempfile->inode->domain->doc_path, tempfile->tempname, NULL);
           (void)unlink (temppath);
         }
       g_free (tempfile->name);
       g_free (tempfile->tempname);
-      xdp_domain_unref (tempfile->domain);
-      g_clear_pointer (&tempfile->physical, xdp_physical_inode_unref);
+      g_clear_pointer (&tempfile->inode, xdp_inode_unref);
       g_free (tempfile);
     }
 }
@@ -583,10 +659,37 @@ _xdp_inode_new (void)
   inode->ref_count = 1;
   inode->kernel_ref_count = 0;
 
-  G_LOCK (all_inodes);
-  g_hash_table_insert (all_inodes, inode, inode);
-  G_UNLOCK (all_inodes);
   return inode;
+}
+
+/* We try to create persistent inode nr based on the backing device and inode nrs, as
+ * well as the doc/app id (since the same backing dev/ino should be different inodes
+ * in the fuse filesystem). We do this by hashing the data to generate a value.
+ * For non-phsyical files or accidental collisions we just pick a free number
+ * by incrementing.
+ */
+static guint64
+generate_persistent_ino (DevIno *backing_devino,
+                         const char *doc_id,
+                         const char *app_id)
+{
+  g_autoptr(GChecksum) checksum = g_checksum_new (G_CHECKSUM_MD5);
+  guchar digest[64];
+  gsize digest_len = 64;
+  guint64 res;
+
+  g_checksum_update (checksum, (guchar *)backing_devino, sizeof (DevIno));
+  if (doc_id)
+    g_checksum_update (checksum, (guchar *)doc_id, strlen (doc_id));
+  if (app_id)
+    g_checksum_update (checksum, (guchar *)app_id, strlen (app_id));
+
+  g_checksum_get_digest (checksum, digest, &digest_len);
+
+  res = *(guint64 *)digest;
+  if (res == FUSE_ROOT_ID || res == 0)
+    res = FUSE_ROOT_ID + 1;
+  return res;
 }
 
 /* takes ownership of fd */
@@ -596,9 +699,29 @@ xdp_inode_new (XdpDomain *domain,
 {
   XdpInode *inode = _xdp_inode_new ();
   inode->domain = xdp_domain_ref (domain);
+  guint64 persistent_ino, try_ino;
 
   if (physical)
-    inode->physical = xdp_physical_inode_ref (physical);
+    {
+      inode->physical = xdp_physical_inode_ref (physical);
+      persistent_ino = generate_persistent_ino (&physical->backing_devino,
+                                                domain->doc_id,
+                                                domain->app_id);
+
+    }
+
+  G_LOCK (all_inodes);
+  if (physical)
+    try_ino = persistent_ino;
+  else
+    try_ino = next_virtual_inode++;
+
+  if (g_hash_table_contains (all_inodes, &try_ino))
+    try_ino++;
+
+  inode->ino = try_ino;
+  g_hash_table_insert (all_inodes, &inode->ino, inode);
+  G_UNLOCK (all_inodes);
 
   return inode;
 }
@@ -606,32 +729,22 @@ xdp_inode_new (XdpDomain *domain,
 static ino_t
 xdp_inode_to_ino (XdpInode *inode)
 {
-  if (inode == root_inode)
-    return FUSE_ROOT_ID;
-  return (ino_t)(gsize) inode;
+  return inode->ino;
 }
 
-/* Use if we don't know that the inode exists (i.e. when we didn't get
-   it from the kernel fuse apis) after this you need to verify with
-   all_inodes lookup */
-static XdpInode *
-_xdp_inode_from_maybe_ino (ino_t ino)
-{
-  XdpInode *inode;
-
-  if (ino == FUSE_ROOT_ID)
-    inode = root_inode;
-  else
-    inode = (XdpInode *)ino;
-
-  return inode;
-}
-
+/* This is called on kernel upcalls, so it *should* be guaranteed that the inode exists due to the kernel refs */
 static XdpInode *
 xdp_inode_from_ino (ino_t ino)
 {
-  XdpInode *inode = _xdp_inode_from_maybe_ino (ino);
+  XdpInode *inode;
 
+  G_LOCK (all_inodes);
+  inode = g_hash_table_lookup (all_inodes, &ino);
+  G_UNLOCK (all_inodes);
+
+  g_assert (inode != NULL);
+
+  /* Its safe to ref it here because we know it exists outside the lock due to the kernel refs */
   return xdp_inode_ref (inode);
 }
 
@@ -680,18 +793,30 @@ retry_atomic_decrement1:
       else if (domain->type == XDP_DOMAIN_DOCUMENT)
         {
           if (inode->physical)
-            g_hash_table_remove (domain->inodes, inode->physical);
+            {
+              g_hash_table_remove (domain->inodes, inode->physical);
+            }
           else
             g_hash_table_remove (domain->parent->inodes, domain->doc_id);
         }
 
-      G_UNLOCK (domain_inodes);
-
-      /* This doesn't allow ressurection (but can read inode data) */
+      /* Run this under domain_inodes lock to avoid race condition in ensure_docdir_inode + xdp_inode_new
+       * where we don't want a domain->inode lookup to fail, but then an all_inode lookup to succeed
+       * when looking for an ino collision
+       *
+       * Note: After the domain->inodes removal and here we don't allow resurrection, but we may
+       * still race with an all_inodes lookup (e.g. in xdp_fuse_lookup_id_for_inode), which *is*
+       * allowed and it can read the inode fields (while the lock is held) as they are still valid.
+       **/
       G_LOCK (all_inodes);
-      g_hash_table_remove (all_inodes, inode);
+      g_hash_table_remove (all_inodes, &inode->ino);
       G_UNLOCK (all_inodes);
 
+      G_UNLOCK (domain_inodes);
+
+      /* By now we have no refs outstanding and no way to get at the inode, so free it */
+
+      g_clear_pointer (&inode->domain_root_inode, xdp_inode_unref);
       g_clear_pointer (&inode->physical, xdp_physical_inode_unref);
       xdp_domain_unref (inode->domain);
       g_free (inode);
@@ -702,26 +827,33 @@ retry_atomic_decrement1:
 static XdpInode *
 xdp_inode_kernel_ref (XdpInode *inode)
 {
-  g_atomic_int_inc (&inode->kernel_ref_count);
-  return xdp_inode_ref (inode);
+  int old;
+
+  old = g_atomic_int_add (&inode->kernel_ref_count, 1);
+
+  if (old == 0)
+    xdp_inode_ref (inode);
+  return inode;
 }
 
 static void
-xdp_inode_kernel_unref (XdpInode *inode)
+xdp_inode_kernel_unref (XdpInode *inode, unsigned long count)
 {
-  gint old_ref;
+  gint old_ref, new_ref;
 
  retry_atomic_decrement1:
   old_ref = g_atomic_int_get (&inode->kernel_ref_count);
-  if (old_ref <= 0)
+  if (old_ref < count)
     {
       g_warning ("Can't kernel_unref inode with no kernel refs");
       return;
     }
-  if (!g_atomic_int_compare_and_exchange (&inode->kernel_ref_count, old_ref, old_ref - 1))
+  new_ref = old_ref - count;
+  if (!g_atomic_int_compare_and_exchange (&inode->kernel_ref_count, old_ref, new_ref))
     goto retry_atomic_decrement1;
 
-  xdp_inode_unref (inode);
+  if (new_ref == 0)
+    xdp_inode_unref (inode);
 }
 
 static int
@@ -850,18 +982,18 @@ open_temp_at (int    dirfd,
   return -EEXIST;
 }
 
-
 /* allocates tempfile for existing file,
    Called with tempfile lock held, sets errno */
 static int
-get_tempfile_for (XdpDomain *domain,
+get_tempfile_for (XdpInode *parent,
+                  XdpDomain *domain,
                   const char *name,
                   int dirfd,
                   const char *tmpname,
                   XdpTempfile **tempfile_out)
 {
   g_autoptr(XdpTempfile) tempfile = NULL;
-  struct stat buf;
+  g_autoptr(XdpInode) inode = NULL;
   xdp_autofd int o_path_fd = -1;
   int res;
 
@@ -872,12 +1004,11 @@ get_tempfile_for (XdpDomain *domain,
   if (o_path_fd == -1)
     return -errno;
 
-  res = fstatat (o_path_fd, "", &buf, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW);
-  if (res == -1)
-    return -errno;
+  res = ensure_docdir_inode (parent, xdp_steal_fd (&o_path_fd), NULL, &inode); /* passed ownership of o_path_fd */
+  if (res != 0)
+    return res;
 
-  tempfile = xdp_tempfile_new (domain, name, tmpname);
-  tempfile->physical = ensure_physical_inode (buf.st_dev, buf.st_ino, xdp_steal_fd (&o_path_fd)); /* passed ownership of o_path_fd */
+  tempfile = xdp_tempfile_new (inode, name, tmpname);
 
   /* This is atomic, because we're called with the lock held */
   g_hash_table_replace (domain->tempfiles, tempfile->name, xdp_tempfile_ref (tempfile));
@@ -890,18 +1021,20 @@ get_tempfile_for (XdpDomain *domain,
 /* Creates a new file on disk,
    Called with tempfile lock held, sets errno */
 static int
-create_tempfile (XdpDomain *domain,
+create_tempfile (XdpInode *parent,
+                 XdpDomain *domain,
                  const char *name,
                  int dirfd,
                  mode_t mode,
                   XdpTempfile **tempfile_out)
 {
-  struct stat buf;
+  g_autoptr(XdpInode) inode = NULL;
   g_autofree char *real_fd_path = NULL;
   xdp_autofd int real_fd = -1;
   xdp_autofd int o_path_fd = -1;
   g_autoptr(XdpTempfile) tempfile = NULL;
   g_autofree char *tmpname = NULL;
+  int res;
 
   if (tempfile_out != NULL)
     *tempfile_out = NULL;
@@ -918,11 +1051,11 @@ create_tempfile (XdpDomain *domain,
   /* We can close the tmpfd early */
   close (xdp_steal_fd (&real_fd));
 
-  if (fstatat (o_path_fd, "", &buf, AT_EMPTY_PATH | AT_SYMLINK_NOFOLLOW) != 0)
-    return -errno;
+  res = ensure_docdir_inode (parent, xdp_steal_fd (&o_path_fd), NULL, &inode); /* passed ownership of o_path_fd */
+  if (res != 0)
+    return res;
 
-  tempfile = xdp_tempfile_new (domain, name, tmpname);
-  tempfile->physical = ensure_physical_inode (buf.st_dev, buf.st_ino, xdp_steal_fd (&o_path_fd)); /* passed ownership of o_path_fd */
+  tempfile = xdp_tempfile_new (inode, name, tmpname);
 
   /* This is atomic, because we're called with the lock held */
   g_hash_table_replace (domain->tempfiles, tempfile->name, xdp_tempfile_ref (tempfile));
@@ -1004,14 +1137,14 @@ xdp_document_inode_open_child_fd (XdpInode *inode, const char *name, int open_fl
             }
           else if (open_flags & O_CREAT)
             {
-              tempfile_res = create_tempfile (domain, name, dirfd, mode, &tempfile);
+              tempfile_res = create_tempfile (inode, domain, name, dirfd, mode, &tempfile);
             }
 
           g_mutex_unlock (&domain->tempfile_mutex);
 
           if (tempfile)
             {
-              g_autofree char *fd_path = fd_to_path (tempfile->physical->fd);
+              g_autofree char *fd_path = fd_to_path (tempfile->inode->physical->fd);
               fd = open (fd_path, open_flags & ~(O_CREAT|O_EXCL|O_NOFOLLOW), mode);
               if (fd == -1)
                 return -errno;
@@ -1400,14 +1533,16 @@ static void
 abort_reply_entry (struct fuse_entry_param *e)
 {
   XdpInode *inode = xdp_inode_from_ino (e->ino);
-  xdp_inode_kernel_unref (inode);
+  xdp_inode_kernel_unref (inode, 1);
 }
 
 static int
-ensure_docdir_inode (XdpDomain *domain,
+ensure_docdir_inode (XdpInode *parent,
                      int o_path_fd_in, /* Takes ownership */
-                     struct fuse_entry_param *e)
+                     struct fuse_entry_param *e,
+                     XdpInode **inode_out)
 {
+  XdpDomain *domain = parent->domain;
   g_autoptr(XdpPhysicalInode) physical = NULL;
   g_autoptr(XdpInode) inode = NULL;
   xdp_autofd int o_path_fd = o_path_fd_in;
@@ -1431,19 +1566,28 @@ ensure_docdir_inode (XdpDomain *domain,
   else
     {
       inode = xdp_inode_new (domain, physical);
-      g_hash_table_insert (domain->inodes, physical, inode);
+      if (parent->domain_root_inode)
+        inode->domain_root_inode = xdp_inode_ref (parent->domain_root_inode);
+      else
+        inode->domain_root_inode = xdp_inode_ref (parent);
+     g_hash_table_insert (domain->inodes, physical, inode);
     }
   G_UNLOCK(domain_inodes);
 
-  tweak_statbuf_for_document_inode (inode, &buf);
+  if (e)
+    {
+      tweak_statbuf_for_document_inode (inode, &buf);
+      prepare_reply_entry (inode, &buf, e);
+    }
 
-  prepare_reply_entry (inode, &buf, e);
+  if (inode_out)
+    *inode_out = g_steal_pointer (&inode);
 
   return 0;
 }
 
 static int
-ensure_docdir_inode_by_name (XdpDomain *domain,
+ensure_docdir_inode_by_name (XdpInode *parent,
                              int dirfd,
                              const char *name,
                              struct fuse_entry_param *e)
@@ -1454,14 +1598,15 @@ ensure_docdir_inode_by_name (XdpDomain *domain,
   if (o_path_fd == -1)
       return -errno;
 
-  return ensure_docdir_inode (domain, o_path_fd, e); /* Takes ownershif of o_path_fd */
+  return ensure_docdir_inode (parent, o_path_fd, e, NULL); /* Takes ownershif of o_path_fd */
 }
 
 
 static XdpInode *
-ensure_by_app_inode (XdpDomain *by_app_domain,
+ensure_by_app_inode (XdpInode *by_app_inode,
                      const char *app_id)
 {
+  XdpDomain *by_app_domain = by_app_inode->domain;
   g_autoptr(XdpInode) inode = NULL;
 
   if (!xdp_is_valid_app_id (app_id))
@@ -1473,7 +1618,7 @@ ensure_by_app_inode (XdpDomain *by_app_domain,
     inode = xdp_inode_ref (inode);
   else
     {
-      g_autoptr(XdpDomain) app_domain = xdp_domain_new_app (by_app_domain, app_id);
+      g_autoptr(XdpDomain) app_domain = xdp_domain_new_app (by_app_inode, app_id);
       inode = xdp_inode_new (app_domain, NULL);
       g_hash_table_insert (by_app_domain->inodes, app_domain->app_id, inode);
     }
@@ -1483,11 +1628,12 @@ ensure_by_app_inode (XdpDomain *by_app_domain,
 }
 
 static XdpInode *
-ensure_doc_inode (XdpDomain *parent_domain,
+ensure_doc_inode (XdpInode *parent,
                   const char *doc_id)
 {
   g_autoptr(XdpInode) inode = NULL;
   g_autoptr(PermissionDbEntry) doc_entry = NULL;
+  XdpDomain *parent_domain = parent->domain;
 
   doc_entry = xdp_lookup_doc (doc_id);
 
@@ -1503,12 +1649,45 @@ ensure_doc_inode (XdpDomain *parent_domain,
   else
     {
       g_autoptr(XdpDomain) doc_domain = xdp_domain_new_document (parent_domain, doc_id, doc_entry);
+      doc_domain->parent_inode = xdp_inode_ref (parent);
       inode = xdp_inode_new (doc_domain, NULL);
       g_hash_table_insert (parent_domain->inodes, doc_domain->doc_id, inode);
     }
   G_UNLOCK(domain_inodes);
 
   return g_steal_pointer (&inode);
+}
+
+static gboolean
+invalidate_doc_domain (gpointer user_data)
+{
+  g_autoptr(XdpDomain) doc_domain = user_data;
+  ino_t parent_ino;
+
+  g_atomic_int_set (&doc_domain->doc_queued_invalidate, 0);
+
+  parent_ino = xdp_inode_to_ino (doc_domain->parent_inode);
+
+  if (g_atomic_int_get (&doc_domain->parent_inode->kernel_ref_count) > 0 && main_ch != NULL)
+    fuse_lowlevel_notify_inval_entry (main_ch, parent_ino, doc_domain->doc_id, strlen (doc_domain->doc_id));
+
+  return FALSE;
+}
+
+/* Queue an inval_entry call on this domain, thereby freeing all unused inodes
+ * in the dcache which will free up a bunch of O_PATH fds in the fuse implementation
+ */
+static void
+doc_domain_queue_entry_invalidate (XdpDomain *doc_domain)
+{
+  int old = g_atomic_int_get (&doc_domain->doc_queued_invalidate);
+  if (old != 0)
+    return;
+
+  if (!g_atomic_int_compare_and_exchange (&doc_domain->doc_queued_invalidate, old, 1))
+    return; // Someone else set it to 1, return
+
+  g_timeout_add (1000, invalidate_doc_domain, xdp_domain_ref (doc_domain));
 }
 
 static void
@@ -1542,13 +1721,13 @@ xdp_fuse_lookup (fuse_req_t req,
           if (strcmp (name, BY_APP_NAME) == 0)
             inode = xdp_inode_ref (by_app_inode);
           else
-            inode = ensure_doc_inode (parent_domain, name);
+            inode = ensure_doc_inode (parent, name);
           break;
         case XDP_DOMAIN_BY_APP:
-          inode = ensure_by_app_inode (parent_domain, name);
+          inode = ensure_by_app_inode (parent, name);
           break;
         case XDP_DOMAIN_APP:
-          inode = ensure_doc_inode (parent_domain, name);
+          inode = ensure_doc_inode (parent, name);
           break;
         default:
           g_assert_not_reached ();
@@ -1567,10 +1746,14 @@ xdp_fuse_lookup (fuse_req_t req,
       if (fd < 0)
         return xdp_reply_err (op, req, -fd);
 
-      res = ensure_docdir_inode (parent->domain, fd, &e); /* Takes ownershif of fd */
+      res = ensure_docdir_inode (parent, fd, &e, NULL); /* Takes ownershif of fd */
       if (res != 0)
         return xdp_reply_err (op, req, -res);
+
+      doc_domain_queue_entry_invalidate (parent_domain);
     }
+
+  g_debug ("LOOKUP %lx:%s => %lx", parent_ino, name, e.ino);
 
   if (fuse_reply_entry (req, &e) == -ENOENT)
     abort_reply_entry (&e);
@@ -1664,7 +1847,7 @@ xdp_fuse_create (fuse_req_t             req,
   if (o_path_fd < 0)
     return xdp_reply_err (op, req, errno);
 
-  res = ensure_docdir_inode (parent->domain, xdp_steal_fd (&o_path_fd), &e); /* Takes ownershif of o_path_fd */
+  res = ensure_docdir_inode (parent, xdp_steal_fd (&o_path_fd), &e, NULL); /* Takes ownershif of o_path_fd */
   if (res != 0)
     return xdp_reply_err (op, req, -res);
 
@@ -1822,11 +2005,8 @@ forget_one (fuse_ino_t ino,
 {
   g_autoptr(XdpInode) inode = xdp_inode_from_ino (ino);
 
-  while (nlookup > 0)
-    {
-      xdp_inode_kernel_unref (inode);
-      nlookup--;
-    }
+  g_debug ("FORGET %lx %ld", ino, nlookup);
+  xdp_inode_kernel_unref (inode, nlookup);
 }
 
 static void
@@ -1834,7 +2014,6 @@ xdp_fuse_forget (fuse_req_t req,
                  fuse_ino_t ino,
                  unsigned long nlookup)
 {
-  g_debug ("FORGET %lx %ld", ino, nlookup);
   forget_one (ino, nlookup);
   fuse_reply_none (req);
 }
@@ -2217,7 +2396,7 @@ xdp_fuse_mkdir (fuse_req_t  req,
   if (res != 0)
     return xdp_reply_err (op, req, errno);
 
-  res = ensure_docdir_inode_by_name (parent->domain, dirfd, name, &e); /* Takes ownershif of o_path_fd */
+  res = ensure_docdir_inode_by_name (parent, dirfd, name, &e); /* Takes ownershif of o_path_fd */
   if (res != 0)
     return xdp_reply_err (op, req, -res);
 
@@ -2362,7 +2541,7 @@ xdp_fuse_rename (fuse_req_t  req,
             }
           else
             {
-              res = get_tempfile_for (domain, newname, dirfd, tmpname, NULL);
+              res = get_tempfile_for (parent, domain, newname, dirfd, tmpname, NULL);
             }
 
           g_mutex_unlock (&domain->tempfile_mutex);
@@ -2576,7 +2755,7 @@ xdp_fuse_symlink (fuse_req_t req,
   if (res != 0)
     return xdp_reply_err (op, req, errno);
 
-  res = ensure_docdir_inode_by_name (parent->domain, dirfd, name, &e); /* Takes ownershif of o_path_fd */
+  res = ensure_docdir_inode_by_name (parent, dirfd, name, &e); /* Takes ownershif of o_path_fd */
   if (res != 0)
     return xdp_reply_err (op, req, -res);
 
@@ -2621,7 +2800,7 @@ xdp_fuse_link (fuse_req_t req,
   if (res != 0)
     return xdp_reply_err (op, req, errno);
 
-  res = ensure_docdir_inode_by_name (inode->domain, newparent_dirfd, newname, &e); /* Takes ownership of o_path_fd */
+  res = ensure_docdir_inode_by_name (inode, newparent_dirfd, newname, &e); /* Takes ownership of o_path_fd */
   if (res != 0)
     return xdp_reply_err (op, req, -res);
 
@@ -2904,6 +3083,7 @@ xdp_fuse_mainloop (gpointer data)
   fuse_session_remove_chan (main_ch);
   fuse_session_destroy (session);
   fuse_unmount (mount_path, main_ch);
+  main_ch = NULL;
 
   return NULL;
 }
@@ -2932,11 +3112,11 @@ xdp_fuse_init (GError **error)
   my_uid = getuid ();
   my_gid = getgid ();
 
-  all_inodes = g_hash_table_new_full (g_direct_hash, g_direct_equal, NULL, NULL);
+  all_inodes = g_hash_table_new_full (g_int64_hash, g_int64_equal, NULL, NULL);
 
   root_domain = xdp_domain_new_root ();
   root_inode = xdp_inode_new (root_domain, NULL);
-  by_app_domain = xdp_domain_new_by_app (root_domain);
+  by_app_domain = xdp_domain_new_by_app (root_inode);
   by_app_inode = xdp_inode_new (by_app_domain, NULL);
 
   physical_inodes =
@@ -3109,7 +3289,6 @@ char *
 xdp_fuse_lookup_id_for_inode (ino_t ino, gboolean directory,
                               char **real_path_out)
 {
-  XdpInode *inode = _xdp_inode_from_maybe_ino (ino);
   g_autoptr(XdpDomain) domain = NULL;
   g_autoptr(XdpPhysicalInode) physical = NULL;
   DevIno file_devino;
@@ -3119,14 +3298,16 @@ xdp_fuse_lookup_id_for_inode (ino_t ino, gboolean directory,
     *real_path_out = NULL;
 
   G_LOCK (all_inodes);
-  inode = g_hash_table_lookup (all_inodes, inode);
-  if (inode)
-    {
-      /* We're not allowed to ressurect the inode here, but we can get the data while in the lock */
-      domain = xdp_domain_ref (inode->domain);
-      if (inode->physical)
-        physical = xdp_physical_inode_ref (inode->physical);
-    }
+  {
+    XdpInode *inode = g_hash_table_lookup (all_inodes, &ino);
+    if (inode)
+      {
+        /* We're not allowed to ressurect the inode here, but we can get the data while in the lock */
+        domain = xdp_domain_ref (inode->domain);
+        if (inode->physical)
+          physical = xdp_physical_inode_ref (inode->physical);
+      }
+  }
   G_UNLOCK (all_inodes);
 
   if (domain == NULL)
