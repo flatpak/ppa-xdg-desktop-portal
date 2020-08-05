@@ -1,0 +1,34 @@
+From: Bastien Nocera <hadess@hadess.net>
+Date: Fri, 17 Apr 2020 21:51:31 +0200
+Subject: tests: Print the full paths of what we're trying to run
+
+Instead of simply the name, so that we can double-check the paths just
+in case we fail.
+
+Origin: upstream, 1.7.3, commit:98551b45f77eac1538786f9843bf9c93fd2cd631
+---
+ tests/test-portals.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/test-portals.c b/tests/test-portals.c
+index f0601e7..092c5b1 100644
+--- a/tests/test-portals.c
++++ b/tests/test-portals.c
+@@ -167,7 +167,7 @@ global_setup (void)
+   argv[1] = g_test_verbose () ? "--verbose" : NULL;
+   argv[2] = NULL;
+ 
+-  g_print ("launching xdg-desktop-portal\n");
++  g_print ("launching %s\n", argv0);
+ 
+   portals = g_subprocess_launcher_spawnv (launcher, argv, &error);
+   g_assert_no_error (error);
+@@ -208,7 +208,7 @@ global_setup (void)
+   argv[2] = g_test_verbose () ? "--verbose" : NULL;
+   argv[3] = NULL;
+ 
+-  g_print ("launching xdg-permission-store");
++  g_print ("launching %s\n", argv0);
+ 
+   portals = g_subprocess_launcher_spawnv (launcher, argv, &error);
+   g_assert_no_error (error);

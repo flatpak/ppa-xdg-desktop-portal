@@ -3,6 +3,8 @@ Date: Sun, 21 Jun 2020 17:02:56 +0200
 Subject: tests: use kill from PATH
 
 It is not guaranteed that /bin/kill exists and we are already using the bash builtin elsewhere in the script.
+
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/521
 ---
  tests/test-document-fuse.sh | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)

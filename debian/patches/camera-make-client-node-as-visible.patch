@@ -1,0 +1,35 @@
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Fri, 17 Jul 2020 12:31:04 +0200
+Subject: camera: make client-node as visible
+
+Or else clients won't be able to make a node to consume the camera
+data.
+
+Origin: upstream, 1.7.3, commit:14c11652d16d2be10f741a90561b6ccd20f90229
+---
+ src/camera.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/camera.c b/src/camera.c
+index 20fe3aa..efd38b4 100644
+--- a/src/camera.c
++++ b/src/camera.c
+@@ -141,7 +141,7 @@ open_pipewire_camera_remote (const char *app_id,
+                              GError **error)
+ {
+   PipeWireRemote *remote;
+-  struct pw_permission permission_items[2];
++  struct pw_permission permission_items[3];
+   struct pw_properties *pipewire_properties;
+ 
+   pipewire_properties =
+@@ -159,7 +159,8 @@ open_pipewire_camera_remote (const char *app_id,
+    * permission store to set up permissions.
+    */
+   permission_items[0] = PW_PERMISSION_INIT (PW_ID_CORE, PW_PERM_RWX);
+-  permission_items[1] = PW_PERMISSION_INIT (PW_ID_ANY, 0);
++  permission_items[1] = PW_PERMISSION_INIT (remote->node_factory_id, PW_PERM_R);
++  permission_items[2] = PW_PERMISSION_INIT (PW_ID_ANY, 0);
+ 
+   pw_client_update_permissions (pw_core_get_client(remote->core),
+                                 G_N_ELEMENTS (permission_items),

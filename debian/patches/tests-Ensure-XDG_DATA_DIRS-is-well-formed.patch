@@ -1,0 +1,65 @@
+From: Bastien Nocera <hadess@hadess.net>
+Date: Sat, 18 Apr 2020 16:49:32 +0200
+Subject: tests: Ensure XDG_DATA_DIRS is well-formed
+
+Make sure XDG_DATA_DIRS includes /usr/share/ to pick up on the system
+schemas.
+
+Origin: upstream, 1.7.3, commit:8076a1665077ce705af17e90b90324962e2e609a
+---
+ tests/test-portals.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
+
+diff --git a/tests/test-portals.c b/tests/test-portals.c
+index 092c5b1..d76f4ef 100644
+--- a/tests/test-portals.c
++++ b/tests/test-portals.c
+@@ -72,6 +72,39 @@ timeout_cb (gpointer data)
+   return G_SOURCE_REMOVE;
+ }
+ 
++static void
++update_data_dirs (void)
++{
++  const char *data_dirs;
++  gssize len = 0;
++  GString *str;
++  char *new_val;
++
++  data_dirs = g_getenv ("XDG_DATA_DIRS");
++  if (data_dirs != NULL &&
++      strstr (data_dirs, "/usr/share") != NULL)
++    {
++      return;
++    }
++
++  if (data_dirs != NULL)
++    {
++      len = strlen (data_dirs);
++      if (data_dirs[len] == ':')
++        len--;
++    }
++
++  str = g_string_new_len (data_dirs, len);
++  if (str->len > 0)
++    g_string_append_c (str, ':');
++  g_string_append (str, "/usr/local/share/:/usr/share/");
++  new_val = g_string_free (str, FALSE);
++
++  g_debug ("Setting XDG_DATA_DIRS to %s", new_val);
++  g_setenv ("XDG_DATA_DIRS", new_val, TRUE);
++  /* new_val is leaked */
++}
++
+ static void
+ global_setup (void)
+ {
+@@ -87,6 +120,8 @@ global_setup (void)
+   static gboolean name_appeared;
+   guint watch;
+ 
++  update_data_dirs ();
++
+   g_mkdtemp (outdir);
+   g_print ("outdir: %s\n", outdir);
+ 

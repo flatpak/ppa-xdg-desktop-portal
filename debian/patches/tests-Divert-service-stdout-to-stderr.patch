@@ -5,16 +5,17 @@ Subject: tests: Divert service stdout to stderr
 These tests produce structured TAP output on stdout, so we cannot run
 any subprocesses that would produce unstructured stdout. Unfortunately,
 by default g_debug() writes to stdout, so running with G_MESSAGES_DEBUG
-to get better logging from the various subprocesses breaks the test.
+to get better logging from the various subprocesses can break the test.
 Use stderr instead.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/521
 ---
  tests/test-portals.c | 16 +++++++++++++++-
  1 file changed, 15 insertions(+), 1 deletion(-)
 
 diff --git a/tests/test-portals.c b/tests/test-portals.c
-index 8bfb25d..fac569a 100644
+index bfa5645..2cd5ba5 100644
 --- a/tests/test-portals.c
 +++ b/tests/test-portals.c
 @@ -39,6 +39,17 @@ static GSubprocess *backends;
@@ -35,7 +36,7 @@ index 8bfb25d..fac569a 100644
  static void
  name_appeared_cb (GDBusConnection *bus,
                    const char *name,
-@@ -118,7 +129,8 @@ global_setup (void)
+@@ -158,7 +169,8 @@ global_setup (void)
    g_subprocess_launcher_setenv (launcher, "DBUS_SESSION_BUS_ADDRESS", g_test_dbus_get_bus_address (dbus), TRUE);
    g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
    g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
@@ -45,19 +46,19 @@ index 8bfb25d..fac569a 100644
    backends_executable = g_test_build_filename (G_TEST_BUILT, "test-backends", NULL);
    argv[0] = backends_executable;
    argv[1] = g_test_verbose () ? "--verbose" : NULL;
-@@ -156,6 +168,7 @@ global_setup (void)
+@@ -196,6 +208,7 @@ global_setup (void)
    g_subprocess_launcher_setenv (launcher, "XDG_DESKTOP_PORTAL_DIR", portal_dir, TRUE);
    g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
    g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
 +  g_subprocess_launcher_take_stdout_fd (launcher, xdup (STDERR_FILENO));
  
-   /* When running uninstalled we rely on this being added to PATH */
    if (g_getenv ("XDP_UNINSTALLED") != NULL)
-@@ -195,6 +208,7 @@ global_setup (void)
+     argv0 = g_test_build_filename (G_TEST_BUILT, "..", "xdg-desktop-portal", NULL);
+@@ -236,6 +249,7 @@ global_setup (void)
    g_subprocess_launcher_setenv (launcher, "DBUS_SESSION_BUS_ADDRESS", g_test_dbus_get_bus_address (dbus), TRUE);
    g_subprocess_launcher_setenv (launcher, "XDG_DATA_HOME", outdir, TRUE);
    g_subprocess_launcher_setenv (launcher, "PATH", g_getenv ("PATH"), TRUE);
 +  g_subprocess_launcher_take_stdout_fd (launcher, xdup (STDERR_FILENO));
  
-   /* When running uninstalled we rely on this being added to PATH */
    if (g_getenv ("XDP_UNINSTALLED") != NULL)
+     argv0 = g_test_build_filename (G_TEST_BUILT, "..", "xdg-permission-store", NULL);

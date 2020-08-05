@@ -9,6 +9,7 @@ particular that D-Bus .service file was installed correctly to make it
 activatable.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/521
 ---
  tests/test-document-fuse.sh | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
