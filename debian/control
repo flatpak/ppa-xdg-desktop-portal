@@ -9,6 +9,7 @@ Build-Depends:
  debhelper-compat (= 12),
  geoclue-2.0 <!nocheck pkg.libportal.enable>,
  fuse <!nocheck>,
+ libcap2-bin <!nocheck>,
  libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev,
@@ -86,6 +87,7 @@ Architecture: any
 Depends:
  dbus,
  geoclue-2.0,
+ libcap2-bin,
  procps,
  python3,
  python3-gi,
