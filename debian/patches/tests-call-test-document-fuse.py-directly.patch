@@ -1,0 +1,39 @@
+From: Jan Tojnar <jtojnar@gmail.com>
+Date: Sun, 21 Jun 2020 17:59:23 +0200
+Subject: tests: call test-document-fuse.py directly
+
+It has a shebang so no need to pass it to python3 in the tests.
+
+It also makes it easier for downstreams to wrap the python file for setting extra environment variables.
+
+[smcv: chmod the script +x]
+---
+ tests/test-document-fuse.py | 0
+ tests/test-document-fuse.sh | 4 ++--
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+ mode change 100644 => 100755 tests/test-document-fuse.py
+
+diff --git a/tests/test-document-fuse.py b/tests/test-document-fuse.py
+old mode 100644
+new mode 100755
+diff --git a/tests/test-document-fuse.sh b/tests/test-document-fuse.sh
+index cd51356..7868c91 100755
+--- a/tests/test-document-fuse.sh
++++ b/tests/test-document-fuse.sh
+@@ -72,14 +72,14 @@ fi
+ 
+ # First run a basic single-thread test
+ echo Testing single-threaded
+-python3 ${test_srcdir}/test-document-fuse.py --iterations 3 -v
++${test_srcdir}/test-document-fuse.py --iterations 3 -v
+ echo "ok single-threaded"
+ 
+ # Then a bunch of copies in parallel to stress-test
+ echo Testing in parallel
+ PIDS=()
+ for i in $(seq 20); do
+-    python3 ${test_srcdir}/test-document-fuse.py --iterations 10 --prefix $i &
++    ${test_srcdir}/test-document-fuse.py --iterations 10 --prefix $i &
+     PID="$!"
+     PIDS+=( "$PID" )
+ done

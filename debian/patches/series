@@ -3,3 +3,7 @@ tests-Always-produce-verbose-output-from-subprocesses.patch
 Revert-Stop-building-the-icon-validator.patch
 validate-icon-Add-a-define-for-bwrap.patch
 Replace-the-icon-validator-with-the-one-from-Flatpak-1.8..patch
+tests-use-kill-from-PATH.patch
+tests-call-test-document-fuse.py-directly.patch
+tests-Only-run-xdg-document-portal-in-foreground-when-uni.patch
+Install-session.conf.in-to-expected-path-for-installed-te.patch

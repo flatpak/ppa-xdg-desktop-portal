@@ -1,0 +1,31 @@
+From: Jan Tojnar <jtojnar@gmail.com>
+Date: Sun, 21 Jun 2020 17:02:56 +0200
+Subject: tests: use kill from PATH
+
+It is not guaranteed that /bin/kill exists and we are already using the bash builtin elsewhere in the script.
+---
+ tests/test-document-fuse.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/tests/test-document-fuse.sh b/tests/test-document-fuse.sh
+index a571a16..cd51356 100755
+--- a/tests/test-document-fuse.sh
++++ b/tests/test-document-fuse.sh
+@@ -49,7 +49,7 @@ export XDG_RUNTIME_DIR=${TEST_DATA_DIR}/runtime
+ cleanup () {
+     fusermount -u $XDG_RUNTIME_DIR/doc || :
+     sleep 0.1
+-    /bin/kill -9 $DBUS_SESSION_BUS_PID
++    kill -9 $DBUS_SESSION_BUS_PID
+     kill $(jobs -p) &> /dev/null || true
+     rm -rf $TEST_DATA_DIR
+ }
+@@ -62,7 +62,7 @@ dbus-daemon --fork --config-file=session.conf --print-address=3 --print-pid=4 \
+ export DBUS_SESSION_BUS_ADDRESS="$(cat dbus-session-bus-address)"
+ DBUS_SESSION_BUS_PID="$(cat dbus-session-bus-pid)"
+ 
+-if ! /bin/kill -0 "$DBUS_SESSION_BUS_PID"; then
++if ! kill -0 "$DBUS_SESSION_BUS_PID"; then
+     assert_not_reached "Failed to start dbus-daemon"
+ fi
+ 

@@ -32,6 +32,7 @@ override_dh_missing:
 
 override_dh_auto_test:
 ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	chmod +x tests/test-document-fuse.py
 	G_MESSAGES_DEBUG=all \
 	TEST_IN_CI=1 \
 	dh_auto_test --no-parallel
