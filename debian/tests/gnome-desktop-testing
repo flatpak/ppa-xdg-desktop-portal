@@ -3,4 +3,7 @@
 set -e
 exec 2>&1
 
+# capsh is in /sbin
+export PATH="$PATH:/sbin:/usr/sbin"
+
 exec gnome-desktop-testing-runner xdg-desktop-portal
