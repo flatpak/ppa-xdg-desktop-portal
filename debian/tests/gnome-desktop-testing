@@ -6,4 +6,7 @@ exec 2>&1
 # capsh is in /sbin
 export PATH="$PATH:/sbin:/usr/sbin"
 
+# Some tests are skipped or have longer timeouts in CI
+export TEST_IN_CI=1
+
 exec gnome-desktop-testing-runner xdg-desktop-portal
