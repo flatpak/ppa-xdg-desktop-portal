@@ -1,10 +1,20 @@
-xdg-desktop-portal (1.7.2-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.7.2-1) experimental; urgency=medium
 
   * New upstream development release
   * Drop patch skipping FUSE tests if necessary,
     upstream made an equivalent change
+  * Update icon validator to the one from Flatpak 1.8.1
+  * Build-Depend on libcap2-bin, for capsh, and add it to test dependencies
+  * tests: Look for capsh in /sbin
+  * Update patches.
+    This includes upstream 1.7.2-37-g089e72b plus merge request
+    <https://github.com/flatpak/xdg-desktop-portal/pull/521>,
+    to make the installed-tests work better.
+  * d/tests/gnome-desktop-testing: Set TEST_IN_CI.
+    Upstream uses this to extend test timeouts and skip flaky tests.
+  * Re-enable pipewire now that 0.3.x is in experimental
 
- -- Simon McVittie <smcv@debian.org>  Fri, 03 Apr 2020 19:39:53 +0100
+ -- Simon McVittie <smcv@debian.org>  Mon, 07 Sep 2020 19:41:23 +0100
 
 xdg-desktop-portal (1.7.1-1) experimental; urgency=medium
 
