@@ -1,0 +1,41 @@
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 16 Apr 2020 16:31:32 +0200
+Subject: open-uri: Allow skipping chooser for more URL types
+
+Also allow skipping the chooser to send mails, open FTP sites, or
+calendar items.
+
+Origin: upstream, 1.7.3, commit:73928756aeaf1d10fed3486adbce92ba83ff9a6b
+---
+ src/open-uri.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
+
+diff --git a/src/open-uri.c b/src/open-uri.c
+index cbdf351..55cad2b 100644
+--- a/src/open-uri.c
++++ b/src/open-uri.c
+@@ -448,10 +448,20 @@ static gboolean
+ can_skip_app_chooser (const char *scheme,
+                       const char *content_type)
+ {
+-  /* We skip the app chooser for Internet URIs, to be open in the browser */
+-  /*  Skipping the chooser for directories is useful too (e.g. opening in Nautilus) */
+-  if (g_strcmp0 (scheme, "http") == 0 ||
+-      g_strcmp0 (scheme, "https") == 0 ||
++  const char *skipped_schemes[] = {
++    "http",
++    "https",
++    "ftp",
++    "mailto",
++    "webcal",
++    "calendar",
++    NULL
++  };
++
++  /* We skip the app chooser for Internet URIs, to be open in the browser,
++   * mail client, or calendar, as well as for directories to be opened in
++   * the file manager */
++  if (g_strv_contains (skipped_schemes, scheme) ||
+       g_strcmp0 (content_type, "inode/directory") == 0)
+     {
+       g_debug ("Can skip app chooser for %s", content_type);

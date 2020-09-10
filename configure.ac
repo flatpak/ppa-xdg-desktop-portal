@@ -1,6 +1,6 @@
 AC_PREREQ([2.63])
 
-AC_INIT([xdg-desktop-portal],[1.6.0])
+AC_INIT([xdg-desktop-portal],[1.7.2])
 
 AC_USE_SYSTEM_EXTENSIONS
 AC_SYS_LARGEFILE
@@ -51,6 +51,9 @@ AC_ARG_WITH(flatpak_interfaces_dir,
         AS_HELP_STRING([--with-flatpak-interfaces-dir=PATH],[choose directory for Flatpak interface files, [default=PREFIX/share/dbus-1/interfaces]]),
         [[FLATPAK_INTERFACES_DIR="$withval"]],
 	[PKG_CHECK_VAR([FLATPAK_INTERFACES_DIR], [flatpak], [interfaces_dir])])
+if ! pkg-config --atleast-version "1.5.0" flatpak; then
+        FLATPAK_INTERFACES_DIR=""
+fi
 AC_SUBST(FLATPAK_INTERFACES_DIR)
 
 AC_ARG_WITH([systemduserunitdir],
@@ -97,7 +100,7 @@ AC_ARG_ENABLE(pipewire,
 	      [AS_HELP_STRING([--enable-pipewire],[Enable PipeWire support. Needed for screen cast portal])],
 	      enable_pipewire=$enableval, enable_pipewire=yes)
 if test x$enable_pipewire = xyes ; then
-	PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.2 >= 0.2.6])
+	PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.3 >= 0.2.90])
 	AC_DEFINE([HAVE_PIPEWIRE],[1], [Define to enable PipeWire support])
 fi
 AM_CONDITIONAL([HAVE_PIPEWIRE],[test "$enable_pipewire" = "yes"])
@@ -108,21 +111,38 @@ AC_ARG_ENABLE(docbook-docs,
 AC_PATH_PROG(XMLTO, xmlto, no)
 AC_MSG_CHECKING([whether to build DocBook documentation])
 if test x$XMLTO = xno ; then
-        have_docbook=no
+        have_xmlto=no
 else
-        have_docbook=yes
+        have_xmlto=yes
 fi
 if test x$enable_docbook_docs = xauto ; then
-        if test x$have_docbook = xno ; then
+        if test x$have_xmlto = xno ; then
                 enable_docbook_docs=no
         else
-                enable_docbook_docs=yes
+                if test ! -f "$srcdir/org.freedesktop.portal.Flatpak.xml" ; then
+                        if test -z "$FLATPAK_INTERFACES_DIR" -o ! -f "$FLATPAK_INTERFACES_DIR/org.freedesktop.portal.Flatpak.xml" ; then
+                                enable_docbook_docs=no
+                        else
+                                enable_docbook_docs=yes
+                        fi
+                else
+                        enable_docbook_docs=yes
+                fi
         fi
 fi
 if test x$enable_docbook_docs = xyes; then
-        if test x$have_docbook = xno; then
+        if test x$have_xmlto = xno; then
                 AC_MSG_ERROR([Building DocBook docs explicitly required, but xmlto not found])
         fi
+        if test ! -f "$srcdir/org.freedesktop.portal.Flatpak.xml" ; then
+                if test -z "$FLATPAK_INTERFACES_DIR"; then
+                        AC_MSG_ERROR([Flatpak development files are required to build DocBook docs])
+                fi
+                if test ! -f "$FLATPAK_INTERFACES_DIR/org.freedesktop.portal.Flatpak.xml" ; then
+                        AC_MSG_ERROR([Flatpak development files are not correctly installed at $FLATPAK_INTERFACES_DIR])
+                fi
+        fi
+
         AC_MSG_RESULT(yes)
 else
         AC_MSG_RESULT(no)

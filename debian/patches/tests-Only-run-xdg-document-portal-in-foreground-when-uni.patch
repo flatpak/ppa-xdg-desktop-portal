@@ -1,0 +1,33 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Wed, 5 Aug 2020 10:58:17 +0100
+Subject: tests: Only run xdg-document-portal in foreground when uninstalled
+
+During build-time testing, we need to take special steps to run the
+just-built version of the portal. However, during "as-installed"
+testing we want to assert that it was installed correctly, and in
+particular that D-Bus .service file was installed correctly to make it
+activatable.
+
+Signed-off-by: Simon McVittie <smcv@debian.org>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/521
+---
+ tests/test-document-fuse.sh | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/tests/test-document-fuse.sh b/tests/test-document-fuse.sh
+index 7868c91..da0aa47 100755
+--- a/tests/test-document-fuse.sh
++++ b/tests/test-document-fuse.sh
+@@ -68,7 +68,11 @@ fi
+ 
+ # Run portal manually so that we get any segfault our assert output
+ # Add -v here to get debug output from fuse
+-./xdg-document-portal -r &
++# Only do this when running uninstalled; when running as an installed-test,
++# we rely on D-Bus activation.
++if [ -n "${XDP_UNINSTALLED:-}" ]; then
++    ./xdg-document-portal -r &
++fi
+ 
+ # First run a basic single-thread test
+ echo Testing single-threaded

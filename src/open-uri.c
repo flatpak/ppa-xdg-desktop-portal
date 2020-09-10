@@ -242,7 +242,7 @@ launch_application_with_uri (const char *choice_id,
 
       g_debug ("Registering %s for %s", uri, choice_id);
 
-      ruri = register_document (uri, choice_id, FALSE, writable, &error);
+      ruri = register_document (uri, choice_id, FALSE, writable, FALSE, &error);
       if (ruri == NULL)
         {
           g_warning ("Error registering %s for %s: %s", uri, choice_id, error->message);
@@ -473,9 +473,17 @@ find_recommended_choices (const char *scheme,
   int i;
 
   info = g_app_info_get_default_for_type (content_type, FALSE);
-  *default_app = get_app_id (info);
 
-  g_debug ("Default handler %s for %s, %s", *default_app, scheme, content_type);
+  if (info != NULL)
+    {
+      *default_app = get_app_id (info);
+      g_debug ("Default handler %s for %s, %s", *default_app, scheme, content_type);
+    }
+  else
+    {
+      *default_app = NULL;
+      g_debug ("No default handler for %s, %s", scheme, content_type);
+    }
 
   infos = g_app_info_get_recommended_for_type (content_type);
   /* Use fallbacks if we have no recommended application for this type */

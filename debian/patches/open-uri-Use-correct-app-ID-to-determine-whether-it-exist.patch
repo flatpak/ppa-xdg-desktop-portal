@@ -1,0 +1,34 @@
+From: Simon McVittie <smcv@collabora.com>
+Date: Sun, 6 Sep 2020 17:49:33 +0100
+Subject: open-uri: Use correct app ID to determine whether it exists
+
+x-d-p represents apps by their app ID *without* the .desktop suffix,
+but GDesktopAppInfo represents them by the app ID *with* the .desktop
+suffix.
+
+Fixes: 69205f12 "open-uri: Show app chooser when default app does not exist"
+Resolves: #524
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Applied-upstream: 1.7.3
+---
+ src/open-uri.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/open-uri.c b/src/open-uri.c
+index c5b8705..7eb7804 100644
+--- a/src/open-uri.c
++++ b/src/open-uri.c
+@@ -554,10 +554,12 @@ static gboolean
+ app_exists (const char *app_id)
+ {
+   g_autoptr(GDesktopAppInfo) info = NULL;
++  g_autofree gchar *with_desktop = NULL;
+ 
+   g_return_val_if_fail (app_id != NULL, FALSE);
+ 
+-  info = g_desktop_app_info_new (app_id);
++  with_desktop = g_strconcat (app_id, ".desktop", NULL);
++  info = g_desktop_app_info_new (with_desktop);
+   return (info != NULL);
+ }
+ 

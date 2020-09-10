@@ -1,0 +1,32 @@
+From: Michael Catanzaro <mcatanzaro@gnome.org>
+Date: Fri, 1 May 2020 17:26:54 -0500
+Subject: open-uri: avoid criticals when app to open does not exist
+
+If g_desktop_app_info_new() returns NULL, then the desired desktop file
+does not exist. Simply return FALSE in this case instead of trying to
+use it.
+
+See: #480
+Origin: upstream, 1.7.3, commit:c41efbe598918fedf01d69f65b581cfbf107b00b
+---
+ src/open-uri.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/open-uri.c b/src/open-uri.c
+index c081a6b..bb63478 100644
+--- a/src/open-uri.c
++++ b/src/open-uri.c
+@@ -235,6 +235,13 @@ launch_application_with_uri (const char *choice_id,
+   g_autofree char *ruri = NULL;
+   GList uris;
+ 
++  if (info == NULL)
++    {
++      g_debug ("Cannot launch %s because desktop file does not exist", desktop_id);
++      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_FOUND, "Desktop file %s does not exist", desktop_id);
++      return FALSE;
++    }
++
+   g_debug ("Launching %s %s", choice_id, uri);
+ 
+   if (is_sandboxed (info) && is_file_uri (uri))

@@ -1,0 +1,24 @@
+From: Wim Taymans <wtaymans@redhat.com>
+Date: Fri, 17 Jul 2020 15:32:53 +0200
+Subject: pipewire: clean up the registry proxy
+
+destroy the registry proxy after use or else we leak it.
+
+Origin: upstream, 1.7.3, commit:4e1bdb4c81c427f12ade9e28e6d947d3148cb0d9
+---
+ src/pipewire.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/pipewire.c b/src/pipewire.c
+index 162cd55..9430339 100644
+--- a/src/pipewire.c
++++ b/src/pipewire.c
+@@ -107,6 +107,8 @@ discover_node_factory_sync (PipeWireRemote *remote,
+ 
+   pipewire_remote_roundtrip (remote);
+ 
++  pw_proxy_destroy((struct pw_proxy*)registry);
++
+   if (remote->node_factory_id == 0)
+     {
+       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

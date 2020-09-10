@@ -1,0 +1,71 @@
+From: Bastien Nocera <hadess@hadess.net>
+Date: Thu, 7 May 2020 11:39:27 +0200
+Subject: open-uri: Show app chooser when default app does not exist
+
+Fix a possible crash when the application that would be selected to
+avoid the app chooser is not available (anymore).
+
+This would have happened when eog.desktop got renamed to
+org.gnome.eog.desktop but was launched enough times as eog.desktop to
+make it the default.
+
+Based on https://github.com/flatpak/xdg-desktop-portal/pull/481
+
+Origin: upstream, 1.7.3, commit:69205f12cc57542a7c38c1b631fa8a8d9529f5d6
+---
+ src/open-uri.c | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/src/open-uri.c b/src/open-uri.c
+index ee8f629..c081a6b 100644
+--- a/src/open-uri.c
++++ b/src/open-uri.c
+@@ -543,6 +543,15 @@ app_info_changed (GAppInfoMonitor *monitor,
+                                             NULL);
+ }
+ 
++static gboolean
++app_exists (const char *app_id)
++{
++  g_autoptr(GDesktopAppInfo) info = NULL;
++
++  info = g_desktop_app_info_new (app_id);
++  return (info != NULL);
++}
++
+ static void
+ handle_open_in_thread_func (GTask *task,
+                             gpointer source_object,
+@@ -651,10 +660,14 @@ handle_open_in_thread_func (GTask *task,
+ 
+   /* collect all the information */
+   find_recommended_choices (scheme, content_type, &default_app, &choices, &n_choices);
++  if (!app_exists (default_app))
++    g_clear_pointer (&default_app, g_free);
+   use_default_app = should_use_default_app (scheme, content_type);
+   get_latest_choice_info (app_id, content_type,
+                           &latest_id, &latest_count, &latest_threshold,
+                           &ask_for_content_type);
++  if (!app_exists (latest_id))
++    g_clear_pointer (&latest_id, g_free);
+ 
+   skip_app_chooser = FALSE;
+   reason = NULL;
+@@ -701,7 +714,7 @@ handle_open_in_thread_func (GTask *task,
+ 
+   if (skip_app_chooser)
+     {
+-      const char *app;
++      const char *app = NULL;
+ 
+       if (default_app != NULL && use_default_app)
+         app = default_app;
+@@ -709,7 +722,7 @@ handle_open_in_thread_func (GTask *task,
+         app = latest_id;
+       else if (default_app != NULL)
+         app = default_app;
+-      else
++      else if (choices && app_exists (choices[0]))
+         app = choices[0];
+ 
+       if (app)
