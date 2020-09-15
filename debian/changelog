@@ -1,3 +1,10 @@
+xdg-desktop-portal (1.8.0-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+    - Drop most patches, applied upstream
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 16 Sep 2020 00:56:32 +0100
+
 xdg-desktop-portal (1.7.2-2) unstable; urgency=medium
 
   * d/rules: Don't explicitly use --as-needed linker option.
