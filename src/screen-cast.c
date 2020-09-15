@@ -543,7 +543,6 @@ open_pipewire_screen_cast_remote (const char *app_id,
   struct pw_properties *pipewire_properties;
   PipeWireRemote *remote;
   g_autoptr(GArray) permission_items = NULL;
-  PipeWireGlobal *node_global;
 
   pipewire_properties = pw_properties_new ("pipewire.access.portal.app_id", app_id,
                                            "pipewire.access.portal.media_roles", "",
@@ -554,7 +553,7 @@ open_pipewire_screen_cast_remote (const char *app_id,
   if (!remote)
     return FALSE;
 
-  permission_items = g_array_new (FALSE, TRUE, sizeof (struct spa_dict_item));
+  permission_items = g_array_new (FALSE, TRUE, sizeof (struct pw_permission));
 
   /*
    * PipeWire:Interface:Core
@@ -947,7 +946,7 @@ on_supported_cursor_modes_changed (GObject *gobject,
 static void
 screen_cast_init (ScreenCast *screen_cast)
 {
-  xdp_screen_cast_set_version (XDP_SCREEN_CAST (screen_cast), 2);
+  xdp_screen_cast_set_version (XDP_SCREEN_CAST (screen_cast), 3);
 
   g_signal_connect (impl, "notify::supported-source-types",
                     G_CALLBACK (on_supported_source_types_changed),

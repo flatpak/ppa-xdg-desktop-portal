@@ -191,7 +191,8 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/gettext.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 DIST_COMMON = $(srcdir)/Makefile.am $(top_srcdir)/configure \
-	$(am__configure_deps) $(am__dist_installed_test_dbs_DATA_DIST) \
+	$(am__configure_deps) $(dist_installed_test_DATA) \
+	$(am__dist_installed_test_dbs_DATA_DIST) \
 	$(am__dist_installed_test_portals_DATA_DIST) \
 	$(dist_introspection_DATA) $(am__DIST_COMMON)
 am__CONFIG_DISTCLEAN_FILES = config.status config.cache config.log \
@@ -206,6 +207,7 @@ am__installdirs = "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(installed_testdir)" \
 	"$(DESTDIR)$(dbus_servicedir)" \
+	"$(DESTDIR)$(installed_testdir)" \
 	"$(DESTDIR)$(installed_test_dbsdir)" \
 	"$(DESTDIR)$(installed_test_portalsdir)" \
 	"$(DESTDIR)$(introspectiondir)" \
@@ -646,7 +648,8 @@ am__can_run_installinfo = \
   esac
 am__dist_installed_test_dbs_DATA_DIST = tests/dbs/no_tables
 am__dist_installed_test_portals_DATA_DIST = tests/portals/test.portal
-DATA = $(dbus_service_DATA) $(dist_installed_test_dbs_DATA) \
+DATA = $(dbus_service_DATA) $(dist_installed_test_DATA) \
+	$(dist_installed_test_dbs_DATA) \
 	$(dist_installed_test_portals_DATA) $(dist_introspection_DATA) \
 	$(installed_test_meta_DATA) $(nobase_installed_test_DATA) \
 	$(noinst_DATA) $(pkgconfig_DATA) $(systemduserunit_DATA)
@@ -1084,6 +1087,7 @@ CLEANFILES = $(NULL) *.log *.trs $(am__append_13) $(dbus_service_DATA) \
 DISTCLEANFILES = $(NULL) \
 	tests/services/org.freedesktop.portal.Documents.service \
 	tests/services/org.freedesktop.impl.portal.PermissionStore.service \
+	session.conf dbus-session-bus-address dbus-session-bus-pid \
 	$(NULL)
 BUILT_SOURCES = $(NULL) $(nodist_xdg_permission_store_SOURCES) \
 	$(nodist_xdg_document_portal_SOURCES) \
@@ -1092,8 +1096,10 @@ BUILT_SOURCES = $(NULL) $(nodist_xdg_permission_store_SOURCES) \
 EXTRA_DIST = tap-driver.sh tap-test $(all_dist_test_scripts) \
 	$(all_dist_test_data) $(service_in_files) \
 	src/org.freedesktop.GeoClue2.Client.xml \
-	src/xdg-desktop-portal.gresource.xml xdg-desktop-portal.pc.in \
-	README.md
+	src/xdg-desktop-portal.gresource.xml \
+	tests/share/applications/furrfix.desktop \
+	tests/share/applications/mimeinfo.cache $(NULL) \
+	xdg-desktop-portal.pc.in README.md
 AM_TESTS_ENVIRONMENT = \
 	G_TEST_SRCDIR="$(abs_srcdir)/tests" 		\
 	G_TEST_BUILDDIR="$(abs_builddir)/tests" 	\
@@ -1401,6 +1407,7 @@ test_programs = test-portals testdb test-doc-portal \
 	test-permission-store $(NULL)
 TESTS_ENVIRONMENT = \
 	PATH=$$(cd $(top_builddir) && pwd):$${PATH} \
+	XDG_DATA_DIRS=$(top_srcdir)/tests/share/:$${XDG_DATA_DIRS} \
 	XDP_UNINSTALLED=1 \
 	$(NULL)
 
@@ -1447,7 +1454,7 @@ installed_test_dbsdir = $(installed_testdir)/dbs
 installed_test_portalsdir = $(installed_testdir)/portals
 @ENABLE_INSTALLED_TESTS_TRUE@dist_installed_test_dbs_DATA = tests/dbs/no_tables
 @ENABLE_INSTALLED_TESTS_TRUE@dist_installed_test_portals_DATA = tests/portals/test.portal
-dist_installed_test_data = \
+dist_installed_test_DATA = \
 	tests/session.conf.in \
 	$(NULL)
 
@@ -1457,6 +1464,11 @@ dist_installed_test_extra_scripts = \
 
 dist_test_scripts = \
 	tests/test-document-fuse.sh \
+	$(NULL)
+
+dist_test_apps = \
+	tests/share/applications/furrfix.desktop \
+	tests/share/applications/mimeinfo.cache \
 	$(NULL)
 
 pkgconfigdir = $(datadir)/pkgconfig
@@ -3664,6 +3676,27 @@ uninstall-dbus_serviceDATA:
 	@list='$(dbus_service_DATA)'; test -n "$(dbus_servicedir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(dbus_servicedir)'; $(am__uninstall_files_from_dir)
+install-dist_installed_testDATA: $(dist_installed_test_DATA)
+	@$(NORMAL_INSTALL)
+	@list='$(dist_installed_test_DATA)'; test -n "$(installed_testdir)" || list=; \
+	if test -n "$$list"; then \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(installed_testdir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(installed_testdir)" || exit 1; \
+	fi; \
+	for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  echo "$$d$$p"; \
+	done | $(am__base_list) | \
+	while read files; do \
+	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(installed_testdir)'"; \
+	  $(INSTALL_DATA) $$files "$(DESTDIR)$(installed_testdir)" || exit $$?; \
+	done
+
+uninstall-dist_installed_testDATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(dist_installed_test_DATA)'; test -n "$(installed_testdir)" || list=; \
+	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
+	dir='$(DESTDIR)$(installed_testdir)'; $(am__uninstall_files_from_dir)
 install-dist_installed_test_dbsDATA: $(dist_installed_test_dbs_DATA)
 	@$(NORMAL_INSTALL)
 	@list='$(dist_installed_test_dbs_DATA)'; test -n "$(installed_test_dbsdir)" || list=; \
@@ -4314,7 +4347,7 @@ install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(dbus_servicedir)" "$(DESTDIR)$(installed_test_dbsdir)" "$(DESTDIR)$(installed_test_portalsdir)" "$(DESTDIR)$(introspectiondir)" "$(DESTDIR)$(installed_test_metadir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(systemduserunitdir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(libexecdir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(dbus_servicedir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(installed_test_dbsdir)" "$(DESTDIR)$(installed_test_portalsdir)" "$(DESTDIR)$(introspectiondir)" "$(DESTDIR)$(installed_test_metadir)" "$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(pkgconfigdir)" "$(DESTDIR)$(systemduserunitdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -4490,6 +4523,7 @@ info: info-recursive
 info-am:
 
 install-data-am: install-dbus_serviceDATA \
+	install-dist_installed_testDATA \
 	install-dist_installed_test_dbsDATA \
 	install-dist_installed_test_portalsDATA \
 	install-dist_introspectionDATA \
@@ -4646,6 +4680,7 @@ ps: ps-recursive
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-dbus_serviceDATA \
+	uninstall-dist_installed_testDATA \
 	uninstall-dist_installed_test_dbsDATA \
 	uninstall-dist_installed_test_portalsDATA \
 	uninstall-dist_introspectionDATA \
@@ -4673,6 +4708,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dbus_serviceDATA \
 	distdir distuninstallcheck dvi dvi-am html html-am info \
 	info-am install install-am install-binPROGRAMS install-data \
 	install-data-am install-data-hook install-dbus_serviceDATA \
+	install-dist_installed_testDATA \
 	install-dist_installed_test_dbsDATA \
 	install-dist_installed_test_portalsDATA \
 	install-dist_introspectionDATA install-dvi install-dvi-am \
@@ -4689,6 +4725,7 @@ uninstall-am: uninstall-binPROGRAMS uninstall-dbus_serviceDATA \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	recheck tags tags-am uninstall uninstall-am \
 	uninstall-binPROGRAMS uninstall-dbus_serviceDATA \
+	uninstall-dist_installed_testDATA \
 	uninstall-dist_installed_test_dbsDATA \
 	uninstall-dist_installed_test_portalsDATA \
 	uninstall-dist_introspectionDATA \
