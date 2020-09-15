@@ -2,6 +2,7 @@ test_programs =
 
 TESTS_ENVIRONMENT = \
 	PATH=$$(cd $(top_builddir) && pwd):$${PATH} \
+	XDG_DATA_DIRS=$(top_srcdir)/tests/share/:$${XDG_DATA_DIRS} \
 	XDP_UNINSTALLED=1 \
 	$(NULL)
 
@@ -108,7 +109,7 @@ dist_installed_test_dbs_DATA = tests/dbs/no_tables
 dist_installed_test_portals_DATA = tests/portals/test.portal
 endif
 
-dist_installed_test_data = \
+dist_installed_test_DATA = \
 	tests/session.conf.in \
 	$(NULL)
 
@@ -120,6 +121,11 @@ dist_test_scripts = \
 	tests/test-document-fuse.sh \
 	$(NULL)
 
+dist_test_apps = \
+	tests/share/applications/furrfix.desktop \
+	tests/share/applications/mimeinfo.cache \
+	$(NULL)
+
 test_programs += \
 	testdb \
 	test-doc-portal \
@@ -129,4 +135,12 @@ test_programs += \
 DISTCLEANFILES += \
 	tests/services/org.freedesktop.portal.Documents.service \
 	tests/services/org.freedesktop.impl.portal.PermissionStore.service \
+        session.conf \
+        dbus-session-bus-address \
+        dbus-session-bus-pid \
+	$(NULL)
+
+EXTRA_DIST += \
+	tests/share/applications/furrfix.desktop \
+	tests/share/applications/mimeinfo.cache \
 	$(NULL)
