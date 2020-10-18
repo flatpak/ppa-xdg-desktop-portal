@@ -30,6 +30,7 @@
 #include <stdio.h>
 #include <mntent.h>
 #include <unistd.h>
+#include <sys/vfs.h>
 
 #include <gio/gdesktopappinfo.h>
 
@@ -379,7 +380,21 @@ parse_app_info_from_flatpak_info (int pid, GError **error)
   root_fd = openat (AT_FDCWD, root_path, O_RDONLY | O_NONBLOCK | O_DIRECTORY | O_CLOEXEC | O_NOCTTY);
   if (root_fd == -1)
     {
-      /* Not able to open the root dir shouldn't happen. Probably the app died and
+      if (errno == EACCES)
+        {
+          struct statfs buf;
+
+          /* Access to the root dir isn't allowed. This can happen if the root is on a fuse
+           * filesystem, such as in a toolbox container. We will never have a fuse rootfs
+           * in the flatpak case, so in that case its safe to ignore this and
+           * continue to detect other types of apps.
+           */
+          if (statfs (root_path, &buf) == 0 &&
+              buf.f_type == 0x65735546) /* FUSE_SUPER_MAGIC */
+            return NULL;
+        }
+
+      /* Otherwise, we should be able to open the root dir. Probably the app died and
          we're failing due to /proc/$pid not existing. In that case fail instead
          of treating this as privileged. */
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,
@@ -603,7 +618,7 @@ xdp_get_app_info_from_pid (pid_t pid,
   if (app_info == NULL)
     app_info = xdp_app_info_new_host ();
 
-  return app_info;
+  return g_steal_pointer (&app_info);
 }
 
 static XdpAppInfo *
@@ -1689,7 +1704,7 @@ xdg_app_info_load_brwap_info (XdpAppInfo *app_info,
       return 0;
     }
 
-  root = json_parser_steal_root (parser);
+  root = json_node_ref (json_parser_get_root (parser));
   if (!root)
     {
       g_set_error (error, G_IO_ERROR, G_IO_ERROR_FAILED,

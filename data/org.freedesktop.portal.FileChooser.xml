@@ -31,7 +31,7 @@
       via the document portal, and the returned URI will point
       into the document portal fuse filesystem in /run/user/$UID/doc/.
 
-      This documentation describes version 2 of this interface.
+      This documentation describes version 3 of this interface.
   -->
   <interface name="org.freedesktop.portal.FileChooser">
     <!--
@@ -70,6 +70,12 @@
           <listitem><para>
             Whether multiple files can be selected or not. Default is single-selection.
           </para></listitem>
+       </varlistentry>
+       <varlistentry>
+          <term>directory b</term>
+          <listitem><para>
+            Whether to select for folders instead of files. Default is to select files. This option was added in version 3.
+          </para></listitem>
         </varlistentry>
         <varlistentry>
           <term>filters a(sa(us))</term>
@@ -106,8 +112,8 @@
             </para>
             <para>
               For each element, the first string is an ID that will be returned
-              with the response, te second string is a user-visible label. The
-              a(ss) is the list of choices, each being a is an ID and a
+              with the response, the second string is a user-visible label. The
+              a(ss) is the list of choices, each being an ID and a
               user-visible label. The final string is the initial selection,
               or "", to let the portal decide which choice will be initially selected.
               None of the strings, except for the initial selection, should be empty.
@@ -142,6 +148,15 @@
             </para>
             <para>
               Example: [('encoding', 'utf8'), ('reencode', 'true')]
+            </para>
+          </listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>current_filter (sa(us))</term>
+          <listitem>
+            <para>
+              The filter that was selected. This may match a filter in the
+              filter list or another filter that was applied unconditionally.
             </para>
           </listitem>
         </varlistentry>
@@ -241,6 +256,15 @@
             An array of pairs of strings, corresponding to the passed-in choices.
             See org.freedesktop.portal.FileChooser.OpenFile() for details.
           </para></listitem>
+        </varlistentry>
+        <varlistentry>
+          <term>current_filter (sa(us))</term>
+          <listitem>
+            <para>
+              The filter that was selected.
+              See org.freedesktop.portal.FileChooser.OpenFile() for details.
+            </para>
+          </listitem>
         </varlistentry>
       </variablelist>
     -->

@@ -60,6 +60,12 @@
             </para></listitem>
           </varlistentry>
           <varlistentry>
+            <term>directory b</term>
+            <listitem><para>
+              Whether to select for folders instead of files. Default is to select files.
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
             <term>filters a(sa(us))</term>
             <listitem><para>
               A list of serialized file filters.
@@ -95,6 +101,21 @@
             <listitem><para>
               An array of pairs of strings, corresponding to the passed-in choices.
               See org.freedesktop.portal.FileChooser.OpenFile() for details.
+            </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>current_filter (sa(us))</term>
+            <listitem>
+              <para>
+                The filter that was selected.
+                See org.freedesktop.portal.FileChooser.OpenFile() for details.
+              </para>
+            </listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>writable b</term>
+            <listitem><para>
+              Whether the file is opened with write access. Default is no.
             </para></listitem>
           </varlistentry>
         </variablelist>
@@ -197,6 +218,15 @@
               An array of pairs of strings, corresponding to the passed-in choices.
               See org.freedesktop.portal.FileChooser.OpenFile() for details.
             </para></listitem>
+          </varlistentry>
+          <varlistentry>
+            <term>current_filter (sa(us))</term>
+            <listitem>
+              <para>
+                The filter that was selected.
+                See org.freedesktop.portal.FileChooser.OpenFile() for details.
+              </para>
+            </listitem>
           </varlistentry>
         </variablelist>
     -->

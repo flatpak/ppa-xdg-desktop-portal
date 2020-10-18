@@ -226,7 +226,8 @@ static gboolean
 launch_application_with_uri (const char *choice_id,
                              const char *uri,
                              const char *parent_window,
-                             gboolean writable)
+                             gboolean    writable,
+                             GError    **error)
 {
   g_autofree char *desktop_id = g_strconcat (choice_id, ".desktop", NULL);
   g_autoptr(GDesktopAppInfo) info = g_desktop_app_info_new (desktop_id);
@@ -234,18 +235,26 @@ launch_application_with_uri (const char *choice_id,
   g_autofree char *ruri = NULL;
   GList uris;
 
+  if (info == NULL)
+    {
+      g_debug ("Cannot launch %s because desktop file does not exist", desktop_id);
+      g_set_error (error, XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_FOUND, "Desktop file %s does not exist", desktop_id);
+      return FALSE;
+    }
+
   g_debug ("Launching %s %s", choice_id, uri);
 
   if (is_sandboxed (info) && is_file_uri (uri))
     {
-      g_autoptr(GError) error = NULL;
+      g_autoptr(GError) local_error = NULL;
 
       g_debug ("Registering %s for %s", uri, choice_id);
 
-      ruri = register_document (uri, choice_id, FALSE, writable, &error);
+      ruri = register_document (uri, choice_id, FALSE, writable, FALSE, &local_error);
       if (ruri == NULL)
         {
-          g_warning ("Error registering %s for %s: %s", uri, choice_id, error->message);
+          g_warning ("Error registering %s for %s: %s", uri, choice_id, local_error->message);
+          g_propagate_error (error, local_error);
           return FALSE;
         }
     }
@@ -257,7 +266,7 @@ launch_application_with_uri (const char *choice_id,
   uris.data = (gpointer)ruri;
   uris.next = NULL;
 
-  g_app_info_launch_uris (G_APP_INFO (info), &uris, context, NULL);
+  g_app_info_launch_uris (G_APP_INFO (info), &uris, context, error);
 
   return TRUE;
 }
@@ -354,7 +363,7 @@ send_response_in_thread_func (GTask *task,
       writable = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "writable"));
       content_type = (const char *)g_object_get_data (G_OBJECT (request), "content-type");
 
-      if (launch_application_with_uri (choice, uri, parent_window, writable))
+      if (launch_application_with_uri (choice, uri, parent_window, writable, NULL))
         update_permissions_store (xdp_app_info_get_id (request->app_info), content_type, choice);
     }
 
@@ -443,13 +452,23 @@ get_content_type_for_file (const char  *path,
 }
 
 static gboolean
-can_skip_app_chooser (const char *scheme,
-                      const char *content_type)
+should_use_default_app (const char *scheme,
+                        const char *content_type)
 {
-  /* We skip the app chooser for Internet URIs, to be open in the browser */
-  /*  Skipping the chooser for directories is useful too (e.g. opening in Nautilus) */
-  if (g_strcmp0 (scheme, "http") == 0 ||
-      g_strcmp0 (scheme, "https") == 0 ||
+  const char *skipped_schemes[] = {
+    "http",
+    "https",
+    "ftp",
+    "mailto",
+    "webcal",
+    "calendar",
+    NULL
+  };
+
+  /* We skip the app chooser for Internet URIs, to be open in the browser,
+   * mail client, or calendar, as well as for directories to be opened in
+   * the file manager */
+  if (g_strv_contains (skipped_schemes, scheme) ||
       g_strcmp0 (content_type, "inode/directory") == 0)
     {
       g_debug ("Can skip app chooser for %s", content_type);
@@ -473,9 +492,17 @@ find_recommended_choices (const char *scheme,
   int i;
 
   info = g_app_info_get_default_for_type (content_type, FALSE);
-  *default_app = get_app_id (info);
 
-  g_debug ("Default handler %s for %s, %s", *default_app, scheme, content_type);
+  if (info != NULL)
+    {
+      *default_app = get_app_id (info);
+      g_debug ("Default handler %s for %s, %s", *default_app, scheme, content_type);
+    }
+  else
+    {
+      *default_app = NULL;
+      g_debug ("No default handler for %s, %s", scheme, content_type);
+    }
 
   infos = g_app_info_get_recommended_for_type (content_type);
   /* Use fallbacks if we have no recommended application for this type */
@@ -523,6 +550,19 @@ app_info_changed (GAppInfoMonitor *monitor,
                                             NULL);
 }
 
+static gboolean
+app_exists (const char *app_id)
+{
+  g_autoptr(GDesktopAppInfo) info = NULL;
+  g_autofree gchar *with_desktop = NULL;
+
+  g_return_val_if_fail (app_id != NULL, FALSE);
+
+  with_desktop = g_strconcat (app_id, ".desktop", NULL);
+  info = g_desktop_app_info_new (with_desktop);
+  return (info != NULL);
+}
+
 static void
 handle_open_in_thread_func (GTask *task,
                             gpointer source_object,
@@ -550,7 +590,7 @@ handle_open_in_thread_func (GTask *task,
   gboolean writable = FALSE;
   gboolean ask = FALSE;
   gboolean open_dir = FALSE;
-  gboolean can_skip = FALSE;
+  gboolean use_default_app = FALSE;
   const char *reason;
 
   parent_window = (const char *)g_object_get_data (G_OBJECT (request), "parent-window");
@@ -562,6 +602,21 @@ handle_open_in_thread_func (GTask *task,
 
   REQUEST_AUTOLOCK (request);
 
+  /* Verify that either uri or fd is set, not both */
+  if (uri != NULL && fd != -1)
+    {
+      g_warning ("Rejecting invalid open-uri request (both URI and fd are set)");
+      if (request->exported)
+        {
+          g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
+          xdp_request_emit_response (XDP_REQUEST (request),
+                                     XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
+                                     g_variant_builder_end (&opts_builder));
+          request_unexport (request);
+        }
+      return;
+    }
+
   if (uri)
     {
       resolve_scheme_and_content_type (uri, &scheme, &content_type);
@@ -570,6 +625,7 @@ handle_open_in_thread_func (GTask *task,
           /* Reject the request */
           if (request->exported)
             {
+              g_debug ("Rejecting open request as content-type couldn't be fetched for '%s'", uri);
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
               xdp_request_emit_response (XDP_REQUEST (request),
                                          XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
@@ -586,11 +642,21 @@ handle_open_in_thread_func (GTask *task,
 
       path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, &fd_is_writable);
       if (path == NULL ||
-          (writable && !fd_is_writable))
+          (writable && !fd_is_writable) ||
+          (!xdp_app_info_is_host (request->app_info) && !writable && fd_is_writable))
         {
           /* Reject the request */
           if (request->exported)
             {
+              if (path == NULL)
+                {
+                  g_debug ("Rejecting open request as fd has no path associated to it");
+                }
+              else
+                {
+                  g_debug ("Rejecting open request for %s as opening %swritable but fd is %swritable",
+                           path, writable ? "" : "not ", fd_is_writable ? "" : "not ");
+                }
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
               xdp_request_emit_response (XDP_REQUEST (request),
                                          XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
@@ -613,6 +679,8 @@ handle_open_in_thread_func (GTask *task,
       scheme = g_strdup ("file");
       uri = g_filename_to_uri (path, NULL, NULL);
       g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
+      close (fd);
+      g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (-1));
     }
 
   g_object_set_data_full (G_OBJECT (request), "scheme", g_strdup (scheme), g_free);
@@ -620,19 +688,24 @@ handle_open_in_thread_func (GTask *task,
 
   /* collect all the information */
   find_recommended_choices (scheme, content_type, &default_app, &choices, &n_choices);
-  can_skip = can_skip_app_chooser (scheme, content_type);
+  /* it's never NULL, but might be empty (only contain the NULL terminator) */
+  g_assert (choices != NULL);
+  if (default_app != NULL && !app_exists (default_app))
+    g_clear_pointer (&default_app, g_free);
+  use_default_app = should_use_default_app (scheme, content_type);
   get_latest_choice_info (app_id, content_type,
                           &latest_id, &latest_count, &latest_threshold,
                           &ask_for_content_type);
+  if (latest_id != NULL && !app_exists (latest_id))
+    g_clear_pointer (&latest_id, g_free);
 
   skip_app_chooser = FALSE;
   reason = NULL;
 
-  /* apply default handling: skip if the we have a default handler and its http or inode/directory */
-  if (default_app != NULL && can_skip)
+  /* apply default handling: skip if the we have a default handler */
+  if (default_app != NULL && use_default_app)
     {
-      if (!skip_app_chooser)
-        reason = "Allowing to skip app chooser: can use default";
+      reason = "Allowing to skip app chooser: can use default";
       skip_app_chooser = TRUE;
     }
 
@@ -671,24 +744,29 @@ handle_open_in_thread_func (GTask *task,
 
   if (skip_app_chooser)
     {
-      const char *app;
+      const char *app = NULL;
 
-      if (latest_id != NULL)
+      if (default_app != NULL && use_default_app)
+        app = default_app;
+      else if (latest_id != NULL)
         app = latest_id;
       else if (default_app != NULL)
         app = default_app;
-      else
+      else if (n_choices > 0 && app_exists (choices[0]))
         app = choices[0];
 
       if (app)
         {
           /* Launch the app directly */
+          g_autoptr(GError) error = NULL;
 
           g_debug ("Skipping app chooser");
 
-          gboolean result = launch_application_with_uri (app, uri, parent_window, writable);
+          gboolean result = launch_application_with_uri (app, uri, parent_window, writable, &error);
           if (request->exported)
             {
+              if (!result)
+                g_debug ("Open request for '%s' failed: %s", uri, error->message);
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
               xdp_request_emit_response (XDP_REQUEST (request),
                                          result ? XDG_DESKTOP_PORTAL_RESPONSE_SUCCESS : XDG_DESKTOP_PORTAL_RESPONSE_OTHER,

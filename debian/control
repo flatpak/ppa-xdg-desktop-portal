@@ -9,6 +9,7 @@ Build-Depends:
  debhelper-compat (= 12),
  geoclue-2.0 <!nocheck pkg.libportal.enable>,
  fuse <!nocheck>,
+ libcap2-bin <!nocheck>,
  libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev,
@@ -17,9 +18,12 @@ Build-Depends:
  libglib2.0-dev,
  libjson-glib-dev,
  libportal-dev (>= 0.3) <pkg.libportal.enable>,
+ procps <!nocheck>,
+ python3 <!nocheck>,
+ python3-gi <!nocheck>,
  xmlto,
 Rules-Requires-Root: no
-Standards-Version: 4.4.1
+Standards-Version: 4.5.0
 Homepage: https://github.com/flatpak/xdg-desktop-portal
 Vcs-Git: https://salsa.debian.org/debian/xdg-desktop-portal.git -b debian/buster-backports
 Vcs-Browser: https://salsa.debian.org/debian/xdg-desktop-portal
@@ -83,7 +87,10 @@ Architecture: any
 Depends:
  dbus,
  geoclue-2.0,
- pipewire,
+ libcap2-bin,
+ procps,
+ python3,
+ python3-gi,
  xdg-desktop-portal,
  ${misc:Depends},
  ${shlibs:Depends},

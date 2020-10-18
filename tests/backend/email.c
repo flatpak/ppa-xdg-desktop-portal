@@ -1,8 +1,10 @@
 #include "config.h"
+#include <stdlib.h>
 
 #include <gio/gio.h>
 
 #include "src/xdp-impl-dbus.h"
+#include "tests/glib-backports.h"
 
 #include "email.h"
 #include "request.h"

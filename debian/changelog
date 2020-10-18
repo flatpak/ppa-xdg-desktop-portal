@@ -1,3 +1,62 @@
+xdg-desktop-portal (1.8.0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Drop most patches, applied upstream
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 16 Sep 2020 10:31:24 +0100
+
+xdg-desktop-portal (1.7.2-2) unstable; urgency=medium
+
+  * d/rules: Don't explicitly use --as-needed linker option.
+    It's the default with bullseye toolchains.
+  * Release to unstable as part of the pipewire 0.3 transition
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 10 Sep 2020 12:32:17 +0100
+
+xdg-desktop-portal (1.7.2-1) experimental; urgency=medium
+
+  * New upstream development release
+  * Drop patch skipping FUSE tests if necessary,
+    upstream made an equivalent change
+  * Update icon validator to the one from Flatpak 1.8.1
+  * Build-Depend on libcap2-bin, for capsh, and add it to test dependencies
+  * tests: Look for capsh in /sbin
+  * Update patches.
+    This includes upstream 1.7.2-37-g089e72b plus merge request
+    <https://github.com/flatpak/xdg-desktop-portal/pull/521>,
+    to make the installed-tests work better.
+  * d/tests/gnome-desktop-testing: Set TEST_IN_CI.
+    Upstream uses this to extend test timeouts and skip flaky tests.
+  * Re-enable pipewire now that 0.3.x is in experimental
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 07 Sep 2020 19:41:23 +0100
+
+xdg-desktop-portal (1.7.1-1) experimental; urgency=medium
+
+  * New upstream development release
+
+ -- Simon McVittie <smcv@debian.org>  Mon, 30 Mar 2020 10:19:22 +0100
+
+xdg-desktop-portal (1.7.0-1) experimental; urgency=medium
+
+  * Switch to experimental branch
+    - d/watch: Watch for development releases
+    - d/gbp.conf, d/control: Use debian/experimental packaging branch
+    - d/gbp.conf: Use upstream/latest branch
+  * New upstream development release
+  * Disable pipewire until 0.3.x is available (#954022)
+  * Drop patches that were applied upstream
+  * Set upstream metadata fields: Repository.
+  * Remove obsolete field Name from debian/upstream/metadata (already
+    present in machine-readable debian/copyright).
+  * Standards-Version: 4.5.0 (no changes required)
+  * d/p/tests-Divert-service-stdout-to-stderr.patch: Simplify
+  * tests: Depend on procps, for /bin/kill
+  * tests: Depend on python3 and python3-gi
+  * Add a patch to skip (more) FUSE tests on buildds
+
+ -- Simon McVittie <smcv@debian.org>  Wed, 25 Mar 2020 16:00:52 +0000
+
 xdg-desktop-portal (1.6.0-1~bpo10+1) buster-backports; urgency=medium
 
   * Rebuild for buster-backports

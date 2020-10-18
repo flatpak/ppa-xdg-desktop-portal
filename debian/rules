@@ -1,7 +1,6 @@
 #!/usr/bin/make -f
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
-export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
 export LC_ALL=C.UTF-8
 
 include /usr/share/dpkg/default.mk
@@ -31,6 +30,7 @@ override_dh_missing:
 
 override_dh_auto_test:
 ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
+	chmod +x tests/test-document-fuse.py
 	G_MESSAGES_DEBUG=all \
 	TEST_IN_CI=1 \
 	dh_auto_test --no-parallel

@@ -1,8 +1,5 @@
 ---
-Name: xdg-desktop-portal
-Repository: https://github.com/flatpak/xdg-desktop-portal
+Repository: https://github.com/flatpak/xdg-desktop-portal.git
 Repository-Browse: https://github.com/flatpak/xdg-desktop-portal
 Bug-Database: https://github.com/flatpak/xdg-desktop-portal/issues
 Bug-Submit: https://github.com/flatpak/xdg-desktop-portal/issues/new
-...
-# vim:set ft=yaml:

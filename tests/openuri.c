@@ -6,6 +6,8 @@
 #include "src/xdp-utils.h"
 #include "src/xdp-impl-dbus.h"
 
+#include "utils.h"
+
 extern XdpImplLockdown *lockdown;
 extern XdpImplPermissionStore *permission_store;
 
@@ -155,13 +157,9 @@ test_open_uri_http2 (void)
   g_autoptr(GAppInfo) app = NULL;
   g_autofree char *app_id = NULL;
 
-  app = g_app_info_get_default_for_type ("x-scheme-handler/http", FALSE);
-
-  if (app == NULL)
-    {
-      g_test_skip ("No default handler for x-scheme-handler/http set");
-      return;
-    }
+  /* get furrfix.desktop as an app */
+  app = g_app_info_get_default_for_type ("x-scheme-handler/xdg-desktop-portal-test", FALSE);
+  g_assert_nonnull (app);
 
   app_id = g_strndup (g_app_info_get_id (app), strlen (g_app_info_get_id (app)) - strlen (".desktop"));
 
@@ -365,7 +363,12 @@ test_open_uri_lockdown (void)
   g_autoptr(GError) error = NULL;
   g_autofree char *path = NULL;
 
-  xdp_impl_lockdown_set_disable_application_handlers (lockdown, TRUE);
+  tests_set_property_sync (G_DBUS_PROXY (lockdown),
+                           "org.freedesktop.impl.portal.Lockdown",
+                           "disable-application-handlers",
+                           g_variant_new_boolean (TRUE),
+                           &error);
+  g_assert_no_error (error);
 
   keyfile = g_key_file_new ();
 
@@ -387,7 +390,12 @@ test_open_uri_lockdown (void)
   while (!got_info)
     g_main_context_iteration (NULL, TRUE);
 
-  xdp_impl_lockdown_set_disable_application_handlers (lockdown, FALSE);
+  tests_set_property_sync (G_DBUS_PROXY (lockdown),
+                           "org.freedesktop.impl.portal.Lockdown",
+                           "disable-application-handlers",
+                           g_variant_new_boolean (FALSE),
+                           &error);
+  g_assert_no_error (error);
 }
 
 static void
