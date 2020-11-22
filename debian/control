@@ -10,7 +10,7 @@ Build-Depends:
  geoclue-2.0 <!nocheck pkg.libportal.enable>,
  fuse <!nocheck>,
  libcap2-bin <!nocheck>,
- libgdk-pixbuf2.0-dev,
+ libgdk-pixbuf-2.0-dev | libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev (>= 1.5.0),
  libfontconfig1-dev,
