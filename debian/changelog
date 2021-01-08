@@ -1,3 +1,11 @@
+xdg-desktop-portal (1.8.0-2~bpo10+1) buster-backports; urgency=medium
+
+  * Rebuild for buster-backports.
+    - Disable pipewire (screen recording and remote desktop) support.
+      pipewire in buster is too old for this version of xdg-desktop-portal.
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 08 Jan 2021 09:31:16 +0000
+
 xdg-desktop-portal (1.8.0-2) unstable; urgency=medium
 
   * Version the build-dependency on libflatpak-dev.
