@@ -5,13 +5,6 @@ export LC_ALL=C.UTF-8
 
 include /usr/share/dpkg/default.mk
 
-# pipewire is not in Ubuntu main yet https://launchpad.net/bugs/1802533
-ifeq ($(shell dpkg-vendor --query vendor),Ubuntu)
-	CONFFLAGS += --disable-pipewire
-else
-	CONFFLAGS += --enable-pipewire
-endif
-
 # ITP #946605
 ifeq ($(filter pkg.libportal.enable,$(DEB_BUILD_PROFILES)),)
 CONFFLAGS += --disable-libportal
