@@ -1,8 +1,8 @@
-xdg-desktop-portal (1.8.0-3) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.8.0-3) unstable; urgency=medium
 
   * debian/rules: Build with pipewire support in ubuntu as well (LP: #1879580)
 
- -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Feb 2021 19:07:35 +0100
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Feb 2021 19:08:03 +0100
 
 xdg-desktop-portal (1.8.0-2) unstable; urgency=medium
 
