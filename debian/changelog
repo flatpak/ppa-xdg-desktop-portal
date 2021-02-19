@@ -1,3 +1,12 @@
+xdg-desktop-portal (1.8.0-4) UNRELEASED; urgency=medium
+
+  * Define _GNU_SOURCE when compiling the icon validator,
+    avoiding an implicit declaration of execvpe()
+  * Label the icon validator as coming from Flatpak 1.10.1
+    (no actual changes, the code is identical to 1.8.1)
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 19 Feb 2021 10:11:29 +0000
+
 xdg-desktop-portal (1.8.0-3) unstable; urgency=medium
 
   * debian/rules: Build with pipewire support in ubuntu as well (LP: #1879580)
