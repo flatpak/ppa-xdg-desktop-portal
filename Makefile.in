@@ -214,9 +214,9 @@ am__installdirs = "$(DESTDIR)$(bindir)" \
 	"$(DESTDIR)$(installed_test_metadir)" \
 	"$(DESTDIR)$(installed_testdir)" "$(DESTDIR)$(pkgconfigdir)" \
 	"$(DESTDIR)$(systemduserunitdir)"
-am__EXEEXT_2 = test-portals$(EXEEXT) testdb$(EXEEXT) \
-	test-doc-portal$(EXEEXT) test-permission-store$(EXEEXT) \
-	$(am__EXEEXT_1)
+am__EXEEXT_2 = test-portals$(EXEEXT) test-xdp-utils$(EXEEXT) \
+	testdb$(EXEEXT) test-doc-portal$(EXEEXT) \
+	test-permission-store$(EXEEXT) $(am__EXEEXT_1)
 am__EXEEXT_3 = tests/test-backends$(EXEEXT) $(am__EXEEXT_1)
 am__EXEEXT_4 = $(am__EXEEXT_2) $(am__EXEEXT_3)
 @ENABLE_ALWAYS_BUILD_TESTS_FALSE@am__EXEEXT_5 = $(am__EXEEXT_4)
@@ -255,8 +255,11 @@ am__uninstall_files_from_dir = { \
 LTLIBRARIES = $(installed_test_LTLIBRARIES) $(lib_LTLIBRARIES) \
 	$(noinst_LTLIBRARIES)
 am__dirstamp = $(am__leading_dot)dirstamp
+am__objects_1 =
 am_test_doc_portal_OBJECTS =  \
-	tests/test_doc_portal-test-doc-portal.$(OBJEXT)
+	tests/test_doc_portal-can-use-fuse.$(OBJEXT) \
+	tests/test_doc_portal-test-doc-portal.$(OBJEXT) \
+	$(am__objects_1)
 nodist_test_doc_portal_OBJECTS = document-portal/test_doc_portal-document-portal-dbus.$(OBJEXT)
 test_doc_portal_OBJECTS = $(am_test_doc_portal_OBJECTS) \
 	$(nodist_test_doc_portal_OBJECTS)
@@ -293,7 +296,6 @@ am__test_portals_SOURCES_DIST = tests/test-portals.c tests/account.c \
 	tests/screenshot.h tests/trash.c tests/trash.h \
 	tests/wallpaper.c tests/wallpaper.h tests/utils.c \
 	tests/utils.h tests/glib-backports.c tests/glib-backports.h
-am__objects_1 =
 @HAVE_LIBPORTAL_TRUE@am__objects_2 =  \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-account.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-background.$(OBJEXT) \
@@ -327,6 +329,15 @@ test_portals_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 test_portals_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_portals_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_test_xdp_utils_OBJECTS =  \
+	tests/test_xdp_utils-test-xdp-utils.$(OBJEXT) \
+	src/test_xdp_utils-xdp-utils.$(OBJEXT)
+test_xdp_utils_OBJECTS = $(am_test_xdp_utils_OBJECTS)
+test_xdp_utils_DEPENDENCIES = $(am__DEPENDENCIES_1)
+test_xdp_utils_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(test_xdp_utils_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
+	$@
 am__objects_3 = document-portal/testdb-permission-db.$(OBJEXT) \
 	document-portal/gvdb/testdb-gvdb-reader.$(OBJEXT) \
 	document-portal/gvdb/testdb-gvdb-builder.$(OBJEXT) \
@@ -522,6 +533,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/test_portals-xdp-dbus.Po \
 	src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/test_portals-xdp-utils.Po \
+	src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po \
 	src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-account.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-background.Po \
@@ -562,6 +574,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po \
 	src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po \
 	tests/$(DEPDIR)/test_backends-glib-backports.Po \
+	tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po \
 	tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po \
 	tests/$(DEPDIR)/test_permission_store-test-permission-store.Po \
 	tests/$(DEPDIR)/test_portals-account.Po \
@@ -580,6 +593,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	tests/$(DEPDIR)/test_portals-trash.Po \
 	tests/$(DEPDIR)/test_portals-utils.Po \
 	tests/$(DEPDIR)/test_portals-wallpaper.Po \
+	tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po \
 	tests/$(DEPDIR)/testdb-testdb.Po \
 	tests/backend/$(DEPDIR)/test_backends-access.Po \
 	tests/backend/$(DEPDIR)/test_backends-account.Po \
@@ -619,7 +633,8 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 	$(test_permission_store_SOURCES) \
 	$(nodist_test_permission_store_SOURCES) \
 	$(test_portals_SOURCES) $(nodist_test_portals_SOURCES) \
-	$(testdb_SOURCES) $(tests_test_backends_SOURCES) \
+	$(test_xdp_utils_SOURCES) $(testdb_SOURCES) \
+	$(tests_test_backends_SOURCES) \
 	$(nodist_tests_test_backends_SOURCES) \
 	$(xdg_desktop_portal_SOURCES) \
 	$(nodist_xdg_desktop_portal_SOURCES) \
@@ -629,8 +644,8 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 	$(nodist_xdg_permission_store_SOURCES)
 DIST_SOURCES = $(test_doc_portal_SOURCES) \
 	$(test_permission_store_SOURCES) \
-	$(am__test_portals_SOURCES_DIST) $(testdb_SOURCES) \
-	$(tests_test_backends_SOURCES) \
+	$(am__test_portals_SOURCES_DIST) $(test_xdp_utils_SOURCES) \
+	$(testdb_SOURCES) $(tests_test_backends_SOURCES) \
 	$(am__xdg_desktop_portal_SOURCES_DIST) \
 	$(xdg_document_portal_SOURCES) $(xdg_permission_store_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
@@ -1403,7 +1418,7 @@ tests_test_backends_SOURCES = \
 	$(NULL)
 
 nodist_tests_test_backends_SOURCES = src/xdp-impl-dbus.c
-test_programs = test-portals testdb test-doc-portal \
+test_programs = test-portals test-xdp-utils testdb test-doc-portal \
 	test-permission-store $(NULL)
 TESTS_ENVIRONMENT = \
 	PATH=$$(cd $(top_builddir) && pwd):$${PATH} \
@@ -1425,7 +1440,12 @@ test_doc_portal_LDADD = \
 	$(FUSE_LIBS) \
 	$(NULL)
 
-test_doc_portal_SOURCES = tests/test-doc-portal.c
+test_doc_portal_SOURCES = \
+	tests/can-use-fuse.c \
+	tests/can-use-fuse.h \
+	tests/test-doc-portal.c \
+	$(NULL)
+
 nodist_test_doc_portal_SOURCES = document-portal/document-portal-dbus.c
 EXTRA_test_doc_portal_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
 test_portals_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(LIBPORTAL_CFLAGS) \
@@ -1450,6 +1470,9 @@ test_permission_store_LDADD = \
 test_permission_store_SOURCES = tests/test-permission-store.c
 nodist_test_permission_store_SOURCES = document-portal/permission-store-dbus.c src/xdp-utils.c
 EXTRA_test_permission_store_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
+test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
+test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS)
+test_xdp_utils_SOURCES = tests/test-xdp-utils.c src/xdp-utils.c
 installed_test_dbsdir = $(installed_testdir)/dbs
 installed_test_portalsdir = $(installed_testdir)/portals
 @ENABLE_INSTALLED_TESTS_TRUE@dist_installed_test_dbs_DATA = tests/dbs/no_tables
@@ -1793,6 +1816,8 @@ tests/$(am__dirstamp):
 tests/$(DEPDIR)/$(am__dirstamp):
 	@$(MKDIR_P) tests/$(DEPDIR)
 	@: > tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_doc_portal-can-use-fuse.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_doc_portal-test-doc-portal.$(OBJEXT):  \
 	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
 document-portal/$(am__dirstamp):
@@ -1870,6 +1895,14 @@ document-portal/test_portals-permission-store-dbus.$(OBJEXT):  \
 test-portals$(EXEEXT): $(test_portals_OBJECTS) $(test_portals_DEPENDENCIES) $(EXTRA_test_portals_DEPENDENCIES) 
 	@rm -f test-portals$(EXEEXT)
 	$(AM_V_CCLD)$(test_portals_LINK) $(test_portals_OBJECTS) $(test_portals_LDADD) $(LIBS)
+tests/test_xdp_utils-test-xdp-utils.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
+src/test_xdp_utils-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+
+test-xdp-utils$(EXEEXT): $(test_xdp_utils_OBJECTS) $(test_xdp_utils_DEPENDENCIES) $(EXTRA_test_xdp_utils_DEPENDENCIES) 
+	@rm -f test-xdp-utils$(EXEEXT)
+	$(AM_V_CCLD)$(test_xdp_utils_LINK) $(test_xdp_utils_OBJECTS) $(test_xdp_utils_LDADD) $(LIBS)
 tests/testdb-testdb.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 document-portal/testdb-permission-db.$(OBJEXT):  \
@@ -2155,6 +2188,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-account.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-background.Po@am__quote@ # am--include-marker
@@ -2195,6 +2229,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_backends-glib-backports.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_permission_store-test-permission-store.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-account.Po@am__quote@ # am--include-marker
@@ -2213,6 +2248,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-trash.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-wallpaper.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/testdb-testdb.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-access.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/backend/$(DEPDIR)/test_backends-account.Po@am__quote@ # am--include-marker
@@ -2259,6 +2295,20 @@ am--depfiles: $(am__depfiles_remade)
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LTCOMPILE) -c -o $@ $<
+
+tests/test_doc_portal-can-use-fuse.o: tests/can-use-fuse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT tests/test_doc_portal-can-use-fuse.o -MD -MP -MF tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Tpo -c -o tests/test_doc_portal-can-use-fuse.o `test -f 'tests/can-use-fuse.c' || echo '$(srcdir)/'`tests/can-use-fuse.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Tpo tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/can-use-fuse.c' object='tests/test_doc_portal-can-use-fuse.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -c -o tests/test_doc_portal-can-use-fuse.o `test -f 'tests/can-use-fuse.c' || echo '$(srcdir)/'`tests/can-use-fuse.c
+
+tests/test_doc_portal-can-use-fuse.obj: tests/can-use-fuse.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT tests/test_doc_portal-can-use-fuse.obj -MD -MP -MF tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Tpo -c -o tests/test_doc_portal-can-use-fuse.obj `if test -f 'tests/can-use-fuse.c'; then $(CYGPATH_W) 'tests/can-use-fuse.c'; else $(CYGPATH_W) '$(srcdir)/tests/can-use-fuse.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Tpo tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/can-use-fuse.c' object='tests/test_doc_portal-can-use-fuse.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -c -o tests/test_doc_portal-can-use-fuse.obj `if test -f 'tests/can-use-fuse.c'; then $(CYGPATH_W) 'tests/can-use-fuse.c'; else $(CYGPATH_W) '$(srcdir)/tests/can-use-fuse.c'; fi`
 
 tests/test_doc_portal-test-doc-portal.o: tests/test-doc-portal.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT tests/test_doc_portal-test-doc-portal.o -MD -MP -MF tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Tpo -c -o tests/test_doc_portal-test-doc-portal.o `test -f 'tests/test-doc-portal.c' || echo '$(srcdir)/'`tests/test-doc-portal.c
@@ -2609,6 +2659,34 @@ document-portal/test_portals-permission-store-dbus.obj: document-portal/permissi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='document-portal/permission-store-dbus.c' object='document-portal/test_portals-permission-store-dbus.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o document-portal/test_portals-permission-store-dbus.obj `if test -f 'document-portal/permission-store-dbus.c'; then $(CYGPATH_W) 'document-portal/permission-store-dbus.c'; else $(CYGPATH_W) '$(srcdir)/document-portal/permission-store-dbus.c'; fi`
+
+tests/test_xdp_utils-test-xdp-utils.o: tests/test-xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT tests/test_xdp_utils-test-xdp-utils.o -MD -MP -MF tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Tpo -c -o tests/test_xdp_utils-test-xdp-utils.o `test -f 'tests/test-xdp-utils.c' || echo '$(srcdir)/'`tests/test-xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Tpo tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test-xdp-utils.c' object='tests/test_xdp_utils-test-xdp-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o tests/test_xdp_utils-test-xdp-utils.o `test -f 'tests/test-xdp-utils.c' || echo '$(srcdir)/'`tests/test-xdp-utils.c
+
+tests/test_xdp_utils-test-xdp-utils.obj: tests/test-xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT tests/test_xdp_utils-test-xdp-utils.obj -MD -MP -MF tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Tpo -c -o tests/test_xdp_utils-test-xdp-utils.obj `if test -f 'tests/test-xdp-utils.c'; then $(CYGPATH_W) 'tests/test-xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/test-xdp-utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Tpo tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/test-xdp-utils.c' object='tests/test_xdp_utils-test-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o tests/test_xdp_utils-test-xdp-utils.obj `if test -f 'tests/test-xdp-utils.c'; then $(CYGPATH_W) 'tests/test-xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/test-xdp-utils.c'; fi`
+
+src/test_xdp_utils-xdp-utils.o: src/xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT src/test_xdp_utils-xdp-utils.o -MD -MP -MF src/$(DEPDIR)/test_xdp_utils-xdp-utils.Tpo -c -o src/test_xdp_utils-xdp-utils.o `test -f 'src/xdp-utils.c' || echo '$(srcdir)/'`src/xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_xdp_utils-xdp-utils.Tpo src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/test_xdp_utils-xdp-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o src/test_xdp_utils-xdp-utils.o `test -f 'src/xdp-utils.c' || echo '$(srcdir)/'`src/xdp-utils.c
+
+src/test_xdp_utils-xdp-utils.obj: src/xdp-utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT src/test_xdp_utils-xdp-utils.obj -MD -MP -MF src/$(DEPDIR)/test_xdp_utils-xdp-utils.Tpo -c -o src/test_xdp_utils-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_xdp_utils-xdp-utils.Tpo src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/test_xdp_utils-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o src/test_xdp_utils-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
 
 tests/testdb-testdb.o: tests/testdb.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testdb_CFLAGS) $(CFLAGS) -MT tests/testdb-testdb.o -MD -MP -MF tests/$(DEPDIR)/testdb-testdb.Tpo -c -o tests/testdb-testdb.o `test -f 'tests/testdb.c' || echo '$(srcdir)/'`tests/testdb.c
@@ -4102,6 +4180,13 @@ test-portals.log: test-portals$(EXEEXT)
 	--log-file $$b.log --trs-file $$b.trs \
 	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
 	"$$tst" $(AM_TESTS_FD_REDIRECT)
+test-xdp-utils.log: test-xdp-utils$(EXEEXT)
+	@p='test-xdp-utils$(EXEEXT)'; \
+	b='test-xdp-utils'; \
+	$(am__check_pre) $(LOG_DRIVER) --test-name "$$f" \
+	--log-file $$b.log --trs-file $$b.trs \
+	$(am__common_driver_flags) $(AM_LOG_DRIVER_FLAGS) $(LOG_DRIVER_FLAGS) -- $(LOG_COMPILE) \
+	"$$tst" $(AM_TESTS_FD_REDIRECT)
 testdb.log: testdb$(EXEEXT)
 	@p='testdb$(EXEEXT)'; \
 	b='testdb'; \
@@ -4432,6 +4517,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/test_portals-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-background.Po
@@ -4472,6 +4558,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
+	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
@@ -4490,6 +4577,7 @@ distclean: distclean-recursive
 	-rm -f tests/$(DEPDIR)/test_portals-trash.Po
 	-rm -f tests/$(DEPDIR)/test_portals-utils.Po
 	-rm -f tests/$(DEPDIR)/test_portals-wallpaper.Po
+	-rm -f tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/testdb-testdb.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-access.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-account.Po
@@ -4589,6 +4677,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/test_portals-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-background.Po
@@ -4629,6 +4718,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
+	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
@@ -4647,6 +4737,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f tests/$(DEPDIR)/test_portals-trash.Po
 	-rm -f tests/$(DEPDIR)/test_portals-utils.Po
 	-rm -f tests/$(DEPDIR)/test_portals-wallpaper.Po
+	-rm -f tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/testdb-testdb.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-access.Po
 	-rm -f tests/backend/$(DEPDIR)/test_backends-account.Po

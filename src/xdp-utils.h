@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -37,6 +38,11 @@
 #define FLATPAK_METADATA_KEY_RUNTIME_PATH "runtime-path"
 #define FLATPAK_METADATA_KEY_INSTANCE_ID "instance-id"
 
+#define SNAP_METADATA_GROUP_INFO "Snap Info"
+#define SNAP_METADATA_KEY_INSTANCE_NAME "InstanceName"
+#define SNAP_METADATA_KEY_DESKTOP_FILE "DesktopFile"
+#define SNAP_METADATA_KEY_NETWORK "HasNetworkStatus"
+
 gint xdp_mkstempat (int    dir_fd,
                     gchar *tmpl,
                     int    flags,
@@ -47,6 +53,9 @@ gboolean xdp_is_valid_app_id (const char *string);
 typedef void (*XdpPeerDiedCallback) (const char *name);
 
 typedef struct _XdpAppInfo XdpAppInfo;
+
+typedef int XdpFd;
+G_DEFINE_AUTO_CLEANUP_FREE_FUNC(XdpFd, close, -1)
 
 XdpAppInfo *xdp_app_info_ref             (XdpAppInfo  *app_info);
 void        xdp_app_info_unref           (XdpAppInfo  *app_info);
@@ -78,6 +87,9 @@ char **     xdp_app_info_rewrite_commandline (XdpAppInfo *app_info,
                                               const char *const *commandline);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(XdpAppInfo, xdp_app_info_unref)
+
+void  xdp_set_documents_mountpoint    (const char *path);
+char *xdp_get_alternate_document_path (const char *path, const char *app_id);
 
 XdpAppInfo *xdp_invocation_lookup_app_info_sync (GDBusMethodInvocation *invocation,
                                                  GCancellable          *cancellable,
@@ -173,6 +185,11 @@ gboolean xdp_spawnv     (GFile                *dir,
 char * xdp_canonicalize_filename (const char *path);
 gboolean  xdp_has_path_prefix (const char *str,
                                const char *prefix);
+
+/* exposed for the benefit of tests */
+int _xdp_parse_cgroup_file (FILE     *f,
+                            gboolean *is_snap);
+
 
 #if !GLIB_CHECK_VERSION (2, 58, 0)
 static inline gboolean

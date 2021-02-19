@@ -19,7 +19,11 @@ test_doc_portal_LDADD = \
 	$(BASE_LIBS) \
 	$(FUSE_LIBS) \
 	$(NULL)
-test_doc_portal_SOURCES = tests/test-doc-portal.c
+test_doc_portal_SOURCES = \
+	tests/can-use-fuse.c \
+	tests/can-use-fuse.h \
+	tests/test-doc-portal.c \
+	$(NULL)
 nodist_test_doc_portal_SOURCES = document-portal/document-portal-dbus.c
 
 EXTRA_test_doc_portal_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
@@ -85,6 +89,12 @@ test_permission_store_SOURCES = tests/test-permission-store.c
 nodist_test_permission_store_SOURCES = document-portal/permission-store-dbus.c src/xdp-utils.c
 
 EXTRA_test_permission_store_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
+
+test_programs += test-xdp-utils
+test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
+test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS)
+test_xdp_utils_SOURCES = tests/test-xdp-utils.c src/xdp-utils.c
+
 
 tests/services/org.freedesktop.portal.Documents.service: document-portal/org.freedesktop.portal.Documents.service.in
 	mkdir -p tests/services
