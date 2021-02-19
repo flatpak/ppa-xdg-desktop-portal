@@ -1,4 +1,4 @@
-xdg-desktop-portal (1.8.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.8.1-1) unstable; urgency=medium
 
   * New upstream release
     - Fix a fd leak when opening URIs
@@ -11,7 +11,7 @@ xdg-desktop-portal (1.8.1-1) UNRELEASED; urgency=medium
   * Label the icon validator as coming from Flatpak 1.10.1
     (no actual changes, the code is identical to 1.8.1)
 
- -- Simon McVittie <smcv@debian.org>  Fri, 19 Feb 2021 10:19:56 +0000
+ -- Simon McVittie <smcv@debian.org>  Fri, 19 Feb 2021 10:21:45 +0000
 
 xdg-desktop-portal (1.8.0-3) unstable; urgency=medium
 
