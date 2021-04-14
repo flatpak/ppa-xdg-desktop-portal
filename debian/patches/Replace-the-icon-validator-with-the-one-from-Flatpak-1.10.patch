@@ -1,16 +1,27 @@
 From: Simon McVittie <smcv@debian.org>
 Date: Fri, 25 Jan 2019 19:13:33 +0000
-Subject: Replace the icon validator with the one from Flatpak 1.8.1
+Subject: Replace the icon validator with the one from Flatpak 1.10.1
 
 We avoid relying on Flatpak here, since that dependency would be quite
 circular.
 
 Signed-off-by: Simon McVittie <smcv@debian.org>
 ---
+ src/Makefile.am.inc |   2 +-
  src/notification.c  |  14 +---
  src/validate-icon.c | 212 ++++++++++++++++++++++++++++++++++++++++++++++++++--
- 2 files changed, 207 insertions(+), 19 deletions(-)
+ 3 files changed, 208 insertions(+), 20 deletions(-)
 
+diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
+index 15cfdc1..c726e47 100644
+--- a/src/Makefile.am.inc
++++ b/src/Makefile.am.inc
+@@ -214,4 +214,4 @@ xdg_desktop_portal_CPPFLAGS = \
+ 
+ xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
+ xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+-xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\"
++xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
 diff --git a/src/notification.c b/src/notification.c
 index 5412609..35c779c 100644
 --- a/src/notification.c

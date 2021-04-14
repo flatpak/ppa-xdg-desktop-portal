@@ -1,3 +1,24 @@
+xdg-desktop-portal (1.8.1-1) unstable; urgency=medium
+
+  * New upstream release
+    - Fix a fd leak when opening URIs
+    - Fix directory support in filechooser
+    - Improve Snap support
+    - Fix a crash when setting wallpaper fails
+  * Drop fontconfig build-dependency, no longer needed
+  * Define _GNU_SOURCE when compiling the icon validator,
+    avoiding an implicit declaration of execvpe()
+  * Label the icon validator as coming from Flatpak 1.10.1
+    (no actual changes, the code is identical to 1.8.1)
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 19 Feb 2021 10:21:45 +0000
+
+xdg-desktop-portal (1.8.0-3) unstable; urgency=medium
+
+  * debian/rules: Build with pipewire support in ubuntu as well (LP: #1879580)
+
+ -- Marco Trevisan (Treviño) <marco@ubuntu.com>  Thu, 11 Feb 2021 19:08:03 +0100
+
 xdg-desktop-portal (1.8.0-2~bpo10+1) buster-backports; urgency=medium
 
   * Rebuild for buster-backports.

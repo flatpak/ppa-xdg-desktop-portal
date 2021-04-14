@@ -11,7 +11,7 @@ This reverts commit 2fb498f92f8e1c41049dedf887690083fa12f6d1.
  create mode 100644 src/validate-icon.c
 
 diff --git a/configure.ac b/configure.ac
-index 172efd6..6c72125 100644
+index c059aa4..afe6778 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -175,6 +175,7 @@ fi
