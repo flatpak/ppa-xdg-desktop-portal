@@ -1,3 +1,12 @@
+xdg-desktop-portal (1.8.1-1~flatpak1~20.04) focal; urgency=medium
+
+  * Rebuild for Ubuntu 20.04 'focal'.
+    - Disable pipewire (screen recording and remote desktop) support.
+      pipewire in focal is too old for this version of xdg-desktop-portal.
+    - Use libgdk-pixbuf2.0-dev rather than libgdk-pixbuf-2.0-dev.
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 26 Aug 2021 13:24:17 +0100
+
 xdg-desktop-portal (1.8.1-1~bpo10+1) buster-backports; urgency=medium
 
   * Rebuild for buster-backports.
