@@ -43,6 +43,12 @@
 #include "permissions.h"
 #include "documents.h"
 
+#define FILE_MANAGER_DBUS_NAME "org.freedesktop.FileManager1"
+#define FILE_MANAGER_DBUS_IFACE "org.freedesktop.FileManager1"
+#define FILE_MANAGER_DBUS_PATH "/org/freedesktop/FileManager1"
+
+#define FILE_MANAGER_SHOW_ITEMS "ShowItems"
+
 #define PERMISSION_TABLE "desktop-used-apps"
 
 #define DEFAULT_THRESHOLD 3
@@ -54,6 +60,8 @@ typedef struct _OpenURIClass OpenURIClass;
 struct _OpenURI
 {
   XdpOpenURISkeleton parent_instance;
+
+  GDBusProxy* file_manager;
 };
 
 struct _OpenURIClass
@@ -227,6 +235,7 @@ launch_application_with_uri (const char *choice_id,
                              const char *uri,
                              const char *parent_window,
                              gboolean    writable,
+                             const char *activation_token,
                              GError    **error)
 {
   g_autofree char *desktop_id = g_strconcat (choice_id, ".desktop", NULL);
@@ -262,6 +271,9 @@ launch_application_with_uri (const char *choice_id,
     ruri = g_strdup (uri);
 
   g_app_launch_context_setenv (context, "PARENT_WINDOW_ID", parent_window);
+
+  if (activation_token)
+    g_app_launch_context_setenv (context, "XDG_ACTIVATION_TOKEN", activation_token);
 
   uris.data = (gpointer)ruri;
   uris.next = NULL;
@@ -311,7 +323,7 @@ update_permissions_store (const char *app_id,
            in_permissions[PERM_APP_COUNT],
            in_permissions[PERM_APP_THRESHOLD]);
 
-  
+
   if (!xdp_impl_permission_store_call_set_permission_sync (get_permission_store (),
                                                            PERMISSION_TABLE,
                                                            TRUE,
@@ -355,6 +367,7 @@ send_response_in_thread_func (GTask *task,
       const char *parent_window;
       gboolean writable;
       const char *content_type;
+      const char *activation_token = NULL;
 
       g_debug ("Received choice %s", choice);
 
@@ -363,7 +376,9 @@ send_response_in_thread_func (GTask *task,
       writable = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "writable"));
       content_type = (const char *)g_object_get_data (G_OBJECT (request), "content-type");
 
-      if (launch_application_with_uri (choice, uri, parent_window, writable, NULL))
+      g_variant_lookup (options, "activation_token", "&s", &activation_token);
+
+      if (launch_application_with_uri (choice, uri, parent_window, writable, activation_token, NULL))
         update_permissions_store (xdp_app_info_get_id (request->app_info), content_type, choice);
     }
 
@@ -572,6 +587,7 @@ handle_open_in_thread_func (GTask *task,
   Request *request = (Request *)task_data;
   const char *parent_window;
   const char *app_id = xdp_app_info_get_id (request->app_info);
+  const char *activation_token;
   g_autofree char *uri = NULL;
   g_autoptr(XdpImplRequest) impl_request = NULL;
   g_autofree char *default_app = NULL;
@@ -599,6 +615,7 @@ handle_open_in_thread_func (GTask *task,
   writable = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "writable"));
   ask = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "ask"));
   open_dir = GPOINTER_TO_INT (g_object_get_data (G_OBJECT (request), "open-dir"));
+  activation_token = (const char *)g_object_get_data (G_OBJECT (request), "activation-token");
 
   REQUEST_AUTOLOCK (request);
 
@@ -639,24 +656,26 @@ handle_open_in_thread_func (GTask *task,
     {
       g_autofree char *path = NULL;
       gboolean fd_is_writable;
+      g_autoptr(GError) local_error = NULL;
 
-      path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, &fd_is_writable);
+      path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, &fd_is_writable, &local_error);
       if (path == NULL ||
           (writable && !fd_is_writable) ||
           (!xdp_app_info_is_host (request->app_info) && !writable && fd_is_writable))
         {
           /* Reject the request */
+          if (path == NULL)
+            {
+              g_debug ("Rejecting open request: %s", local_error->message);
+            }
+          else
+            {
+              g_debug ("Rejecting open request for %s as opening %swritable but fd is %swritable",
+                       path, writable ? "" : "not ", fd_is_writable ? "" : "not ");
+            }
+
           if (request->exported)
             {
-              if (path == NULL)
-                {
-                  g_debug ("Rejecting open request as fd has no path associated to it");
-                }
-              else
-                {
-                  g_debug ("Rejecting open request for %s as opening %swritable but fd is %swritable",
-                           path, writable ? "" : "not ", fd_is_writable ? "" : "not ");
-                }
               g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
               xdp_request_emit_response (XDP_REQUEST (request),
                                          XDG_DESKTOP_PORTAL_RESPONSE_OTHER,
@@ -668,9 +687,45 @@ handle_open_in_thread_func (GTask *task,
 
       if (open_dir)
         {
-          char *dir = g_path_get_dirname (path);
+          g_autofree char *real_path = get_real_path_for_doc_path (path, app_id);
+
+          if (open_uri->file_manager != NULL)
+            {
+              /* Try opening the directory via the file manager interface, then
+                 fall back to a plain URI open */
+              g_autoptr(GError) local_error = NULL;
+              g_autoptr(GVariant) result = NULL;
+              g_autoptr(GVariantBuilder) uris_builder = NULL;
+              g_autofree char* item_uri = g_filename_to_uri (real_path, NULL, NULL);
+
+              uris_builder = g_variant_builder_new (G_VARIANT_TYPE ("as"));
+              g_variant_builder_add (uris_builder, "s", item_uri);
+
+              result = g_dbus_proxy_call_sync (open_uri->file_manager,
+                                               FILE_MANAGER_SHOW_ITEMS,
+                                               g_variant_new ("(ass)", uris_builder, ""),
+                                               G_DBUS_CALL_FLAGS_NONE,
+                                               -1,
+                                               NULL,
+                                               &local_error);
+              if (result == NULL)
+                {
+                  g_warning ("Failed to call " FILE_MANAGER_SHOW_ITEMS ": %s",
+                             local_error->message);
+                }
+              else
+                {
+                  g_variant_builder_init (&opts_builder, G_VARIANT_TYPE_VARDICT);
+                  xdp_request_emit_response (XDP_REQUEST (request),
+                                             XDG_DESKTOP_PORTAL_RESPONSE_SUCCESS,
+                                             g_variant_builder_end (&opts_builder));
+                  request_unexport (request);
+                  return;
+                }
+            }
+
           g_free (path);
-          path = dir;
+          path = g_path_get_dirname (real_path);
         }
 
       get_content_type_for_file (path, &content_type);
@@ -680,6 +735,7 @@ handle_open_in_thread_func (GTask *task,
       uri = g_filename_to_uri (path, NULL, NULL);
       g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (uri), g_free);
       close (fd);
+      fd = -1;
       g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (-1));
     }
 
@@ -762,7 +818,7 @@ handle_open_in_thread_func (GTask *task,
 
           g_debug ("Skipping app chooser");
 
-          gboolean result = launch_application_with_uri (app, uri, parent_window, writable, &error);
+          gboolean result = launch_application_with_uri (app, uri, parent_window, writable, activation_token, &error);
           if (request->exported)
             {
               if (!result)
@@ -792,6 +848,8 @@ handle_open_in_thread_func (GTask *task,
     g_variant_builder_add (&opts_builder, "{sv}", "filename", g_variant_new_string (basename));
   if (uri)
     g_variant_builder_add (&opts_builder, "{sv}", "uri", g_variant_new_string (uri));
+  if (activation_token)
+    g_variant_builder_add (&opts_builder, "{sv}", "activation_token", g_variant_new_string (uri));
 
   impl_request = xdp_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (impl)),
                                                   G_DBUS_PROXY_FLAGS_NONE,
@@ -827,6 +885,7 @@ handle_open_uri (XdpOpenURI *object,
   g_autoptr(GTask) task = NULL;
   gboolean writable;
   gboolean ask;
+  const char *activation_token = NULL;
 
   if (xdp_impl_lockdown_get_disable_application_handlers (lockdown))
     {
@@ -844,11 +903,16 @@ handle_open_uri (XdpOpenURI *object,
   if (!g_variant_lookup (arg_options, "ask", "b", &ask))
     ask = FALSE;
 
+  g_variant_lookup (arg_options, "activation_token", "&s", &activation_token);
+
   g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (-1));
   g_object_set_data_full (G_OBJECT (request), "uri", g_strdup (arg_uri), g_free);
   g_object_set_data_full (G_OBJECT (request), "parent-window", g_strdup (arg_parent_window), g_free);
   g_object_set_data (G_OBJECT (request), "writable", GINT_TO_POINTER (writable));
   g_object_set_data (G_OBJECT (request), "ask", GINT_TO_POINTER (ask));
+
+  if (activation_token)
+    g_object_set_data_full (G_OBJECT (request), "activation-token", g_strdup (activation_token), g_free);
 
   request_export (request, g_dbus_method_invocation_get_connection (invocation));
   xdp_open_uri_complete_open_uri (object, invocation, request->id);
@@ -873,6 +937,7 @@ handle_open_file (XdpOpenURI *object,
   gboolean writable;
   gboolean ask;
   int fd_id, fd;
+  const char *activation_token = NULL;
   g_autoptr(GError) error = NULL;
 
   if (xdp_impl_lockdown_get_disable_application_handlers (lockdown))
@@ -899,10 +964,15 @@ handle_open_file (XdpOpenURI *object,
       return TRUE;
     }
 
+  g_variant_lookup (arg_options, "activation_token", "&s", &activation_token);
+
   g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (fd));
   g_object_set_data_full (G_OBJECT (request), "parent-window", g_strdup (arg_parent_window), g_free);
   g_object_set_data (G_OBJECT (request), "writable", GINT_TO_POINTER (writable));
   g_object_set_data (G_OBJECT (request), "ask", GINT_TO_POINTER (ask));
+
+  if (activation_token)
+    g_object_set_data_full (G_OBJECT (request), "activation-token", g_strdup (activation_token), g_free);
 
   request_export (request, g_dbus_method_invocation_get_connection (invocation));
   xdp_open_uri_complete_open_file (object, invocation, NULL, request->id);
@@ -925,6 +995,7 @@ handle_open_directory (XdpOpenURI *object,
   Request *request = request_from_invocation (invocation);
   g_autoptr(GTask) task = NULL;
   int fd_id, fd;
+  const char *activation_token = NULL;
   g_autoptr(GError) error = NULL;
 
   if (xdp_impl_lockdown_get_disable_application_handlers (lockdown))
@@ -945,11 +1016,16 @@ handle_open_directory (XdpOpenURI *object,
       return TRUE;
     }
 
+  g_variant_lookup (arg_options, "activation_token", "&s", &activation_token);
+
   g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (fd));
   g_object_set_data_full (G_OBJECT (request), "parent-window", g_strdup (arg_parent_window), g_free);
   g_object_set_data (G_OBJECT (request), "writable", GINT_TO_POINTER (0));
   g_object_set_data (G_OBJECT (request), "ask", GINT_TO_POINTER (0));
   g_object_set_data (G_OBJECT (request), "open-dir", GINT_TO_POINTER (1));
+
+  if (activation_token)
+    g_object_set_data_full (G_OBJECT (request), "activation-token", g_strdup (activation_token), g_free);
 
   request_export (request, g_dbus_method_invocation_get_connection (invocation));
   xdp_open_uri_complete_open_file (object, invocation, NULL, request->id);
@@ -1003,6 +1079,20 @@ open_uri_create (GDBusConnection *connection,
   g_dbus_proxy_set_default_timeout (G_DBUS_PROXY (impl), G_MAXINT);
 
   open_uri = g_object_new (open_uri_get_type (), NULL);
+  open_uri->file_manager = g_dbus_proxy_new_sync (connection,
+                                                  G_DBUS_PROXY_FLAGS_NONE,
+                                                  NULL,
+                                                  FILE_MANAGER_DBUS_NAME,
+                                                  FILE_MANAGER_DBUS_PATH,
+                                                  FILE_MANAGER_DBUS_IFACE,
+                                                  NULL,
+                                                  &error);
+  if (!open_uri->file_manager)
+    {
+      g_debug ("Failed to create FileManager proxy: %s", error->message);
+      // Missing FileManager1 errors should be non-fatal.
+      g_clear_error (&error);
+    }
 
   monitor = g_app_info_monitor_get ();
 

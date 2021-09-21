@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016 Red Hat, Inc
+ * Copyright © 2021 Red Hat, Inc
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -15,21 +15,11 @@
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
- *       Matthias Clasen <mclasen@redhat.com>
+ *       Bastien Nocera <hadess@hadess.net>
  */
 
 #pragma once
 
 #include <gio/gio.h>
 
-void init_document_proxy (GDBusConnection *connection);
-
-char *register_document (const char *uri,
-                         const char *app_id,
-                         gboolean for_save,
-                         gboolean writable,
-                         gboolean directory,
-                         GError **error);
-
-char *get_real_path_for_doc_path (const char *path,
-                                  const char *app_id);
+GDBusInterfaceSkeleton * power_profile_monitor_create (GDBusConnection *connection);
