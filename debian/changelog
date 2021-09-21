@@ -1,8 +1,14 @@
-xdg-desktop-portal (1.10.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.10.1-1) unstable; urgency=medium
 
   * New upstream release
+  * Standards-Version: 4.6.0 (no changes required)
+  * d/rules: Stop working around wrong permissions on test-document-fuse.py.
+    This was fixed upstream.
+  * Don't let debhelper 13 make installed-tests data executable
+  * Use debhelper compat level 13
+    - No need to override dh_missing any more
 
- -- Simon McVittie <smcv@debian.org>  Tue, 21 Sep 2021 16:17:12 +0100
+ -- Simon McVittie <smcv@debian.org>  Tue, 21 Sep 2021 17:21:24 +0100
 
 xdg-desktop-portal (1.8.1-1) unstable; urgency=medium
 
