@@ -26,9 +26,6 @@ override_dh_auto_configure:
 		$(CONFFLAGS)
 		$(NULL)
 
-override_dh_missing:
-	dh_missing --fail-missing
-
 override_dh_auto_test:
 ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
 	G_MESSAGES_DEBUG=all \

@@ -6,7 +6,7 @@ Uploaders:
  Simon McVittie <smcv@debian.org>,
 Build-Depends:
  dbus,
- debhelper-compat (= 12),
+ debhelper-compat (= 13),
  geoclue-2.0 <!nocheck pkg.libportal.enable>,
  fuse <!nocheck>,
  libcap2-bin <!nocheck>,
