@@ -5,6 +5,8 @@ export LC_ALL=C.UTF-8
 
 include /usr/share/dpkg/default.mk
 
+built_binaries := $(shell dh_listpackages)
+
 # ITP #946605
 ifeq ($(filter pkg.libportal.enable,$(DEB_BUILD_PROFILES)),)
 CONFFLAGS += --disable-libportal
@@ -32,4 +34,12 @@ ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
 	G_MESSAGES_DEBUG=all \
 	TEST_IN_CI=1 \
 	dh_auto_test --no-parallel
+endif
+
+# debhelper >= 13.4 makes all of /usr/libexec executable, which is not
+# quite right for installed-tests
+override_dh_fixperms:
+	dh_fixperms -Xusr/libexec/installed-tests
+ifneq ($(filter %-tests,$(built_binaries)),)
+	chmod --recursive --changes a+rX,u+w,og-w debian/*-tests/usr/libexec/installed-tests
 endif
