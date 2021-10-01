@@ -1,3 +1,16 @@
+xdg-desktop-portal (1.10.1-2) unstable; urgency=medium
+
+  * d/p/open-uri-Avoid-calling-into-o.fd.FileManager1-during-star.patch:
+    Add proposed patch to resolve deadlock with some file managers.
+    This avoids a long delay during startup of GtkApplication-based
+    implementations of the o.fd.FileManager1 interface, such as XFCE's
+    Thunar, in a non-GNOME and non-XFCE environment. (Closes: #994865)
+  * d/p/build-Fix-cross-compilation-by-adjusting-pkg-config-use.patch:
+    Add proposed patch to fix cross-compilation.
+    Thanks to Helmut Grohne (Closes: #985411)
+
+ -- Simon McVittie <smcv@debian.org>  Fri, 01 Oct 2021 23:29:32 +0100
+
 xdg-desktop-portal (1.10.1-1) unstable; urgency=medium
 
   * New upstream release
