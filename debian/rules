@@ -7,12 +7,7 @@ include /usr/share/dpkg/default.mk
 
 built_binaries := $(shell dh_listpackages)
 
-# ITP #946605
-ifeq ($(filter pkg.libportal.enable,$(DEB_BUILD_PROFILES)),)
-CONFFLAGS += --disable-libportal
-else
-CONFFLAGS += --enable-libportal
-endif
+CONFFLAGS :=
 
 %:
 	dh $@
@@ -22,6 +17,7 @@ override_dh_auto_configure:
 		--enable-docbook-docs \
 		--enable-geoclue \
 		--enable-installed-tests \
+		--enable-libportal \
 		--enable-pipewire \
 		$(CONFFLAGS)
 		$(NULL)
