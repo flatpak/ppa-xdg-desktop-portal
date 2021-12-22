@@ -171,8 +171,6 @@ check_PROGRAMS = $(am__EXEEXT_5)
 @HAVE_LIBPORTAL_TRUE@	tests/trash.h \
 @HAVE_LIBPORTAL_TRUE@	tests/wallpaper.c \
 @HAVE_LIBPORTAL_TRUE@	tests/wallpaper.h \
-@HAVE_LIBPORTAL_TRUE@	tests/utils.c \
-@HAVE_LIBPORTAL_TRUE@	tests/utils.h \
 @HAVE_LIBPORTAL_TRUE@        tests/glib-backports.c \
 @HAVE_LIBPORTAL_TRUE@        tests/glib-backports.h \
 @HAVE_LIBPORTAL_TRUE@	$(NULL)
@@ -259,7 +257,7 @@ am__objects_1 =
 am_test_doc_portal_OBJECTS =  \
 	tests/test_doc_portal-can-use-fuse.$(OBJEXT) \
 	tests/test_doc_portal-test-doc-portal.$(OBJEXT) \
-	$(am__objects_1)
+	tests/test_doc_portal-utils.$(OBJEXT) $(am__objects_1)
 nodist_test_doc_portal_OBJECTS = document-portal/test_doc_portal-document-portal-dbus.$(OBJEXT)
 test_doc_portal_OBJECTS = $(am_test_doc_portal_OBJECTS) \
 	$(nodist_test_doc_portal_OBJECTS)
@@ -277,7 +275,8 @@ test_doc_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 am_test_permission_store_OBJECTS =  \
 	tests/test_permission_store-test-permission-store.$(OBJEXT)
 nodist_test_permission_store_OBJECTS = document-portal/test_permission_store-permission-store-dbus.$(OBJEXT) \
-	src/test_permission_store-xdp-utils.$(OBJEXT)
+	src/test_permission_store-xdp-utils.$(OBJEXT) \
+	tests/test_permission_store-utils.$(OBJEXT) $(am__objects_1)
 test_permission_store_OBJECTS = $(am_test_permission_store_OBJECTS) \
 	$(nodist_test_permission_store_OBJECTS)
 test_permission_store_DEPENDENCIES = $(am__DEPENDENCIES_1) \
@@ -294,8 +293,8 @@ am__test_portals_SOURCES_DIST = tests/test-portals.c tests/account.c \
 	tests/notification.c tests/notification.h tests/openuri.c \
 	tests/openuri.h tests/print.c tests/print.h tests/screenshot.c \
 	tests/screenshot.h tests/trash.c tests/trash.h \
-	tests/wallpaper.c tests/wallpaper.h tests/utils.c \
-	tests/utils.h tests/glib-backports.c tests/glib-backports.h
+	tests/wallpaper.c tests/wallpaper.h tests/glib-backports.c \
+	tests/glib-backports.h
 @HAVE_LIBPORTAL_TRUE@am__objects_2 =  \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-account.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-background.$(OBJEXT) \
@@ -310,7 +309,6 @@ am__test_portals_SOURCES_DIST = tests/test-portals.c tests/account.c \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-screenshot.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-trash.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-wallpaper.$(OBJEXT) \
-@HAVE_LIBPORTAL_TRUE@	tests/test_portals-utils.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	tests/test_portals-glib-backports.$(OBJEXT) \
 @HAVE_LIBPORTAL_TRUE@	$(am__objects_1)
 am_test_portals_OBJECTS = tests/test_portals-test-portals.$(OBJEXT) \
@@ -319,7 +317,7 @@ nodist_test_portals_OBJECTS = src/test_portals-xdp-dbus.$(OBJEXT) \
 	src/test_portals-xdp-impl-dbus.$(OBJEXT) \
 	src/test_portals-xdp-utils.$(OBJEXT) \
 	document-portal/test_portals-permission-store-dbus.$(OBJEXT) \
-	$(am__objects_1)
+	tests/test_portals-utils.$(OBJEXT) $(am__objects_1)
 test_portals_OBJECTS = $(am_test_portals_OBJECTS) \
 	$(nodist_test_portals_OBJECTS)
 @HAVE_LIBPORTAL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
@@ -385,11 +383,12 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
 	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/request.c src/request.h src/call.c \
-	src/call.h src/documents.c src/documents.h src/permissions.c \
-	src/permissions.h src/email.c src/email.h src/settings.c \
-	src/settings.h src/session.c src/session.h src/trash.c \
-	src/trash.h src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
+	src/account.h src/realtime.c src/realtime.h src/request.c \
+	src/request.h src/call.c src/call.h src/documents.c \
+	src/documents.h src/permissions.c src/permissions.h \
+	src/email.c src/email.h src/settings.c src/settings.h \
+	src/session.c src/session.h src/trash.c src/trash.h \
+	src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
 	src/xdp-utils.h src/background.c src/background.h \
 	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
@@ -419,6 +418,7 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-inhibit.$(OBJEXT) \
 	src/xdg_desktop_portal-device.$(OBJEXT) \
 	src/xdg_desktop_portal-account.$(OBJEXT) \
+	src/xdg_desktop_portal-realtime.$(OBJEXT) \
 	src/xdg_desktop_portal-request.$(OBJEXT) \
 	src/xdg_desktop_portal-call.$(OBJEXT) \
 	src/xdg_desktop_portal-documents.$(OBJEXT) \
@@ -561,6 +561,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-power-profile-monitor.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-print.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-realtime.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-request.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po \
@@ -580,7 +581,9 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	tests/$(DEPDIR)/test_backends-glib-backports.Po \
 	tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po \
 	tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po \
+	tests/$(DEPDIR)/test_doc_portal-utils.Po \
 	tests/$(DEPDIR)/test_permission_store-test-permission-store.Po \
+	tests/$(DEPDIR)/test_permission_store-utils.Po \
 	tests/$(DEPDIR)/test_portals-account.Po \
 	tests/$(DEPDIR)/test_portals-background.Po \
 	tests/$(DEPDIR)/test_portals-camera.Po \
@@ -1204,6 +1207,7 @@ dist_introspection_DATA = \
 	data/org.freedesktop.portal.Print.xml \
 	data/org.freedesktop.portal.ProxyResolver.xml \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
+	data/org.freedesktop.portal.Realtime.xml \
 	data/org.freedesktop.portal.Request.xml \
 	data/org.freedesktop.portal.ScreenCast.xml \
 	data/org.freedesktop.portal.Screenshot.xml \
@@ -1303,6 +1307,7 @@ PORTAL_IFACE_FILES = \
 	data/org.freedesktop.portal.Account.xml \
 	data/org.freedesktop.portal.Email.xml \
 	data/org.freedesktop.portal.ScreenCast.xml \
+	data/org.freedesktop.portal.Realtime.xml \
 	data/org.freedesktop.portal.RemoteDesktop.xml \
 	data/org.freedesktop.portal.Location.xml \
 	data/org.freedesktop.portal.Settings.xml \
@@ -1353,11 +1358,12 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
 	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/request.c src/request.h src/call.c \
-	src/call.h src/documents.c src/documents.h src/permissions.c \
-	src/permissions.h src/email.c src/email.h src/settings.c \
-	src/settings.h src/session.c src/session.h src/trash.c \
-	src/trash.h src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
+	src/account.h src/realtime.c src/realtime.h src/request.c \
+	src/request.h src/call.c src/call.h src/documents.c \
+	src/documents.h src/permissions.c src/permissions.h \
+	src/email.c src/email.h src/settings.c src/settings.h \
+	src/session.c src/session.h src/trash.c src/trash.h \
+	src/wallpaper.c src/wallpaper.h src/xdp-utils.c \
 	src/xdp-utils.h src/background.c src/background.h \
 	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
@@ -1455,6 +1461,8 @@ test_doc_portal_SOURCES = \
 	tests/can-use-fuse.c \
 	tests/can-use-fuse.h \
 	tests/test-doc-portal.c \
+	tests/utils.c \
+	tests/utils.h \
 	$(NULL)
 
 nodist_test_doc_portal_SOURCES = document-portal/document-portal-dbus.c
@@ -1470,6 +1478,8 @@ nodist_test_portals_SOURCES = \
 	src/xdp-impl-dbus.c \
 	src/xdp-utils.c \
         document-portal/permission-store-dbus.c \
+		tests/utils.c \
+		tests/utils.h \
 	$(NULL)
 
 test_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
@@ -1479,7 +1489,12 @@ test_permission_store_LDADD = \
 	$(NULL)
 
 test_permission_store_SOURCES = tests/test-permission-store.c
-nodist_test_permission_store_SOURCES = document-portal/permission-store-dbus.c src/xdp-utils.c
+nodist_test_permission_store_SOURCES = \
+	document-portal/permission-store-dbus.c src/xdp-utils.c \
+	tests/utils.c \
+	tests/utils.h \
+	$(NULL)
+
 EXTRA_test_permission_store_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
 test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
 test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS)
@@ -1831,6 +1846,8 @@ tests/test_doc_portal-can-use-fuse.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_doc_portal-test-doc-portal.$(OBJEXT):  \
 	tests/$(am__dirstamp) tests/$(DEPDIR)/$(am__dirstamp)
+tests/test_doc_portal-utils.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 document-portal/$(am__dirstamp):
 	@$(MKDIR_P) document-portal
 	@: > document-portal/$(am__dirstamp)
@@ -1857,6 +1874,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/test_permission_store-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+tests/test_permission_store-utils.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test-permission-store$(EXEEXT): $(test_permission_store_OBJECTS) $(test_permission_store_DEPENDENCIES) $(EXTRA_test_permission_store_DEPENDENCIES) 
 	@rm -f test-permission-store$(EXEEXT)
@@ -1889,8 +1908,6 @@ tests/test_portals-trash.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-wallpaper.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
-tests/test_portals-utils.$(OBJEXT): tests/$(am__dirstamp) \
-	tests/$(DEPDIR)/$(am__dirstamp)
 tests/test_portals-glib-backports.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 src/test_portals-xdp-dbus.$(OBJEXT): src/$(am__dirstamp) \
@@ -1902,6 +1919,8 @@ src/test_portals-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 document-portal/test_portals-permission-store-dbus.$(OBJEXT):  \
 	document-portal/$(am__dirstamp) \
 	document-portal/$(DEPDIR)/$(am__dirstamp)
+tests/test_portals-utils.$(OBJEXT): tests/$(am__dirstamp) \
+	tests/$(DEPDIR)/$(am__dirstamp)
 
 test-portals$(EXEEXT): $(test_portals_OBJECTS) $(test_portals_DEPENDENCIES) $(EXTRA_test_portals_DEPENDENCIES) 
 	@rm -f test-portals$(EXEEXT)
@@ -2022,6 +2041,8 @@ src/xdg_desktop_portal-inhibit.$(OBJEXT): src/$(am__dirstamp) \
 src/xdg_desktop_portal-device.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-account.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-realtime.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-request.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -2229,6 +2250,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-power-profile-monitor.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-print.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-realtime.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-request.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po@am__quote@ # am--include-marker
@@ -2248,7 +2270,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_backends-glib-backports.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_permission_store-test-permission-store.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_permission_store-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-account.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-background.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_portals-camera.Po@am__quote@ # am--include-marker
@@ -2342,6 +2366,20 @@ tests/test_doc_portal-test-doc-portal.obj: tests/test-doc-portal.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -c -o tests/test_doc_portal-test-doc-portal.obj `if test -f 'tests/test-doc-portal.c'; then $(CYGPATH_W) 'tests/test-doc-portal.c'; else $(CYGPATH_W) '$(srcdir)/tests/test-doc-portal.c'; fi`
 
+tests/test_doc_portal-utils.o: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT tests/test_doc_portal-utils.o -MD -MP -MF tests/$(DEPDIR)/test_doc_portal-utils.Tpo -c -o tests/test_doc_portal-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_doc_portal-utils.Tpo tests/$(DEPDIR)/test_doc_portal-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_doc_portal-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -c -o tests/test_doc_portal-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+
+tests/test_doc_portal-utils.obj: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT tests/test_doc_portal-utils.obj -MD -MP -MF tests/$(DEPDIR)/test_doc_portal-utils.Tpo -c -o tests/test_doc_portal-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_doc_portal-utils.Tpo tests/$(DEPDIR)/test_doc_portal-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_doc_portal-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -c -o tests/test_doc_portal-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
+
 document-portal/test_doc_portal-document-portal-dbus.o: document-portal/document-portal-dbus.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_doc_portal_CFLAGS) $(CFLAGS) -MT document-portal/test_doc_portal-document-portal-dbus.o -MD -MP -MF document-portal/$(DEPDIR)/test_doc_portal-document-portal-dbus.Tpo -c -o document-portal/test_doc_portal-document-portal-dbus.o `test -f 'document-portal/document-portal-dbus.c' || echo '$(srcdir)/'`document-portal/document-portal-dbus.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) document-portal/$(DEPDIR)/test_doc_portal-document-portal-dbus.Tpo document-portal/$(DEPDIR)/test_doc_portal-document-portal-dbus.Po
@@ -2397,6 +2435,20 @@ src/test_permission_store-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/test_permission_store-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o src/test_permission_store-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+
+tests/test_permission_store-utils.o: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -MT tests/test_permission_store-utils.o -MD -MP -MF tests/$(DEPDIR)/test_permission_store-utils.Tpo -c -o tests/test_permission_store-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_permission_store-utils.Tpo tests/$(DEPDIR)/test_permission_store-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_permission_store-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o tests/test_permission_store-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+
+tests/test_permission_store-utils.obj: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -MT tests/test_permission_store-utils.obj -MD -MP -MF tests/$(DEPDIR)/test_permission_store-utils.Tpo -c -o tests/test_permission_store-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_permission_store-utils.Tpo tests/$(DEPDIR)/test_permission_store-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_permission_store-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o tests/test_permission_store-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
 
 tests/test_portals-test-portals.o: tests/test-portals.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-test-portals.o -MD -MP -MF tests/$(DEPDIR)/test_portals-test-portals.Tpo -c -o tests/test_portals-test-portals.o `test -f 'tests/test-portals.c' || echo '$(srcdir)/'`tests/test-portals.c
@@ -2594,20 +2646,6 @@ tests/test_portals-wallpaper.obj: tests/wallpaper.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-wallpaper.obj `if test -f 'tests/wallpaper.c'; then $(CYGPATH_W) 'tests/wallpaper.c'; else $(CYGPATH_W) '$(srcdir)/tests/wallpaper.c'; fi`
 
-tests/test_portals-utils.o: tests/utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-utils.o -MD -MP -MF tests/$(DEPDIR)/test_portals-utils.Tpo -c -o tests/test_portals-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-utils.Tpo tests/$(DEPDIR)/test_portals-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_portals-utils.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
-
-tests/test_portals-utils.obj: tests/utils.c
-@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-utils.obj -MD -MP -MF tests/$(DEPDIR)/test_portals-utils.Tpo -c -o tests/test_portals-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
-@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-utils.Tpo tests/$(DEPDIR)/test_portals-utils.Po
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_portals-utils.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
-
 tests/test_portals-glib-backports.o: tests/glib-backports.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-glib-backports.o -MD -MP -MF tests/$(DEPDIR)/test_portals-glib-backports.Tpo -c -o tests/test_portals-glib-backports.o `test -f 'tests/glib-backports.c' || echo '$(srcdir)/'`tests/glib-backports.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-glib-backports.Tpo tests/$(DEPDIR)/test_portals-glib-backports.Po
@@ -2677,6 +2715,20 @@ document-portal/test_portals-permission-store-dbus.obj: document-portal/permissi
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='document-portal/permission-store-dbus.c' object='document-portal/test_portals-permission-store-dbus.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o document-portal/test_portals-permission-store-dbus.obj `if test -f 'document-portal/permission-store-dbus.c'; then $(CYGPATH_W) 'document-portal/permission-store-dbus.c'; else $(CYGPATH_W) '$(srcdir)/document-portal/permission-store-dbus.c'; fi`
+
+tests/test_portals-utils.o: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-utils.o -MD -MP -MF tests/$(DEPDIR)/test_portals-utils.Tpo -c -o tests/test_portals-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-utils.Tpo tests/$(DEPDIR)/test_portals-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_portals-utils.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
+
+tests/test_portals-utils.obj: tests/utils.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT tests/test_portals-utils.obj -MD -MP -MF tests/$(DEPDIR)/test_portals-utils.Tpo -c -o tests/test_portals-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) tests/$(DEPDIR)/test_portals-utils.Tpo tests/$(DEPDIR)/test_portals-utils.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='tests/utils.c' object='tests/test_portals-utils.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o tests/test_portals-utils.obj `if test -f 'tests/utils.c'; then $(CYGPATH_W) 'tests/utils.c'; else $(CYGPATH_W) '$(srcdir)/tests/utils.c'; fi`
 
 tests/test_xdp_utils-test-xdp-utils.o: tests/test-xdp-utils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT tests/test_xdp_utils-test-xdp-utils.o -MD -MP -MF tests/$(DEPDIR)/test_xdp_utils-test-xdp-utils.Tpo -c -o tests/test_xdp_utils-test-xdp-utils.o `test -f 'tests/test-xdp-utils.c' || echo '$(srcdir)/'`tests/test-xdp-utils.c
@@ -3195,6 +3247,20 @@ src/xdg_desktop_portal-account.obj: src/account.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/account.c' object='src/xdg_desktop_portal-account.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-account.obj `if test -f 'src/account.c'; then $(CYGPATH_W) 'src/account.c'; else $(CYGPATH_W) '$(srcdir)/src/account.c'; fi`
+
+src/xdg_desktop_portal-realtime.o: src/realtime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-realtime.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-realtime.Tpo -c -o src/xdg_desktop_portal-realtime.o `test -f 'src/realtime.c' || echo '$(srcdir)/'`src/realtime.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-realtime.Tpo src/$(DEPDIR)/xdg_desktop_portal-realtime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/realtime.c' object='src/xdg_desktop_portal-realtime.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-realtime.o `test -f 'src/realtime.c' || echo '$(srcdir)/'`src/realtime.c
+
+src/xdg_desktop_portal-realtime.obj: src/realtime.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-realtime.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-realtime.Tpo -c -o src/xdg_desktop_portal-realtime.obj `if test -f 'src/realtime.c'; then $(CYGPATH_W) 'src/realtime.c'; else $(CYGPATH_W) '$(srcdir)/src/realtime.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-realtime.Tpo src/$(DEPDIR)/xdg_desktop_portal-realtime.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/realtime.c' object='src/xdg_desktop_portal-realtime.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-realtime.obj `if test -f 'src/realtime.c'; then $(CYGPATH_W) 'src/realtime.c'; else $(CYGPATH_W) '$(srcdir)/src/realtime.c'; fi`
 
 src/xdg_desktop_portal-request.o: src/request.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-request.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-request.Tpo -c -o src/xdg_desktop_portal-request.o `test -f 'src/request.c' || echo '$(srcdir)/'`src/request.c
@@ -4594,6 +4660,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-power-profile-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-print.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-realtime.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-request.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
@@ -4613,7 +4680,9 @@ distclean: distclean-recursive
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
+	-rm -f tests/$(DEPDIR)/test_doc_portal-utils.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
+	-rm -f tests/$(DEPDIR)/test_permission_store-utils.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
 	-rm -f tests/$(DEPDIR)/test_portals-background.Po
 	-rm -f tests/$(DEPDIR)/test_portals-camera.Po
@@ -4756,6 +4825,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-power-profile-monitor.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-print.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-proxy-resolver.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-realtime.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-remote-desktop.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-request.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
@@ -4775,7 +4845,9 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-test-doc-portal.Po
+	-rm -f tests/$(DEPDIR)/test_doc_portal-utils.Po
 	-rm -f tests/$(DEPDIR)/test_permission_store-test-permission-store.Po
+	-rm -f tests/$(DEPDIR)/test_permission_store-utils.Po
 	-rm -f tests/$(DEPDIR)/test_portals-account.Po
 	-rm -f tests/$(DEPDIR)/test_portals-background.Po
 	-rm -f tests/$(DEPDIR)/test_portals-camera.Po
