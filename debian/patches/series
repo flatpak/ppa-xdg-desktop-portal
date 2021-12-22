@@ -1,5 +1,3 @@
 Revert-Stop-building-the-icon-validator.patch
 validate-icon-Add-a-define-for-bwrap.patch
 Replace-the-icon-validator-with-the-one-from-Flatpak-1.10.patch
-open-uri-Avoid-calling-into-o.fd.FileManager1-during-star.patch
-build-Fix-cross-compilation-by-adjusting-pkg-config-use.patch

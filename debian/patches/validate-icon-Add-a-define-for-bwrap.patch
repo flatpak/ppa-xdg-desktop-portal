@@ -8,10 +8,10 @@ Signed-off-by: Simon McVittie <smcv@debian.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
-index 8641710..6a6da59 100644
+index 16899d7..db4ac7b 100644
 --- a/src/Makefile.am.inc
 +++ b/src/Makefile.am.inc
-@@ -217,4 +217,4 @@ xdg_desktop_portal_CPPFLAGS = \
+@@ -220,4 +220,4 @@ xdg_desktop_portal_CPPFLAGS = \
  
  xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
  xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
