@@ -58,6 +58,7 @@
 #include "camera.h"
 #include "secret.h"
 #include "wallpaper.h"
+#include "realtime.h"
 
 static GMainLoop *loop = NULL;
 
@@ -196,6 +197,9 @@ peer_died_cb (const char *name)
 {
   close_requests_for_sender (name);
   close_sessions_for_sender (name);
+#ifdef HAVE_PIPEWIRE
+  screen_cast_remove_transient_permissions_for_sender (name);
+#endif
 }
 
 static void
@@ -233,6 +237,7 @@ on_bus_acquired (GDBusConnection *connection,
   export_portal_implementation (connection, proxy_resolver_create (connection));
   export_portal_implementation (connection, trash_create (connection));
   export_portal_implementation (connection, game_mode_create (connection));
+  export_portal_implementation (connection, realtime_create (connection));
 
   impls = find_all_portal_implementations ("org.freedesktop.impl.portal.Settings");
   export_portal_implementation (connection, settings_create (connection, impls));

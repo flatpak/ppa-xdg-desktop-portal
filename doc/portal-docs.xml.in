@@ -90,6 +90,7 @@
         bus.
       </para>
     </partintro>
+    <xi:include href="portal-org.freedesktop.portal.Account.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Request.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Session.xml"/>
     <xi:include href="portal-org.freedesktop.portal.FileChooser.xml"/>
@@ -114,7 +115,9 @@
     <xi:include href="portal-org.freedesktop.portal.Documents.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Wallpaper.xml"/>
     <xi:include href="portal-org.freedesktop.portal.MemoryMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.PowerProfileMonitor.xml"/>
     <xi:include href="portal-org.freedesktop.portal.FileTransfer.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Realtime.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Flatpak.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Flatpak.UpdateMonitor.xml"/>
   </reference>
@@ -139,6 +142,7 @@
       by the portal frontend.
     </para>
     </partintro>
+    <xi:include href="portal-org.freedesktop.impl.portal.Account.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.Request.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.Session.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.FileChooser.xml"/>

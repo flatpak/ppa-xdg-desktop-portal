@@ -174,6 +174,15 @@ session_close (Session *session,
 
   SESSION_GET_CLASS (session)->close (session);
 
+  if (notify_closed)
+    {
+      GVariantBuilder details_builder;
+
+      g_variant_builder_init (&details_builder, G_VARIANT_TYPE_VARDICT);
+      g_signal_emit_by_name (session, "closed",
+                             g_variant_builder_end (&details_builder));
+    }
+
   if (session->exported)
     session_unexport (session);
 
@@ -193,14 +202,6 @@ session_close (Session *session,
 
   session->closed = TRUE;
 
-  if (notify_closed)
-    {
-      GVariantBuilder details_builder;
-
-      g_variant_builder_init (&details_builder, G_VARIANT_TYPE_VARDICT);
-      g_signal_emit_by_name (session, "closed",
-                             g_variant_builder_end (&details_builder));
-    }
 
   g_object_unref (session);
 }
@@ -272,9 +273,9 @@ close_sessions_for_sender (const char *sender)
 }
 
 static void
-on_closed (XdpImplSession *object)
+on_closed (XdpImplSession *object, GObject *data)
 {
-  Session *session = (Session *)object;
+  Session *session = (Session *)data;
 
   SESSION_AUTOLOCK_UNREF (g_object_ref (session));
 
@@ -339,7 +340,7 @@ session_initable_init (GInitable *initable,
       if (!impl_session)
         return FALSE;
 
-      g_signal_connect (impl_session, "closed", G_CALLBACK (on_closed), NULL);
+      g_signal_connect (impl_session, "closed", G_CALLBACK (on_closed), session);
 
       session->impl_session = g_steal_pointer (&impl_session);
     }
