@@ -1,10 +1,10 @@
-xdg-desktop-portal (1.12.0-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.12.0-1) unstable; urgency=medium
 
   * New upstream release
   * Drop patches that were applied upstream
   * d/copyright: Update
 
- -- Simon McVittie <smcv@debian.org>  Wed, 22 Dec 2021 15:19:39 +0000
+ -- Simon McVittie <smcv@debian.org>  Wed, 22 Dec 2021 15:32:17 +0000
 
 xdg-desktop-portal (1.10.1-4) unstable; urgency=medium
 
