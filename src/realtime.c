@@ -108,6 +108,7 @@ handle_make_thread_realtime_with_pid (XdpRealtime           *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_FAILED,
                                              "RealtimeKit was not found");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   permission = get_permission_sync (app_id, PERMISSION_TABLE, PERMISSION_ID);
@@ -157,6 +158,7 @@ handle_make_thread_high_priority_with_pid (XdpRealtime           *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_FAILED,
                                              "RealtimeKit was not found");
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   permission = get_permission_sync (app_id, PERMISSION_TABLE, PERMISSION_ID);
@@ -176,7 +178,7 @@ handle_make_thread_high_priority_with_pid (XdpRealtime           *object,
     }
 
   g_dbus_proxy_call (G_DBUS_PROXY (realtime->rtkit_proxy),
-                     "MakeThreadRealtimeWithPID",
+                     "MakeThreadHighPriorityWithPID",
                      g_variant_new ("(ttu)", pids[0], thread, priority),
                      G_DBUS_CALL_FLAGS_NONE,
                      -1,
@@ -195,9 +197,9 @@ realtime_iface_init (XdpRealtimeIface *iface)
 }
 
 static void
-realtime_init (Realtime *self)
+realtime_init (Realtime *realtime)
 {
-  xdp_realtime_set_version (XDP_REALTIME (self), 1);
+  xdp_realtime_set_version (XDP_REALTIME (realtime), 1);
 }
 
 static void
