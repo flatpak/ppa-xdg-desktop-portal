@@ -1,9 +1,9 @@
-#ifndef XDP_UTIL_H
-#define XDP_UTIL_H
+#pragma once
 
 #include <gio/gio.h>
 #include "permission-db.h"
 #include "document-enums.h"
+#include "src/xdp-utils.h"
 
 G_BEGIN_DECLS
 
@@ -15,11 +15,16 @@ const char **      xdg_unparse_permissions (DocumentPermissionFlags permissions)
 DocumentPermissionFlags xdp_parse_permissions (const char **permissions,
                                                GError     **error);
 
+DocumentPermissionFlags document_entry_get_permissions_by_app_id (PermissionDbEntry *entry,
+                                                                  const char        *app_id);
 DocumentPermissionFlags document_entry_get_permissions (PermissionDbEntry *entry,
-                                                   const char     *app_id);
-gboolean           document_entry_has_permissions (PermissionDbEntry    *entry,
-                                                   const char        *app_id,
-                                                   DocumentPermissionFlags perms);
+                                                        XdpAppInfo        *app_info);
+gboolean           document_entry_has_permissions (PermissionDbEntry       *entry,
+                                                   XdpAppInfo              *app_info,
+                                                   DocumentPermissionFlags  perms);
+gboolean           document_entry_has_permissions_by_app_id (PermissionDbEntry       *entry,
+                                                             const char              *app_id,
+                                                             DocumentPermissionFlags  perms);
 const char *       document_entry_get_path (PermissionDbEntry *entry);
 char *             document_entry_dup_basename (PermissionDbEntry *entry);
 char *             document_entry_dup_dirname (PermissionDbEntry *entry);
@@ -31,5 +36,3 @@ char *  xdp_name_from_id (guint32 doc_id);
 
 
 G_END_DECLS
-
-#endif /* XDP_UTIL_H */

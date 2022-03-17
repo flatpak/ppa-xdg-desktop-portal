@@ -76,7 +76,7 @@ handle_close (XdpRequest *object,
         {
           if (invocation)
             g_dbus_method_invocation_return_gerror (invocation, error);
-          return TRUE;
+          return G_DBUS_METHOD_INVOCATION_HANDLED;
         }
 
       request_unexport (request);
@@ -85,7 +85,7 @@ handle_close (XdpRequest *object,
   if (invocation)
     xdp_request_complete_close (XDP_REQUEST (request), invocation);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -308,6 +308,13 @@ get_token (GDBusMethodInvocation *invocation)
         if (strcmp (method, "RequestBackground") == 0 )
           {
             options = g_variant_get_child_value (parameters, 1);
+          }
+    }
+  else if (strcmp (interface, "org.freedesktop.portal.DynamicLauncher") == 0)
+    {
+        if (strcmp (method, "PrepareInstall") == 0 )
+          {
+            options = g_variant_get_child_value (parameters, 3);
           }
     }
   else if (strcmp (interface, "org.freedesktop.portal.Wallpaper") == 0)

@@ -31,6 +31,9 @@
 /* Define if the GNU gettext() function is already present or preinstalled. */
 #undef HAVE_GETTEXT
 
+/* Define if GLib 2.66 is available */
+#undef HAVE_GLIB_2_66
+
 /* Define if you have the iconv() function and it works. */
 #undef HAVE_ICONV
 
@@ -40,11 +43,17 @@
 /* Define to enable libportal support */
 #undef HAVE_LIBPORTAL
 
+/* Define if libsystemd is available */
+#undef HAVE_LIBSYSTEMD
+
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
 /* Define to enable PipeWire support */
 #undef HAVE_PIPEWIRE
+
+/* Define to 1 if you have the `renameat2' function. */
+#undef HAVE_RENAMEAT2
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
