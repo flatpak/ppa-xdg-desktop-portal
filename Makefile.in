@@ -97,7 +97,8 @@ bin_PROGRAMS = $(am__EXEEXT_1)
 noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_7)
 libexec_PROGRAMS = $(am__EXEEXT_1) xdg-permission-store$(EXEEXT) \
 	xdg-document-portal$(EXEEXT) $(am__EXEEXT_1) \
-	xdg-desktop-portal$(EXEEXT) $(am__EXEEXT_1)
+	xdg-desktop-portal$(EXEEXT) \
+	xdg-desktop-portal-validate-icon$(EXEEXT) $(am__EXEEXT_1)
 TESTS = $(am__EXEEXT_2) $(am__EXEEXT_8)
 installed_test_PROGRAMS = $(am__EXEEXT_6)
 check_PROGRAMS = $(am__EXEEXT_5)
@@ -126,7 +127,12 @@ check_PROGRAMS = $(am__EXEEXT_5)
 @ENABLE_INSTALLED_TESTS_TRUE@	$(dist_installed_test_data)
 @ENABLE_INSTALLED_TESTS_TRUE@am__append_12 = $(test_ltlibraries) $(installed_test_ltlibraries)
 @ENABLE_INSTALLED_TESTS_TRUE@am__append_13 = $(installed_test_meta_DATA)
-@HAVE_PIPEWIRE_TRUE@am__append_14 = \
+@HAVE_LIBSYSTEMD_TRUE@am__append_14 = \
+@HAVE_LIBSYSTEMD_TRUE@	src/sd-escape.c		\
+@HAVE_LIBSYSTEMD_TRUE@	src/sd-escape.h		\
+@HAVE_LIBSYSTEMD_TRUE@	$(NULL)
+
+@HAVE_PIPEWIRE_TRUE@am__append_15 = \
 @HAVE_PIPEWIRE_TRUE@	src/screen-cast.c		\
 @HAVE_PIPEWIRE_TRUE@	src/screen-cast.h		\
 @HAVE_PIPEWIRE_TRUE@	src/remote-desktop.c		\
@@ -137,14 +143,14 @@ check_PROGRAMS = $(am__EXEEXT_5)
 @HAVE_PIPEWIRE_TRUE@	src/camera.h			\
 @HAVE_PIPEWIRE_TRUE@	$(NULL)
 
-@HAVE_GEOCLUE_TRUE@am__append_15 = \
+@HAVE_GEOCLUE_TRUE@am__append_16 = \
 @HAVE_GEOCLUE_TRUE@	src/location.c                  \
 @HAVE_GEOCLUE_TRUE@	src/location.h                  \
 @HAVE_GEOCLUE_TRUE@	$(NULL)
 
-@HAVE_LIBPORTAL_TRUE@am__append_16 = $(LIBPORTAL_CFLAGS)
-@HAVE_LIBPORTAL_TRUE@am__append_17 = $(LIBPORTAL_LIBS)
-@HAVE_LIBPORTAL_TRUE@am__append_18 = \
+@HAVE_LIBPORTAL_TRUE@am__append_17 = $(LIBPORTAL_CFLAGS)
+@HAVE_LIBPORTAL_TRUE@am__append_18 = $(LIBPORTAL_LIBS)
+@HAVE_LIBPORTAL_TRUE@am__append_19 = \
 @HAVE_LIBPORTAL_TRUE@	tests/account.c \
 @HAVE_LIBPORTAL_TRUE@	tests/account.h \
 @HAVE_LIBPORTAL_TRUE@	tests/background.c \
@@ -276,11 +282,12 @@ am_test_permission_store_OBJECTS =  \
 	tests/test_permission_store-test-permission-store.$(OBJEXT)
 nodist_test_permission_store_OBJECTS = document-portal/test_permission_store-permission-store-dbus.$(OBJEXT) \
 	src/test_permission_store-xdp-utils.$(OBJEXT) \
+	src/test_permission_store-sd-escape.$(OBJEXT) \
 	tests/test_permission_store-utils.$(OBJEXT) $(am__objects_1)
 test_permission_store_OBJECTS = $(am_test_permission_store_OBJECTS) \
 	$(nodist_test_permission_store_OBJECTS)
 test_permission_store_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 test_permission_store_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(test_permission_store_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -316,6 +323,7 @@ am_test_portals_OBJECTS = tests/test_portals-test-portals.$(OBJEXT) \
 nodist_test_portals_OBJECTS = src/test_portals-xdp-dbus.$(OBJEXT) \
 	src/test_portals-xdp-impl-dbus.$(OBJEXT) \
 	src/test_portals-xdp-utils.$(OBJEXT) \
+	src/test_portals-sd-escape.$(OBJEXT) \
 	document-portal/test_portals-permission-store-dbus.$(OBJEXT) \
 	tests/test_portals-utils.$(OBJEXT) $(am__objects_1)
 test_portals_OBJECTS = $(am_test_portals_OBJECTS) \
@@ -323,15 +331,17 @@ test_portals_OBJECTS = $(am_test_portals_OBJECTS) \
 @HAVE_LIBPORTAL_TRUE@am__DEPENDENCIES_2 = $(am__DEPENDENCIES_1)
 test_portals_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_2)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
 test_portals_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(test_portals_CFLAGS) \
 	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_test_xdp_utils_OBJECTS =  \
 	tests/test_xdp_utils-test-xdp-utils.$(OBJEXT) \
-	src/test_xdp_utils-xdp-utils.$(OBJEXT)
+	src/test_xdp_utils-xdp-utils.$(OBJEXT) \
+	src/test_xdp_utils-sd-escape.$(OBJEXT) $(am__objects_1)
 test_xdp_utils_OBJECTS = $(am_test_xdp_utils_OBJECTS)
-test_xdp_utils_DEPENDENCIES = $(am__DEPENDENCIES_1)
+test_xdp_utils_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 test_xdp_utils_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(test_xdp_utils_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o \
@@ -383,7 +393,8 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
 	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/realtime.c src/realtime.h src/request.c \
+	src/account.h src/realtime.c src/realtime.h \
+	src/dynamic-launcher.c src/dynamic-launcher.h src/request.c \
 	src/request.h src/call.c src/call.h src/documents.c \
 	src/documents.h src/permissions.c src/permissions.h \
 	src/email.c src/email.h src/settings.c src/settings.h \
@@ -392,16 +403,19 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 	src/xdp-utils.h src/background.c src/background.h \
 	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
-	src/portal-impl.h src/portal-impl.c src/screen-cast.c \
-	src/screen-cast.h src/remote-desktop.c src/remote-desktop.h \
-	src/pipewire.c src/pipewire.h src/camera.c src/camera.h \
-	src/location.c src/location.h
-@HAVE_PIPEWIRE_TRUE@am__objects_4 = src/xdg_desktop_portal-screen-cast.$(OBJEXT) \
+	src/portal-impl.h src/portal-impl.c src/sd-escape.c \
+	src/sd-escape.h src/screen-cast.c src/screen-cast.h \
+	src/remote-desktop.c src/remote-desktop.h src/pipewire.c \
+	src/pipewire.h src/camera.c src/camera.h src/location.c \
+	src/location.h
+@HAVE_LIBSYSTEMD_TRUE@am__objects_4 = src/xdg_desktop_portal-sd-escape.$(OBJEXT) \
+@HAVE_LIBSYSTEMD_TRUE@	$(am__objects_1)
+@HAVE_PIPEWIRE_TRUE@am__objects_5 = src/xdg_desktop_portal-screen-cast.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-remote-desktop.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-pipewire.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	src/xdg_desktop_portal-camera.$(OBJEXT) \
 @HAVE_PIPEWIRE_TRUE@	$(am__objects_1)
-@HAVE_GEOCLUE_TRUE@am__objects_5 =  \
+@HAVE_GEOCLUE_TRUE@am__objects_6 =  \
 @HAVE_GEOCLUE_TRUE@	src/xdg_desktop_portal-location.$(OBJEXT) \
 @HAVE_GEOCLUE_TRUE@	$(am__objects_1)
 am_xdg_desktop_portal_OBJECTS =  \
@@ -419,6 +433,7 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-device.$(OBJEXT) \
 	src/xdg_desktop_portal-account.$(OBJEXT) \
 	src/xdg_desktop_portal-realtime.$(OBJEXT) \
+	src/xdg_desktop_portal-dynamic-launcher.$(OBJEXT) \
 	src/xdg_desktop_portal-request.$(OBJEXT) \
 	src/xdg_desktop_portal-call.$(OBJEXT) \
 	src/xdg_desktop_portal-documents.$(OBJEXT) \
@@ -434,63 +449,75 @@ am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-secret.$(OBJEXT) \
 	src/xdg_desktop_portal-flatpak-instance.$(OBJEXT) \
 	src/xdg_desktop_portal-portal-impl.$(OBJEXT) $(am__objects_1) \
-	$(am__objects_4) $(am__objects_5)
-am__objects_6 = src/xdg_desktop_portal-xdp-dbus.$(OBJEXT)
-am__objects_7 = src/xdg_desktop_portal-xdp-impl-dbus.$(OBJEXT)
-am__objects_8 = src/xdg_desktop_portal-geoclue-dbus.$(OBJEXT)
-nodist_xdg_desktop_portal_OBJECTS = $(am__objects_6) $(am__objects_7) \
-	$(am__objects_8) \
+	$(am__objects_4) $(am__objects_5) $(am__objects_6)
+am__objects_7 = src/xdg_desktop_portal-xdp-dbus.$(OBJEXT)
+am__objects_8 = src/xdg_desktop_portal-xdp-impl-dbus.$(OBJEXT)
+am__objects_9 = src/xdg_desktop_portal-geoclue-dbus.$(OBJEXT)
+nodist_xdg_desktop_portal_OBJECTS = $(am__objects_7) $(am__objects_8) \
+	$(am__objects_9) \
 	src/xdg_desktop_portal-xdg-desktop-resources.$(OBJEXT) \
 	$(am__objects_1)
 xdg_desktop_portal_OBJECTS = $(am_xdg_desktop_portal_OBJECTS) \
 	$(nodist_xdg_desktop_portal_OBJECTS)
 xdg_desktop_portal_DEPENDENCIES = $(am__DEPENDENCIES_1) \
 	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 xdg_desktop_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(xdg_desktop_portal_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-am__objects_9 =  \
+am_xdg_desktop_portal_validate_icon_OBJECTS =  \
+	src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT)
+xdg_desktop_portal_validate_icon_OBJECTS =  \
+	$(am_xdg_desktop_portal_validate_icon_OBJECTS)
+xdg_desktop_portal_validate_icon_DEPENDENCIES = $(am__DEPENDENCIES_1)
+xdg_desktop_portal_validate_icon_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am__objects_10 =  \
 	document-portal/xdg_document_portal-permission-db.$(OBJEXT) \
 	document-portal/gvdb/xdg_document_portal-gvdb-reader.$(OBJEXT) \
 	document-portal/gvdb/xdg_document_portal-gvdb-builder.$(OBJEXT) \
 	$(am__objects_1)
 am_xdg_document_portal_OBJECTS =  \
 	src/xdg_document_portal-xdp-utils.$(OBJEXT) \
+	src/xdg_document_portal-sd-escape.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-portal.$(OBJEXT) \
 	document-portal/xdg_document_portal-file-transfer.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-store.$(OBJEXT) \
 	document-portal/xdg_document_portal-document-portal-fuse.$(OBJEXT) \
-	$(am__objects_9) $(am__objects_1)
-am__objects_10 = document-portal/xdg_document_portal-permission-store-dbus.$(OBJEXT) \
+	$(am__objects_10) $(am__objects_1)
+am__objects_11 = document-portal/xdg_document_portal-permission-store-dbus.$(OBJEXT) \
 	$(am__objects_1)
-nodist_xdg_document_portal_OBJECTS = $(am__objects_10) \
+nodist_xdg_document_portal_OBJECTS = $(am__objects_11) \
 	document-portal/xdg_document_portal-document-portal-dbus.$(OBJEXT) \
 	$(am__objects_1)
 xdg_document_portal_OBJECTS = $(am_xdg_document_portal_OBJECTS) \
 	$(nodist_xdg_document_portal_OBJECTS)
 xdg_document_portal_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	$(am__DEPENDENCIES_1)
+	$(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 xdg_document_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(xdg_document_portal_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-am__objects_11 =  \
+am__objects_12 =  \
 	document-portal/xdg_permission_store-permission-db.$(OBJEXT) \
 	document-portal/gvdb/xdg_permission_store-gvdb-reader.$(OBJEXT) \
 	document-portal/gvdb/xdg_permission_store-gvdb-builder.$(OBJEXT) \
 	$(am__objects_1)
 am_xdg_permission_store_OBJECTS =  \
 	src/xdg_permission_store-xdp-utils.$(OBJEXT) \
+	src/xdg_permission_store-sd-escape.$(OBJEXT) \
 	document-portal/xdg_permission_store-permission-store.$(OBJEXT) \
 	document-portal/xdg_permission_store-xdg-permission-store.$(OBJEXT) \
-	$(am__objects_11) $(am__objects_1)
+	$(am__objects_12) $(am__objects_1)
 nodist_xdg_permission_store_OBJECTS = document-portal/xdg_permission_store-permission-store-dbus.$(OBJEXT) \
 	$(am__objects_1)
 xdg_permission_store_OBJECTS = $(am_xdg_permission_store_OBJECTS) \
 	$(nodist_xdg_permission_store_OBJECTS)
-xdg_permission_store_DEPENDENCIES = $(am__DEPENDENCIES_1)
+xdg_permission_store_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	$(am__DEPENDENCIES_1)
 xdg_permission_store_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(xdg_permission_store_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
@@ -532,10 +559,13 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	document-portal/gvdb/$(DEPDIR)/xdg_document_portal-gvdb-reader.Po \
 	document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-builder.Po \
 	document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po \
+	src/$(DEPDIR)/test_permission_store-sd-escape.Po \
 	src/$(DEPDIR)/test_permission_store-xdp-utils.Po \
+	src/$(DEPDIR)/test_portals-sd-escape.Po \
 	src/$(DEPDIR)/test_portals-xdp-dbus.Po \
 	src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/test_portals-xdp-utils.Po \
+	src/$(DEPDIR)/test_xdp_utils-sd-escape.Po \
 	src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po \
 	src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-account.Po \
@@ -544,6 +574,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-camera.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-device.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-documents.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-email.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po \
@@ -566,6 +597,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-request.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-screenshot.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-secret.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-session.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-settings.Po \
@@ -576,7 +608,10 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po \
+	src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po \
+	src/$(DEPDIR)/xdg_document_portal-sd-escape.Po \
 	src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po \
+	src/$(DEPDIR)/xdg_permission_store-sd-escape.Po \
 	src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po \
 	tests/$(DEPDIR)/test_backends-glib-backports.Po \
 	tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po \
@@ -646,6 +681,7 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 	$(nodist_tests_test_backends_SOURCES) \
 	$(xdg_desktop_portal_SOURCES) \
 	$(nodist_xdg_desktop_portal_SOURCES) \
+	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) \
 	$(nodist_xdg_document_portal_SOURCES) \
 	$(xdg_permission_store_SOURCES) \
@@ -655,6 +691,7 @@ DIST_SOURCES = $(test_doc_portal_SOURCES) \
 	$(am__test_portals_SOURCES_DIST) $(test_xdp_utils_SOURCES) \
 	$(testdb_SOURCES) $(tests_test_backends_SOURCES) \
 	$(am__xdg_desktop_portal_SOURCES_DIST) \
+	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) $(xdg_permission_store_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
@@ -888,7 +925,8 @@ am__DIST_COMMON = $(srcdir)/Makefile.in $(srcdir)/config.h.in \
 	$(srcdir)/document-portal/Makefile.am.inc \
 	$(srcdir)/src/Makefile.am.inc $(srcdir)/tests/Makefile.am.inc \
 	$(srcdir)/tests/backend/Makefile.am.inc \
-	$(srcdir)/xdg-desktop-portal.pc.in $(top_srcdir)/glib-tap.mk \
+	$(srcdir)/xdg-desktop-portal.pc.in \
+	$(top_srcdir)/Makefile.am.inc $(top_srcdir)/glib-tap.mk \
 	ABOUT-NLS COPYING INSTALL NEWS compile config.guess \
 	config.rpath config.sub depcomp install-sh ltmain.sh missing \
 	test-driver
@@ -964,9 +1002,11 @@ EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 FGREP = @FGREP@
 FLATPAK_INTERFACES_DIR = @FLATPAK_INTERFACES_DIR@
-FUSE_CFLAGS = @FUSE_CFLAGS@
-FUSE_LIBS = @FUSE_LIBS@
+FUSE3_CFLAGS = @FUSE3_CFLAGS@
+FUSE3_LIBS = @FUSE3_LIBS@
 GDBUS_CODEGEN = @GDBUS_CODEGEN@
+GDK_PIXBUF_CFLAGS = @GDK_PIXBUF_CFLAGS@
+GDK_PIXBUF_LIBS = @GDK_PIXBUF_LIBS@
 GENHTML = @GENHTML@
 GEOCLUE_CFLAGS = @GEOCLUE_CFLAGS@
 GEOCLUE_LIBS = @GEOCLUE_LIBS@
@@ -974,6 +1014,8 @@ GETTEXT_MACRO_VERSION = @GETTEXT_MACRO_VERSION@
 GETTEXT_PACKAGE = @GETTEXT_PACKAGE@
 GLIB260_CFLAGS = @GLIB260_CFLAGS@
 GLIB260_LIBS = @GLIB260_LIBS@
+GLIB266_CFLAGS = @GLIB266_CFLAGS@
+GLIB266_LIBS = @GLIB266_LIBS@
 GLIB_COMPILE_RESOURCES = @GLIB_COMPILE_RESOURCES@
 GMSGFMT = @GMSGFMT@
 GMSGFMT_015 = @GMSGFMT_015@
@@ -1033,6 +1075,8 @@ SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STRIP = @STRIP@
+SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
+SYSTEMD_LIBS = @SYSTEMD_LIBS@
 USE_NLS = @USE_NLS@
 VERSION = @VERSION@
 XGETTEXT = @XGETTEXT@
@@ -1163,6 +1207,61 @@ all_test_ltlibs = $(test_ltlibraries) $(uninstalled_test_ltlibraries) $(installe
 @ENABLE_INSTALLED_TESTS_TRUE@                      $(dist_test_scripts) $(dist_installed_test_scripts)
 
 @ENABLE_INSTALLED_TESTS_TRUE@installed_test_meta_DATA = $(installed_testcases:=.test)
+PORTAL_IFACE_FILES = \
+	$(top_srcdir)/data/org.freedesktop.portal.Account.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Background.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Camera.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Device.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Documents.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.DynamicLauncher.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Email.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.FileChooser.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.FileTransfer.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.GameMode.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Inhibit.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Location.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.MemoryMonitor.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.NetworkMonitor.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Notification.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.OpenURI.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.PowerProfileMonitor.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Print.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.ProxyResolver.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Realtime.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.RemoteDesktop.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Request.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.ScreenCast.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Screenshot.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Secret.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Session.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Settings.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Trash.xml \
+	$(top_srcdir)/data/org.freedesktop.portal.Wallpaper.xml \
+	$(NULL)
+
+PORTAL_IMPL_IFACE_FILES = \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Access.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Account.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.AppChooser.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Background.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.DynamicLauncher.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Email.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.FileChooser.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Inhibit.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Lockdown.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Notification.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.PermissionStore.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Print.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.RemoteDesktop.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Request.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.ScreenCast.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Screenshot.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Secret.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Session.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Settings.xml \
+	$(top_srcdir)/data/org.freedesktop.impl.portal.Wallpaper.xml \
+	$(NULL)
+
 SUBDIRS = doc po
 dbus_servicedir = $(DBUS_SERVICE_DIR)
 service_in_files = $(NULL) \
@@ -1183,60 +1282,12 @@ systemduserunit_DATA = $(NULL) \
 ACLOCAL_AMFLAGS = --install -I m4 ${ACLOCAL_FLAGS}
 AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"xdg-desktop-portal\"			\
+	-DLIBEXECDIR=\"$(libexecdir)\" \
 	$(NULL)
 
 lib_LTLIBRARIES = 
 introspectiondir = $(datadir)/dbus-1/interfaces
-dist_introspection_DATA = \
-	data/org.freedesktop.portal.Account.xml \
-	data/org.freedesktop.portal.Background.xml \
-	data/org.freedesktop.portal.Camera.xml \
-	data/org.freedesktop.portal.Device.xml \
-	data/org.freedesktop.portal.Documents.xml \
-	data/org.freedesktop.portal.Email.xml \
-	data/org.freedesktop.portal.FileChooser.xml \
-	data/org.freedesktop.portal.FileTransfer.xml \
-	data/org.freedesktop.portal.GameMode.xml \
-	data/org.freedesktop.portal.Inhibit.xml \
-	data/org.freedesktop.portal.Location.xml \
-	data/org.freedesktop.portal.MemoryMonitor.xml \
-	data/org.freedesktop.portal.NetworkMonitor.xml \
-	data/org.freedesktop.portal.Notification.xml \
-	data/org.freedesktop.portal.OpenURI.xml \
-	data/org.freedesktop.portal.PowerProfileMonitor.xml \
-	data/org.freedesktop.portal.Print.xml \
-	data/org.freedesktop.portal.ProxyResolver.xml \
-	data/org.freedesktop.portal.RemoteDesktop.xml \
-	data/org.freedesktop.portal.Realtime.xml \
-	data/org.freedesktop.portal.Request.xml \
-	data/org.freedesktop.portal.ScreenCast.xml \
-	data/org.freedesktop.portal.Screenshot.xml \
-	data/org.freedesktop.portal.Secret.xml \
-	data/org.freedesktop.portal.Session.xml \
-	data/org.freedesktop.portal.Settings.xml \
-	data/org.freedesktop.portal.Trash.xml \
-	data/org.freedesktop.portal.Wallpaper.xml \
-	data/org.freedesktop.impl.portal.Access.xml \
-	data/org.freedesktop.impl.portal.Account.xml \
-	data/org.freedesktop.impl.portal.AppChooser.xml \
-	data/org.freedesktop.impl.portal.Background.xml \
-	data/org.freedesktop.impl.portal.Email.xml \
-	data/org.freedesktop.impl.portal.FileChooser.xml \
-	data/org.freedesktop.impl.portal.Inhibit.xml \
-	data/org.freedesktop.impl.portal.Lockdown.xml \
-	data/org.freedesktop.impl.portal.Notification.xml \
-	data/org.freedesktop.impl.portal.PermissionStore.xml \
-	data/org.freedesktop.impl.portal.Print.xml \
-	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
-	data/org.freedesktop.impl.portal.Request.xml \
-	data/org.freedesktop.impl.portal.ScreenCast.xml \
-	data/org.freedesktop.impl.portal.Screenshot.xml \
-	data/org.freedesktop.impl.portal.Secret.xml \
-	data/org.freedesktop.impl.portal.Session.xml \
-	data/org.freedesktop.impl.portal.Settings.xml \
-	data/org.freedesktop.impl.portal.Wallpaper.xml	\
-	$(NULL)
-
+dist_introspection_DATA = $(PORTAL_IFACE_FILES) $(PORTAL_IMPL_IFACE_FILES)
 nodist_xdg_permission_store_SOURCES = \
 	document-portal/permission-store-dbus.c \
 	document-portal/permission-store-dbus.h \
@@ -1255,14 +1306,16 @@ DB_SOURCES = \
 xdg_permission_store_SOURCES = \
 	src/xdp-utils.c	\
 	src/xdp-utils.h	\
+	src/sd-escape.c	\
+	src/sd-escape.h	\
 	document-portal/permission-store.c	\
 	document-portal/xdg-permission-store.c	\
 	document-portal/xdg-permission-store.h	\
 	$(DB_SOURCES) \
 	$(NULL)
 
-xdg_permission_store_LDADD = $(AM_LDADD) $(BASE_LIBS)
-xdg_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) -I$(srcdir)/document-portal -I$(builddir)/document-portal
+xdg_permission_store_LDADD = $(AM_LDADD) $(BASE_LIBS) $(SYSTEMD_LIBS)
+xdg_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(SYSTEMD_CFLAGS) -I$(srcdir)/document-portal -I$(builddir)/document-portal
 nodist_xdg_document_portal_SOURCES = \
 	$(nodist_xdg_permission_store_SOURCES) \
 	document-portal/document-portal-dbus.c \
@@ -1272,6 +1325,8 @@ nodist_xdg_document_portal_SOURCES = \
 xdg_document_portal_SOURCES = \
 	src/xdp-utils.c	\
 	src/xdp-utils.h	\
+	src/sd-escape.c	\
+	src/sd-escape.h	\
 	document-portal/document-portal.h		\
 	document-portal/document-portal.c		\
 	document-portal/file-transfer.h			\
@@ -1284,63 +1339,11 @@ xdg_document_portal_SOURCES = \
 	$(DB_SOURCES) \
 	$(NULL)
 
-xdg_document_portal_LDADD = $(AM_LDADD) $(BASE_LIBS) $(FUSE_LIBS)
-xdg_document_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)  $(FUSE_CFLAGS) -I$(srcdir)/document-portal -I$(builddir)/document-portal
+xdg_document_portal_LDADD = $(AM_LDADD) $(BASE_LIBS) $(FUSE3_LIBS) $(SYSTEMD_LIBS)
+xdg_document_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)  $(FUSE3_CFLAGS) $(SYSTEMD_CFLAGS) -I$(srcdir)/document-portal -I$(builddir)/document-portal
 xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
 xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
 geoclue_built_sources = src/geoclue-dbus.c src/geoclue-dbus.h
-PORTAL_IFACE_FILES = \
-	data/org.freedesktop.portal.Documents.xml \
-	data/org.freedesktop.portal.Request.xml \
-	data/org.freedesktop.portal.Session.xml \
-	data/org.freedesktop.portal.FileChooser.xml \
-	data/org.freedesktop.portal.Trash.xml \
-	data/org.freedesktop.portal.OpenURI.xml \
-	data/org.freedesktop.portal.Print.xml \
-	data/org.freedesktop.portal.MemoryMonitor.xml \
-	data/org.freedesktop.portal.NetworkMonitor.xml \
-	data/org.freedesktop.portal.ProxyResolver.xml \
-	data/org.freedesktop.portal.Screenshot.xml \
-	data/org.freedesktop.portal.Notification.xml \
-	data/org.freedesktop.portal.Inhibit.xml \
-	data/org.freedesktop.portal.Device.xml \
-	data/org.freedesktop.portal.Account.xml \
-	data/org.freedesktop.portal.Email.xml \
-	data/org.freedesktop.portal.ScreenCast.xml \
-	data/org.freedesktop.portal.Realtime.xml \
-	data/org.freedesktop.portal.RemoteDesktop.xml \
-	data/org.freedesktop.portal.Location.xml \
-	data/org.freedesktop.portal.Settings.xml \
-	data/org.freedesktop.portal.Background.xml \
-	data/org.freedesktop.portal.GameMode.xml \
-	data/org.freedesktop.portal.Camera.xml \
-	data/org.freedesktop.portal.Secret.xml \
-	data/org.freedesktop.portal.Wallpaper.xml \
-	data/org.freedesktop.portal.PowerProfileMonitor.xml \
-	$(NULL)
-
-PORTAL_IMPL_IFACE_FILES = \
-	data/org.freedesktop.impl.portal.PermissionStore.xml \
-	data/org.freedesktop.impl.portal.Request.xml \
-	data/org.freedesktop.impl.portal.Session.xml \
-	data/org.freedesktop.impl.portal.FileChooser.xml \
-	data/org.freedesktop.impl.portal.AppChooser.xml \
-	data/org.freedesktop.impl.portal.Print.xml \
-	data/org.freedesktop.impl.portal.Screenshot.xml \
-	data/org.freedesktop.impl.portal.Notification.xml \
-	data/org.freedesktop.impl.portal.Inhibit.xml \
-	data/org.freedesktop.impl.portal.Access.xml \
-	data/org.freedesktop.impl.portal.Account.xml \
-	data/org.freedesktop.impl.portal.Email.xml \
-	data/org.freedesktop.impl.portal.ScreenCast.xml \
-	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
-	data/org.freedesktop.impl.portal.Settings.xml \
-	data/org.freedesktop.impl.portal.Lockdown.xml \
-	data/org.freedesktop.impl.portal.Background.xml \
-	data/org.freedesktop.impl.portal.Secret.xml \
-	data/org.freedesktop.impl.portal.Wallpaper.xml \
-	$(NULL)
-
 xdg_desktop_resource_files = $(shell $(GLIB_COMPILE_RESOURCES) --sourcedir=$(srcdir) --generate-dependencies $(srcdir)/src/xdg-desktop-portal.gresource.xml)
 nodist_xdg_desktop_portal_SOURCES = \
 	$(xdp_dbus_built_sources)		\
@@ -1358,7 +1361,8 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
 	src/notification.c src/notification.h src/inhibit.c \
 	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/realtime.c src/realtime.h src/request.c \
+	src/account.h src/realtime.c src/realtime.h \
+	src/dynamic-launcher.c src/dynamic-launcher.h src/request.c \
 	src/request.h src/call.c src/call.h src/documents.c \
 	src/documents.h src/permissions.c src/permissions.h \
 	src/email.c src/email.h src/settings.c src/settings.h \
@@ -1368,11 +1372,12 @@ xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
 	src/gamemode.c src/gamemode.h src/secret.c src/secret.h \
 	src/flatpak-instance.c src/flatpak-instance.h \
 	src/portal-impl.h src/portal-impl.c $(NULL) $(am__append_14) \
-	$(am__append_15)
+	$(am__append_15) $(am__append_16)
 xdg_desktop_portal_LDADD = \
 	$(BASE_LIBS) \
 	$(PIPEWIRE_LIBS) \
 	$(GEOCLUE_LIBS) \
+	$(SYSTEMD_LIBS) \
 	$(NULL)
 
 xdg_desktop_portal_CFLAGS = \
@@ -1382,6 +1387,7 @@ xdg_desktop_portal_CFLAGS = \
 	$(BASE_CFLAGS) \
 	$(PIPEWIRE_CFLAGS) \
 	$(GEOCLUE_CFLAGS) \
+	$(SYSTEMD_CFLAGS) \
 	-I$(srcdir)/src \
 	-I$(builddir)/src \
 	-I$(srcdir)/document-portal \
@@ -1392,6 +1398,9 @@ xdg_desktop_portal_CPPFLAGS = \
 	-DLOCALEDIR=\"$(localedir)\"			\
 	$(NULL)
 
+xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
+xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
 tests_test_backends_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
 tests_test_backends_LDADD = \
 	$(AM_LDADD) \
@@ -1450,11 +1459,11 @@ testdb_LDADD = \
 	$(NULL)
 
 testdb_SOURCES = tests/testdb.c	$(DB_SOURCES)
-test_doc_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(FUSE_CFLAGS)
+test_doc_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(FUSE3_CFLAGS)
 test_doc_portal_LDADD = \
 	$(AM_LDADD) \
 	$(BASE_LIBS) \
-	$(FUSE_LIBS) \
+	$(FUSE3_LIBS) \
 	$(NULL)
 
 test_doc_portal_SOURCES = \
@@ -1468,37 +1477,49 @@ test_doc_portal_SOURCES = \
 nodist_test_doc_portal_SOURCES = document-portal/document-portal-dbus.c
 EXTRA_test_doc_portal_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
 test_portals_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(LIBPORTAL_CFLAGS) \
-	$(am__append_16)
+	$(SYSTEMD_LIBS) $(am__append_17)
 test_portals_LDADD = $(AM_LDADD) $(BASE_LIBS) $(LIBPORTAL_LIBS) \
-	$(NULL) $(am__append_17)
-test_portals_SOURCES = tests/test-portals.c $(am__append_18)
+	$(SYSTEMD_LIBS) $(NULL) $(am__append_18)
+test_portals_SOURCES = tests/test-portals.c $(am__append_19)
 test_portals_CPPFLAGS = $(AM_CPPFLAGS) -DLIBEXECDIR=\"$(libexecdir)\"
 nodist_test_portals_SOURCES = \
 	src/xdp-dbus.c \
 	src/xdp-impl-dbus.c \
 	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
         document-portal/permission-store-dbus.c \
 		tests/utils.c \
 		tests/utils.h \
 	$(NULL)
 
-test_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
+test_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(SYSTEMD_CFLAGS)
 test_permission_store_LDADD = \
 	$(AM_LDADD) \
 	$(BASE_LIBS) \
+	$(SYSTEMD_LIBS) \
 	$(NULL)
 
 test_permission_store_SOURCES = tests/test-permission-store.c
 nodist_test_permission_store_SOURCES = \
-	document-portal/permission-store-dbus.c src/xdp-utils.c \
+	document-portal/permission-store-dbus.c \
+	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
 	tests/utils.c \
 	tests/utils.h \
 	$(NULL)
 
 EXTRA_test_permission_store_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
-test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
-test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS)
-test_xdp_utils_SOURCES = tests/test-xdp-utils.c src/xdp-utils.c
+test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(SYSTEMD_CFLAGS)
+test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS) $(SYSTEMD_LIBS)
+test_xdp_utils_SOURCES = \
+	tests/test-xdp-utils.c \
+	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
+	$(NULL)
+
 installed_test_dbsdir = $(installed_testdir)/dbs
 installed_test_portalsdir = $(installed_testdir)/portals
 @ENABLE_INSTALLED_TESTS_TRUE@dist_installed_test_dbs_DATA = tests/dbs/no_tables
@@ -1530,7 +1551,7 @@ all: $(BUILT_SOURCES) config.h
 .SUFFIXES: .c .lo .log .o .obj .test .test$(EXEEXT) .trs
 am--refresh: Makefile
 	@:
-$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/glib-tap.mk $(srcdir)/data/Makefile.am.inc $(srcdir)/document-portal/Makefile.am.inc $(srcdir)/src/Makefile.am.inc $(srcdir)/tests/backend/Makefile.am.inc $(srcdir)/tests/Makefile.am.inc $(am__configure_deps)
+$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/glib-tap.mk $(top_srcdir)/Makefile.am.inc $(srcdir)/data/Makefile.am.inc $(srcdir)/document-portal/Makefile.am.inc $(srcdir)/src/Makefile.am.inc $(srcdir)/tests/backend/Makefile.am.inc $(srcdir)/tests/Makefile.am.inc $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
 	    *$$dep*) \
@@ -1552,7 +1573,7 @@ Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles)'; \
 	    cd $(top_builddir) && $(SHELL) ./config.status $@ $(am__maybe_remake_depfiles);; \
 	esac;
-$(top_srcdir)/glib-tap.mk $(srcdir)/data/Makefile.am.inc $(srcdir)/document-portal/Makefile.am.inc $(srcdir)/src/Makefile.am.inc $(srcdir)/tests/backend/Makefile.am.inc $(srcdir)/tests/Makefile.am.inc $(am__empty):
+$(top_srcdir)/glib-tap.mk $(top_srcdir)/Makefile.am.inc $(srcdir)/data/Makefile.am.inc $(srcdir)/document-portal/Makefile.am.inc $(srcdir)/src/Makefile.am.inc $(srcdir)/tests/backend/Makefile.am.inc $(srcdir)/tests/Makefile.am.inc $(am__empty):
 
 $(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
 	$(SHELL) ./config.status --recheck
@@ -1874,6 +1895,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	@: > src/$(DEPDIR)/$(am__dirstamp)
 src/test_permission_store-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/test_permission_store-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 tests/test_permission_store-utils.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 
@@ -1916,6 +1939,8 @@ src/test_portals-xdp-impl-dbus.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/test_portals-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/test_portals-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 document-portal/test_portals-permission-store-dbus.$(OBJEXT):  \
 	document-portal/$(am__dirstamp) \
 	document-portal/$(DEPDIR)/$(am__dirstamp)
@@ -1928,6 +1953,8 @@ test-portals$(EXEEXT): $(test_portals_OBJECTS) $(test_portals_DEPENDENCIES) $(EX
 tests/test_xdp_utils-test-xdp-utils.$(OBJEXT): tests/$(am__dirstamp) \
 	tests/$(DEPDIR)/$(am__dirstamp)
 src/test_xdp_utils-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/test_xdp_utils-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 
 test-xdp-utils$(EXEEXT): $(test_xdp_utils_OBJECTS) $(test_xdp_utils_DEPENDENCIES) $(EXTRA_test_xdp_utils_DEPENDENCIES) 
@@ -2044,6 +2071,8 @@ src/xdg_desktop_portal-account.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-realtime.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-dynamic-launcher.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-request.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-call.$(OBJEXT): src/$(am__dirstamp) \
@@ -2074,6 +2103,8 @@ src/xdg_desktop_portal-flatpak-instance.$(OBJEXT):  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-portal-impl.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-screen-cast.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-remote-desktop.$(OBJEXT): src/$(am__dirstamp) \
@@ -2096,7 +2127,15 @@ src/xdg_desktop_portal-xdg-desktop-resources.$(OBJEXT):  \
 xdg-desktop-portal$(EXEEXT): $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_DEPENDENCIES) 
 	@rm -f xdg-desktop-portal$(EXEEXT)
 	$(AM_V_CCLD)$(xdg_desktop_portal_LINK) $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_LDADD) $(LIBS)
+src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+xdg-desktop-portal-validate-icon$(EXEEXT): $(xdg_desktop_portal_validate_icon_OBJECTS) $(xdg_desktop_portal_validate_icon_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_validate_icon_DEPENDENCIES) 
+	@rm -f xdg-desktop-portal-validate-icon$(EXEEXT)
+	$(AM_V_CCLD)$(xdg_desktop_portal_validate_icon_LINK) $(xdg_desktop_portal_validate_icon_OBJECTS) $(xdg_desktop_portal_validate_icon_LDADD) $(LIBS)
 src/xdg_document_portal-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_document_portal-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 document-portal/xdg_document_portal-document-portal.$(OBJEXT):  \
 	document-portal/$(am__dirstamp) \
@@ -2130,6 +2169,8 @@ xdg-document-portal$(EXEEXT): $(xdg_document_portal_OBJECTS) $(xdg_document_port
 	@rm -f xdg-document-portal$(EXEEXT)
 	$(AM_V_CCLD)$(xdg_document_portal_LINK) $(xdg_document_portal_OBJECTS) $(xdg_document_portal_LDADD) $(LIBS)
 src/xdg_permission_store-xdp-utils.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_permission_store-sd-escape.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 document-portal/xdg_permission_store-permission-store.$(OBJEXT):  \
 	document-portal/$(am__dirstamp) \
@@ -2221,10 +2262,13 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/gvdb/$(DEPDIR)/xdg_document_portal-gvdb-reader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-builder.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_permission_store-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_permission_store-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_portals-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_xdp_utils-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-account.Po@am__quote@ # am--include-marker
@@ -2233,6 +2277,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-camera.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-device.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-documents.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-email.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po@am__quote@ # am--include-marker
@@ -2255,6 +2300,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-request.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-screenshot.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-secret.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-session.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-settings.Po@am__quote@ # am--include-marker
@@ -2265,7 +2311,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_permission_store-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_backends-glib-backports.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po@am__quote@ # am--include-marker
@@ -2435,6 +2484,20 @@ src/test_permission_store-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/test_permission_store-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o src/test_permission_store-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+
+src/test_permission_store-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -MT src/test_permission_store-sd-escape.o -MD -MP -MF src/$(DEPDIR)/test_permission_store-sd-escape.Tpo -c -o src/test_permission_store-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_permission_store-sd-escape.Tpo src/$(DEPDIR)/test_permission_store-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_permission_store-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o src/test_permission_store-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/test_permission_store-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -MT src/test_permission_store-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/test_permission_store-sd-escape.Tpo -c -o src/test_permission_store-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_permission_store-sd-escape.Tpo src/$(DEPDIR)/test_permission_store-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_permission_store-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -c -o src/test_permission_store-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
 
 tests/test_permission_store-utils.o: tests/utils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_permission_store_CFLAGS) $(CFLAGS) -MT tests/test_permission_store-utils.o -MD -MP -MF tests/$(DEPDIR)/test_permission_store-utils.Tpo -c -o tests/test_permission_store-utils.o `test -f 'tests/utils.c' || echo '$(srcdir)/'`tests/utils.c
@@ -2702,6 +2765,20 @@ src/test_portals-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o src/test_portals-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
 
+src/test_portals-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT src/test_portals-sd-escape.o -MD -MP -MF src/$(DEPDIR)/test_portals-sd-escape.Tpo -c -o src/test_portals-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_portals-sd-escape.Tpo src/$(DEPDIR)/test_portals-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_portals-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o src/test_portals-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/test_portals-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT src/test_portals-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/test_portals-sd-escape.Tpo -c -o src/test_portals-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_portals-sd-escape.Tpo src/$(DEPDIR)/test_portals-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_portals-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -c -o src/test_portals-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+
 document-portal/test_portals-permission-store-dbus.o: document-portal/permission-store-dbus.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(test_portals_CPPFLAGS) $(CPPFLAGS) $(test_portals_CFLAGS) $(CFLAGS) -MT document-portal/test_portals-permission-store-dbus.o -MD -MP -MF document-portal/$(DEPDIR)/test_portals-permission-store-dbus.Tpo -c -o document-portal/test_portals-permission-store-dbus.o `test -f 'document-portal/permission-store-dbus.c' || echo '$(srcdir)/'`document-portal/permission-store-dbus.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) document-portal/$(DEPDIR)/test_portals-permission-store-dbus.Tpo document-portal/$(DEPDIR)/test_portals-permission-store-dbus.Po
@@ -2757,6 +2834,20 @@ src/test_xdp_utils-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/test_xdp_utils-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o src/test_xdp_utils-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+
+src/test_xdp_utils-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT src/test_xdp_utils-sd-escape.o -MD -MP -MF src/$(DEPDIR)/test_xdp_utils-sd-escape.Tpo -c -o src/test_xdp_utils-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_xdp_utils-sd-escape.Tpo src/$(DEPDIR)/test_xdp_utils-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_xdp_utils-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o src/test_xdp_utils-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/test_xdp_utils-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -MT src/test_xdp_utils-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/test_xdp_utils-sd-escape.Tpo -c -o src/test_xdp_utils-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/test_xdp_utils-sd-escape.Tpo src/$(DEPDIR)/test_xdp_utils-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/test_xdp_utils-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(test_xdp_utils_CFLAGS) $(CFLAGS) -c -o src/test_xdp_utils-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
 
 tests/testdb-testdb.o: tests/testdb.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(testdb_CFLAGS) $(CFLAGS) -MT tests/testdb-testdb.o -MD -MP -MF tests/$(DEPDIR)/testdb-testdb.Tpo -c -o tests/testdb-testdb.o `test -f 'tests/testdb.c' || echo '$(srcdir)/'`tests/testdb.c
@@ -3262,6 +3353,20 @@ src/xdg_desktop_portal-realtime.obj: src/realtime.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-realtime.obj `if test -f 'src/realtime.c'; then $(CYGPATH_W) 'src/realtime.c'; else $(CYGPATH_W) '$(srcdir)/src/realtime.c'; fi`
 
+src/xdg_desktop_portal-dynamic-launcher.o: src/dynamic-launcher.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-dynamic-launcher.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Tpo -c -o src/xdg_desktop_portal-dynamic-launcher.o `test -f 'src/dynamic-launcher.c' || echo '$(srcdir)/'`src/dynamic-launcher.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Tpo src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/dynamic-launcher.c' object='src/xdg_desktop_portal-dynamic-launcher.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-dynamic-launcher.o `test -f 'src/dynamic-launcher.c' || echo '$(srcdir)/'`src/dynamic-launcher.c
+
+src/xdg_desktop_portal-dynamic-launcher.obj: src/dynamic-launcher.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-dynamic-launcher.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Tpo -c -o src/xdg_desktop_portal-dynamic-launcher.obj `if test -f 'src/dynamic-launcher.c'; then $(CYGPATH_W) 'src/dynamic-launcher.c'; else $(CYGPATH_W) '$(srcdir)/src/dynamic-launcher.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Tpo src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/dynamic-launcher.c' object='src/xdg_desktop_portal-dynamic-launcher.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-dynamic-launcher.obj `if test -f 'src/dynamic-launcher.c'; then $(CYGPATH_W) 'src/dynamic-launcher.c'; else $(CYGPATH_W) '$(srcdir)/src/dynamic-launcher.c'; fi`
+
 src/xdg_desktop_portal-request.o: src/request.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-request.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-request.Tpo -c -o src/xdg_desktop_portal-request.o `test -f 'src/request.c' || echo '$(srcdir)/'`src/request.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-request.Tpo src/$(DEPDIR)/xdg_desktop_portal-request.Po
@@ -3472,6 +3577,20 @@ src/xdg_desktop_portal-portal-impl.obj: src/portal-impl.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-portal-impl.obj `if test -f 'src/portal-impl.c'; then $(CYGPATH_W) 'src/portal-impl.c'; else $(CYGPATH_W) '$(srcdir)/src/portal-impl.c'; fi`
 
+src/xdg_desktop_portal-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-sd-escape.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Tpo -c -o src/xdg_desktop_portal-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Tpo src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_desktop_portal-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/xdg_desktop_portal-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Tpo -c -o src/xdg_desktop_portal-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Tpo src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_desktop_portal-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+
 src/xdg_desktop_portal-screen-cast.o: src/screen-cast.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-screen-cast.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Tpo -c -o src/xdg_desktop_portal-screen-cast.o `test -f 'src/screen-cast.c' || echo '$(srcdir)/'`src/screen-cast.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Tpo src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
@@ -3598,6 +3717,20 @@ src/xdg_desktop_portal-xdg-desktop-resources.obj: src/xdg-desktop-resources.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-xdg-desktop-resources.obj `if test -f 'src/xdg-desktop-resources.c'; then $(CYGPATH_W) 'src/xdg-desktop-resources.c'; else $(CYGPATH_W) '$(srcdir)/src/xdg-desktop-resources.c'; fi`
 
+src/xdg_desktop_portal_validate_icon-validate-icon.o: src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/validate-icon.c' object='src/xdg_desktop_portal_validate_icon-validate-icon.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
+
+src/xdg_desktop_portal_validate_icon-validate-icon.obj: src/validate-icon.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.obj `if test -f 'src/validate-icon.c'; then $(CYGPATH_W) 'src/validate-icon.c'; else $(CYGPATH_W) '$(srcdir)/src/validate-icon.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/validate-icon.c' object='src/xdg_desktop_portal_validate_icon-validate-icon.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_validate_icon-validate-icon.obj `if test -f 'src/validate-icon.c'; then $(CYGPATH_W) 'src/validate-icon.c'; else $(CYGPATH_W) '$(srcdir)/src/validate-icon.c'; fi`
+
 src/xdg_document_portal-xdp-utils.o: src/xdp-utils.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT src/xdg_document_portal-xdp-utils.o -MD -MP -MF src/$(DEPDIR)/xdg_document_portal-xdp-utils.Tpo -c -o src/xdg_document_portal-xdp-utils.o `test -f 'src/xdp-utils.c' || echo '$(srcdir)/'`src/xdp-utils.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_document_portal-xdp-utils.Tpo src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
@@ -3611,6 +3744,20 @@ src/xdg_document_portal-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/xdg_document_portal-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_document_portal-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+
+src/xdg_document_portal-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT src/xdg_document_portal-sd-escape.o -MD -MP -MF src/$(DEPDIR)/xdg_document_portal-sd-escape.Tpo -c -o src/xdg_document_portal-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_document_portal-sd-escape.Tpo src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_document_portal-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_document_portal-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/xdg_document_portal-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT src/xdg_document_portal-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/xdg_document_portal-sd-escape.Tpo -c -o src/xdg_document_portal-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_document_portal-sd-escape.Tpo src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_document_portal-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_document_portal-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
 
 document-portal/xdg_document_portal-document-portal.o: document-portal/document-portal.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_document_portal_CFLAGS) $(CFLAGS) -MT document-portal/xdg_document_portal-document-portal.o -MD -MP -MF document-portal/$(DEPDIR)/xdg_document_portal-document-portal.Tpo -c -o document-portal/xdg_document_portal-document-portal.o `test -f 'document-portal/document-portal.c' || echo '$(srcdir)/'`document-portal/document-portal.c
@@ -3751,6 +3898,20 @@ src/xdg_permission_store-xdp-utils.obj: src/xdp-utils.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/xdp-utils.c' object='src/xdg_permission_store-xdp-utils.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -c -o src/xdg_permission_store-xdp-utils.obj `if test -f 'src/xdp-utils.c'; then $(CYGPATH_W) 'src/xdp-utils.c'; else $(CYGPATH_W) '$(srcdir)/src/xdp-utils.c'; fi`
+
+src/xdg_permission_store-sd-escape.o: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -MT src/xdg_permission_store-sd-escape.o -MD -MP -MF src/$(DEPDIR)/xdg_permission_store-sd-escape.Tpo -c -o src/xdg_permission_store-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_permission_store-sd-escape.Tpo src/$(DEPDIR)/xdg_permission_store-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_permission_store-sd-escape.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -c -o src/xdg_permission_store-sd-escape.o `test -f 'src/sd-escape.c' || echo '$(srcdir)/'`src/sd-escape.c
+
+src/xdg_permission_store-sd-escape.obj: src/sd-escape.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -MT src/xdg_permission_store-sd-escape.obj -MD -MP -MF src/$(DEPDIR)/xdg_permission_store-sd-escape.Tpo -c -o src/xdg_permission_store-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_permission_store-sd-escape.Tpo src/$(DEPDIR)/xdg_permission_store-sd-escape.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/sd-escape.c' object='src/xdg_permission_store-sd-escape.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -c -o src/xdg_permission_store-sd-escape.obj `if test -f 'src/sd-escape.c'; then $(CYGPATH_W) 'src/sd-escape.c'; else $(CYGPATH_W) '$(srcdir)/src/sd-escape.c'; fi`
 
 document-portal/xdg_permission_store-permission-store.o: document-portal/permission-store.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_permission_store_CFLAGS) $(CFLAGS) -MT document-portal/xdg_permission_store-permission-store.o -MD -MP -MF document-portal/$(DEPDIR)/xdg_permission_store-permission-store.Tpo -c -o document-portal/xdg_permission_store-permission-store.o `test -f 'document-portal/permission-store.c' || echo '$(srcdir)/'`document-portal/permission-store.c
@@ -4631,10 +4792,13 @@ distclean: distclean-recursive
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_document_portal-gvdb-reader.Po
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-builder.Po
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po
+	-rm -f src/$(DEPDIR)/test_permission_store-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_permission_store-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_portals-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_xdp_utils-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
@@ -4643,6 +4807,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-camera.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
@@ -4665,6 +4830,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-request.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screenshot.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-secret.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-session.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-settings.Po
@@ -4675,7 +4841,10 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_permission_store-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
@@ -4796,10 +4965,13 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_document_portal-gvdb-reader.Po
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-builder.Po
 	-rm -f document-portal/gvdb/$(DEPDIR)/xdg_permission_store-gvdb-reader.Po
+	-rm -f src/$(DEPDIR)/test_permission_store-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_permission_store-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_portals-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/test_portals-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/test_xdp_utils-sd-escape.Po
 	-rm -f src/$(DEPDIR)/test_xdp_utils-xdp-utils.Po
 	-rm -f src/$(DEPDIR)/tests_test_backends-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-account.Po
@@ -4808,6 +4980,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-camera.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-device.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-documents.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-dynamic-launcher.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-email.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-file-chooser.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
@@ -4830,6 +5003,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-request.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screen-cast.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-screenshot.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-secret.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-session.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-settings.Po
@@ -4840,7 +5014,10 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
+	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_permission_store-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_permission_store-xdp-utils.Po
 	-rm -f tests/$(DEPDIR)/test_backends-glib-backports.Po
 	-rm -f tests/$(DEPDIR)/test_doc_portal-can-use-fuse.Po
