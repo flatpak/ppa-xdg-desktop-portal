@@ -95,7 +95,11 @@ send_response_in_thread_func (GTask        *task,
       g_autofree char *ruri = NULL;
       g_autoptr(GError) error = NULL;
 
-      ruri = register_document (image, xdp_app_info_get_id (request->app_info), FALSE, FALSE, FALSE, &error);
+      if (xdp_app_info_is_host (request->app_info))
+        ruri = g_strdup (image);
+      else
+        ruri = register_document (image, xdp_app_info_get_id (request->app_info), FALSE, FALSE, FALSE, &error);
+
       if (ruri == NULL)
         g_warning ("Failed to register %s: %s", image, error->message);
       else
@@ -191,7 +195,7 @@ handle_get_user_information (XdpAccount *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -215,7 +219,7 @@ handle_get_user_information (XdpAccount *object,
 
   xdp_account_complete_get_user_information (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void

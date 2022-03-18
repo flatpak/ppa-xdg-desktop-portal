@@ -301,7 +301,8 @@ handle_request_background_in_thread_func (GTask *task,
 
   autostart_enabled = FALSE;
 
-  commandline = xdp_app_info_rewrite_commandline (request->app_info, autostart_exec);
+  commandline = xdp_app_info_rewrite_commandline (request->app_info, autostart_exec,
+                                                  FALSE /* don't quote escape */);
   if (commandline == NULL)
     {
       g_debug ("Autostart not supported for: %s", app_id);
@@ -411,7 +412,7 @@ handle_request_background (XdpBackground *object,
                            &error))
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   options = g_variant_ref_sink (g_variant_builder_end (&opt_builder));
@@ -427,7 +428,7 @@ handle_request_background (XdpBackground *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -439,7 +440,7 @@ handle_request_background (XdpBackground *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_request_background_in_thread_func);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -653,6 +654,7 @@ notify_background_done (GObject *source,
                                                           res,
                                                           &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Error from background backend: %s", error->message);
       notification_data_free (nd);
       return;

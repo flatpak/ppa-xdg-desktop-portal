@@ -1,23 +1,32 @@
 /*
- * Copyright © 2015 Red Hat, Inc
+ * Copyright © 2022 Matthew Leeds
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
+ * version 2 of the License, or (at your option) any later version.
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library. If not, see <http://www.gnu.org/licenses/>.
  *
  * Authors:
- *       Alexander Larsson <alexl@redhat.com>
+ *       Matthew Leeds <mwleeds@protonmail.com>
  */
 
 #pragma once
 
-void xdg_permission_store_start (GDBusConnection *connection);
+#include "config.h"
+
+#ifdef HAVE_GLIB_2_66
+
+#include <gio/gio.h>
+
+GDBusInterfaceSkeleton * dynamic_launcher_create (GDBusConnection *connection,
+                                                  const char      *dbus_name);
+
+#endif

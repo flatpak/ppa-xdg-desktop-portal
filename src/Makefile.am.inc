@@ -1,5 +1,6 @@
 libexec_PROGRAMS += \
 	xdg-desktop-portal \
+	xdg-desktop-portal-validate-icon \
 	$(NULL)
 
 service_in_files += \
@@ -14,58 +15,6 @@ xdp_dbus_built_sources = src/xdp-dbus.c src/xdp-dbus.h
 xdp_impl_dbus_built_sources = src/xdp-impl-dbus.c src/xdp-impl-dbus.h
 geoclue_built_sources = src/geoclue-dbus.c src/geoclue-dbus.h
 BUILT_SOURCES += $(xdp_dbus_built_sources) $(xdp_impl_dbus_built_sources) $(geoclue_built_sources)
-
-PORTAL_IFACE_FILES =\
-	data/org.freedesktop.portal.Documents.xml \
-	data/org.freedesktop.portal.Request.xml \
-	data/org.freedesktop.portal.Session.xml \
-	data/org.freedesktop.portal.FileChooser.xml \
-	data/org.freedesktop.portal.Trash.xml \
-	data/org.freedesktop.portal.OpenURI.xml \
-	data/org.freedesktop.portal.Print.xml \
-	data/org.freedesktop.portal.MemoryMonitor.xml \
-	data/org.freedesktop.portal.NetworkMonitor.xml \
-	data/org.freedesktop.portal.ProxyResolver.xml \
-	data/org.freedesktop.portal.Screenshot.xml \
-	data/org.freedesktop.portal.Notification.xml \
-	data/org.freedesktop.portal.Inhibit.xml \
-	data/org.freedesktop.portal.Device.xml \
-	data/org.freedesktop.portal.Account.xml \
-	data/org.freedesktop.portal.Email.xml \
-	data/org.freedesktop.portal.ScreenCast.xml \
-	data/org.freedesktop.portal.Realtime.xml \
-	data/org.freedesktop.portal.RemoteDesktop.xml \
-	data/org.freedesktop.portal.Location.xml \
-	data/org.freedesktop.portal.Settings.xml \
-	data/org.freedesktop.portal.Background.xml \
-	data/org.freedesktop.portal.GameMode.xml \
-	data/org.freedesktop.portal.Camera.xml \
-	data/org.freedesktop.portal.Secret.xml \
-	data/org.freedesktop.portal.Wallpaper.xml \
-	data/org.freedesktop.portal.PowerProfileMonitor.xml \
-	$(NULL)
-
-PORTAL_IMPL_IFACE_FILES =\
-	data/org.freedesktop.impl.portal.PermissionStore.xml \
-	data/org.freedesktop.impl.portal.Request.xml \
-	data/org.freedesktop.impl.portal.Session.xml \
-	data/org.freedesktop.impl.portal.FileChooser.xml \
-	data/org.freedesktop.impl.portal.AppChooser.xml \
-	data/org.freedesktop.impl.portal.Print.xml \
-	data/org.freedesktop.impl.portal.Screenshot.xml \
-	data/org.freedesktop.impl.portal.Notification.xml \
-	data/org.freedesktop.impl.portal.Inhibit.xml \
-	data/org.freedesktop.impl.portal.Access.xml \
-	data/org.freedesktop.impl.portal.Account.xml \
-	data/org.freedesktop.impl.portal.Email.xml \
-	data/org.freedesktop.impl.portal.ScreenCast.xml \
-	data/org.freedesktop.impl.portal.RemoteDesktop.xml \
-	data/org.freedesktop.impl.portal.Settings.xml \
-	data/org.freedesktop.impl.portal.Lockdown.xml \
-	data/org.freedesktop.impl.portal.Background.xml \
-	data/org.freedesktop.impl.portal.Secret.xml \
-	data/org.freedesktop.impl.portal.Wallpaper.xml \
-	$(NULL)
 
 $(xdp_dbus_built_sources) : $(PORTAL_IFACE_FILES)
 	$(AM_V_GEN) $(GDBUS_CODEGEN)                            \
@@ -144,6 +93,8 @@ xdg_desktop_portal_SOURCES = \
 	src/account.h                   \
 	src/realtime.c                  \
 	src/realtime.h                  \
+	src/dynamic-launcher.c          \
+	src/dynamic-launcher.h          \
 	src/request.c			\
 	src/request.h			\
 	src/call.c			\
@@ -176,6 +127,13 @@ xdg_desktop_portal_SOURCES = \
 	src/portal-impl.c		\
 	$(NULL)
 
+if HAVE_LIBSYSTEMD
+xdg_desktop_portal_SOURCES += \
+	src/sd-escape.c		\
+	src/sd-escape.h		\
+	$(NULL)
+endif
+
 if HAVE_PIPEWIRE
 xdg_desktop_portal_SOURCES += \
 	src/screen-cast.c		\
@@ -200,6 +158,7 @@ xdg_desktop_portal_LDADD = \
 	$(BASE_LIBS) \
 	$(PIPEWIRE_LIBS) \
 	$(GEOCLUE_LIBS) \
+	$(SYSTEMD_LIBS) \
 	$(NULL)
 xdg_desktop_portal_CFLAGS = \
 	-DDATADIR=\"$(datadir)\" \
@@ -208,6 +167,7 @@ xdg_desktop_portal_CFLAGS = \
 	$(BASE_CFLAGS) \
 	$(PIPEWIRE_CFLAGS) \
 	$(GEOCLUE_CFLAGS) \
+	$(SYSTEMD_CFLAGS) \
 	-I$(srcdir)/src \
 	-I$(builddir)/src \
 	-I$(srcdir)/document-portal \
@@ -216,3 +176,7 @@ xdg_desktop_portal_CPPFLAGS = \
 	-DGETTEXT_PACKAGE=\"$(GETTEXT_PACKAGE)\"        \
 	-DLOCALEDIR=\"$(localedir)\"			\
 	$(NULL)
+
+xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
+xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
