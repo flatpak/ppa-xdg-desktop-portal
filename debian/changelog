@@ -1,11 +1,12 @@
-xdg-desktop-portal (1.14.0-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.14.0-1) unstable; urgency=medium
 
   * New upstream release
   * Drop patches restoring the icon validator.
     It has been reinstated upstream.
   * Depend and build-depend on FUSE 3
+  * d/control, d/rules: Build with libsystemd
 
- -- Simon McVittie <smcv@debian.org>  Fri, 18 Mar 2022 09:06:29 +0000
+ -- Simon McVittie <smcv@debian.org>  Fri, 18 Mar 2022 09:17:39 +0000
 
 xdg-desktop-portal (1.12.2-1) unstable; urgency=medium
 
