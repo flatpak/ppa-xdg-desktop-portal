@@ -18,6 +18,7 @@ Build-Depends:
  libjson-glib-dev,
  libpipewire-0.3-dev (>= 0.3.10),
  libportal-dev (>= 0.3),
+ libsystemd-dev,
  pipewire (>= 0.3.10) <!nocheck>,
  procps <!nocheck>,
  python3 <!nocheck>,

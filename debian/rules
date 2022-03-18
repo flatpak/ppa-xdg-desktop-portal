@@ -19,6 +19,7 @@ override_dh_auto_configure:
 		--enable-installed-tests \
 		--enable-libportal \
 		--enable-pipewire \
+		--with-systemd \
 		$(CONFFLAGS)
 		$(NULL)
 
