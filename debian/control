@@ -8,12 +8,12 @@ Build-Depends:
  dbus,
  debhelper-compat (= 13),
  geoclue-2.0 <!nocheck>,
- fuse <!nocheck>,
+ fuse3 <!nocheck>,
  libcap2-bin <!nocheck>,
  libgdk-pixbuf-2.0-dev | libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev (>= 1.5.0),
- libfuse-dev,
+ libfuse3-dev (>= 3.10.0),
  libglib2.0-dev,
  libjson-glib-dev,
  libpipewire-0.3-dev (>= 0.3.10),
@@ -35,7 +35,7 @@ Multi-arch: foreign
 Depends:
  bubblewrap,
  default-dbus-session-bus | dbus-session-bus,
- fuse,
+ fuse3,
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:
