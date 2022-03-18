@@ -1,0 +1,33 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Fri, 18 Mar 2022 10:56:38 +0000
+Subject: Revert "Make x-d-p start on session start"
+
+Under GNOME 41, starting x-d-p "eagerly" on session start results in it
+trying to start a backend such as x-d-p-gnome, which fails to connect to
+the display server and times out; this appears to result in the GNOME
+session getting stuck.
+
+This reverts commit f200147dd4121585114f1e4bb4b1963bf18ceb2d.
+
+Bug: https://github.com/flatpak/xdg-desktop-portal/issues/734
+---
+ src/xdg-desktop-portal.service.in | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/xdg-desktop-portal.service.in b/src/xdg-desktop-portal.service.in
+index 5f33438..1fefde2 100644
+--- a/src/xdg-desktop-portal.service.in
++++ b/src/xdg-desktop-portal.service.in
+@@ -1,12 +1,8 @@
+ [Unit]
+ Description=Portal service
+-PartOf=graphical-session-pre.target
+ 
+ [Service]
+ Type=dbus
+ BusName=org.freedesktop.portal.Desktop
+ ExecStart=@libexecdir@/xdg-desktop-portal
+ Slice=session.slice
+-
+-[Install]
+-WantedBy=graphical-session-pre.target
