@@ -1,8 +1,11 @@
-xdg-desktop-portal (1.14.1-1) UNRELEASED; urgency=medium
+xdg-desktop-portal (1.14.1-1) unstable; urgency=medium
 
   * New upstream release
+  * d/p/Revert-Make-x-d-p-start-on-session-start.patch:
+    Drop patch, the problem was fixed differently upstream
+  * Package the new xdg-desktop-portal-rewrite-launchers executable
 
- -- Simon McVittie <smcv@debian.org>  Sat, 19 Mar 2022 14:04:11 +0000
+ -- Simon McVittie <smcv@debian.org>  Sat, 19 Mar 2022 14:08:29 +0000
 
 xdg-desktop-portal (1.14.0-2) unstable; urgency=medium
 
