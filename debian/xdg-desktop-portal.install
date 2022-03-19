@@ -1,5 +1,6 @@
 usr/lib/systemd/user
 usr/libexec/xdg-desktop-portal
+usr/libexec/xdg-desktop-portal-rewrite-launchers
 usr/libexec/xdg-desktop-portal-validate-icon
 usr/libexec/xdg-document-portal
 usr/libexec/xdg-permission-store
