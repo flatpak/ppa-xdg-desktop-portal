@@ -98,7 +98,8 @@ noinst_PROGRAMS = $(am__EXEEXT_1) $(am__EXEEXT_7)
 libexec_PROGRAMS = $(am__EXEEXT_1) xdg-permission-store$(EXEEXT) \
 	xdg-document-portal$(EXEEXT) $(am__EXEEXT_1) \
 	xdg-desktop-portal$(EXEEXT) \
-	xdg-desktop-portal-validate-icon$(EXEEXT) $(am__EXEEXT_1)
+	xdg-desktop-portal-validate-icon$(EXEEXT) \
+	xdg-desktop-portal-rewrite-launchers$(EXEEXT) $(am__EXEEXT_1)
 TESTS = $(am__EXEEXT_2) $(am__EXEEXT_8)
 installed_test_PROGRAMS = $(am__EXEEXT_6)
 check_PROGRAMS = $(am__EXEEXT_5)
@@ -466,6 +467,17 @@ xdg_desktop_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(xdg_desktop_portal_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
+am_xdg_desktop_portal_rewrite_launchers_OBJECTS = src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.$(OBJEXT)
+nodist_xdg_desktop_portal_rewrite_launchers_OBJECTS =
+xdg_desktop_portal_rewrite_launchers_OBJECTS =  \
+	$(am_xdg_desktop_portal_rewrite_launchers_OBJECTS) \
+	$(nodist_xdg_desktop_portal_rewrite_launchers_OBJECTS)
+xdg_desktop_portal_rewrite_launchers_DEPENDENCIES =  \
+	$(am__DEPENDENCIES_1)
+xdg_desktop_portal_rewrite_launchers_LINK = $(LIBTOOL) $(AM_V_lt) \
+	--tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) \
+	$(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_xdg_desktop_portal_validate_icon_OBJECTS =  \
 	src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT)
 xdg_desktop_portal_validate_icon_OBJECTS =  \
@@ -608,6 +620,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po \
+	src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po \
 	src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po \
 	src/$(DEPDIR)/xdg_document_portal-sd-escape.Po \
 	src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po \
@@ -681,6 +694,8 @@ SOURCES = $(test_doc_portal_SOURCES) $(nodist_test_doc_portal_SOURCES) \
 	$(nodist_tests_test_backends_SOURCES) \
 	$(xdg_desktop_portal_SOURCES) \
 	$(nodist_xdg_desktop_portal_SOURCES) \
+	$(xdg_desktop_portal_rewrite_launchers_SOURCES) \
+	$(nodist_xdg_desktop_portal_rewrite_launchers_SOURCES) \
 	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) \
 	$(nodist_xdg_document_portal_SOURCES) \
@@ -691,6 +706,7 @@ DIST_SOURCES = $(test_doc_portal_SOURCES) \
 	$(am__test_portals_SOURCES_DIST) $(test_xdp_utils_SOURCES) \
 	$(testdb_SOURCES) $(tests_test_backends_SOURCES) \
 	$(am__xdg_desktop_portal_SOURCES_DIST) \
+	$(xdg_desktop_portal_rewrite_launchers_SOURCES) \
 	$(xdg_desktop_portal_validate_icon_SOURCES) \
 	$(xdg_document_portal_SOURCES) $(xdg_permission_store_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
@@ -1270,7 +1286,8 @@ service_in_files = $(NULL) \
 	document-portal/org.freedesktop.impl.portal.PermissionStore.service.in \
 	document-portal/org.freedesktop.portal.Documents.service.in \
 	$(NULL) src/org.freedesktop.portal.Desktop.service.in \
-	src/xdg-desktop-portal.service.in ${NULL}
+	src/xdg-desktop-portal.service.in \
+	src/xdg-desktop-portal-rewrite-launchers.service.in ${NULL}
 dbus_service_DATA = $(NULL) \
 	document-portal/org.freedesktop.impl.portal.PermissionStore.service \
 	document-portal/org.freedesktop.portal.Documents.service \
@@ -1278,7 +1295,8 @@ dbus_service_DATA = $(NULL) \
 systemduserunit_DATA = $(NULL) \
 	document-portal/xdg-permission-store.service \
 	document-portal/xdg-document-portal.service $(NULL) \
-	src/xdg-desktop-portal.service
+	src/xdg-desktop-portal.service \
+	src/xdg-desktop-portal-rewrite-launchers.service
 ACLOCAL_AMFLAGS = --install -I m4 ${ACLOCAL_FLAGS}
 AM_CPPFLAGS = \
 	-DG_LOG_DOMAIN=\"xdg-desktop-portal\"			\
@@ -1401,6 +1419,10 @@ xdg_desktop_portal_CPPFLAGS = \
 xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
 xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
 xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
+xdg_desktop_portal_rewrite_launchers_SOURCES = src/rewrite-launchers.c
+nodist_xdg_desktop_portal_rewrite_launchers_SOURCES = src/dynamic-launcher.h
+xdg_desktop_portal_rewrite_launchers_LDADD = $(BASE_LIBS)
+xdg_desktop_portal_rewrite_launchers_CFLAGS = $(BASE_CFLAGS)
 tests_test_backends_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
 tests_test_backends_LDADD = \
 	$(AM_LDADD) \
@@ -2127,6 +2149,12 @@ src/xdg_desktop_portal-xdg-desktop-resources.$(OBJEXT):  \
 xdg-desktop-portal$(EXEEXT): $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_DEPENDENCIES) 
 	@rm -f xdg-desktop-portal$(EXEEXT)
 	$(AM_V_CCLD)$(xdg_desktop_portal_LINK) $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_LDADD) $(LIBS)
+src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+
+xdg-desktop-portal-rewrite-launchers$(EXEEXT): $(xdg_desktop_portal_rewrite_launchers_OBJECTS) $(xdg_desktop_portal_rewrite_launchers_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_rewrite_launchers_DEPENDENCIES) 
+	@rm -f xdg-desktop-portal-rewrite-launchers$(EXEEXT)
+	$(AM_V_CCLD)$(xdg_desktop_portal_rewrite_launchers_LINK) $(xdg_desktop_portal_rewrite_launchers_OBJECTS) $(xdg_desktop_portal_rewrite_launchers_LDADD) $(LIBS)
 src/xdg_desktop_portal_validate_icon-validate-icon.$(OBJEXT):  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
@@ -2311,6 +2339,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-sd-escape.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po@am__quote@ # am--include-marker
@@ -3717,6 +3746,20 @@ src/xdg_desktop_portal-xdg-desktop-resources.obj: src/xdg-desktop-resources.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-xdg-desktop-resources.obj `if test -f 'src/xdg-desktop-resources.c'; then $(CYGPATH_W) 'src/xdg-desktop-resources.c'; else $(CYGPATH_W) '$(srcdir)/src/xdg-desktop-resources.c'; fi`
 
+src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.o: src/rewrite-launchers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Tpo -c -o src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.o `test -f 'src/rewrite-launchers.c' || echo '$(srcdir)/'`src/rewrite-launchers.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Tpo src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/rewrite-launchers.c' object='src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.o `test -f 'src/rewrite-launchers.c' || echo '$(srcdir)/'`src/rewrite-launchers.c
+
+src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj: src/rewrite-launchers.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Tpo -c -o src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj `if test -f 'src/rewrite-launchers.c'; then $(CYGPATH_W) 'src/rewrite-launchers.c'; else $(CYGPATH_W) '$(srcdir)/src/rewrite-launchers.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Tpo src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/rewrite-launchers.c' object='src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj `if test -f 'src/rewrite-launchers.c'; then $(CYGPATH_W) 'src/rewrite-launchers.c'; else $(CYGPATH_W) '$(srcdir)/src/rewrite-launchers.c'; fi`
+
 src/xdg_desktop_portal_validate_icon-validate-icon.o: src/validate-icon.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
@@ -4841,6 +4884,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
@@ -5014,6 +5058,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-xdp-utils.Po
