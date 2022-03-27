@@ -1,0 +1,11 @@
+#!/bin/sh
+
+set -e
+
+if [ -n "$2" ] && dpkg --compare-versions "$2" ge 1.14.0 && dpkg --compare-versions "$2" lt 1.14.1-1~bpo11+1; then
+    deb-systemd-helper --user disable xdg-desktop-portal.service
+fi
+
+#DEBHELPER#
+
+# vim:set sw=4 sts=4 et:
