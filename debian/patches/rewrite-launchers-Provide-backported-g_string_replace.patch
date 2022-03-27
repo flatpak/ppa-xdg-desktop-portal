@@ -1,0 +1,41 @@
+From: Simon McVittie <smcv@collabora.com>
+Date: Sun, 27 Mar 2022 12:25:54 +0100
+Subject: rewrite-launchers: Provide backported g_string_replace()
+
+This fixes compilation on Debian 11.
+
+Signed-off-by: Simon McVittie <smcv@collabora.com>
+Forwarded: https://github.com/flatpak/xdg-desktop-portal/pull/750
+---
+ src/Makefile.am.inc     | 6 +++++-
+ src/rewrite-launchers.c | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/Makefile.am.inc b/src/Makefile.am.inc
+index 3064793..96cb7e6 100644
+--- a/src/Makefile.am.inc
++++ b/src/Makefile.am.inc
+@@ -187,6 +187,10 @@ xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
+ xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
+ 
+ xdg_desktop_portal_rewrite_launchers_SOURCES = src/rewrite-launchers.c
+-nodist_xdg_desktop_portal_rewrite_launchers_SOURCES = src/dynamic-launcher.h
++nodist_xdg_desktop_portal_rewrite_launchers_SOURCES = \
++	src/dynamic-launcher.h \
++	src/glib-backports.c \
++	src/glib-backports.h \
++	$(NULL)
+ xdg_desktop_portal_rewrite_launchers_LDADD = $(BASE_LIBS)
+ xdg_desktop_portal_rewrite_launchers_CFLAGS = $(BASE_CFLAGS)
+diff --git a/src/rewrite-launchers.c b/src/rewrite-launchers.c
+index 9da288b..fead386 100644
+--- a/src/rewrite-launchers.c
++++ b/src/rewrite-launchers.c
+@@ -26,6 +26,7 @@
+ #include <gio/gdesktopappinfo.h>
+ 
+ #include "dynamic-launcher.h"
++#include "xdp-utils.h"
+ 
+ static char *
+ find_renamed_app_id (const char *old_app_id)
