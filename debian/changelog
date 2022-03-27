@@ -1,3 +1,16 @@
+xdg-desktop-portal (1.14.1-2) unstable; urgency=medium
+
+  * d/x-d-p.postinst: Clean up enabled state of x-d-p.service on upgrades.
+    When we upgrade from 1.14.0 to 1.14.1, we want to remove
+    /etc/systemd/user/graphical-session-pre.target.wants/xdg-desktop-portal.service
+    so that it will not cause a deadlock during GNOME login.
+  * d/p/Move-g_string_replace-backport-to-a-separate-translation-.patch,
+    d/p/rewrite-launchers-Provide-backported-g_string_replace.patch:
+    Add patches to fix compilation with GLib 2.66, to make backports more
+    straightforward.
+
+ -- Simon McVittie <smcv@debian.org>  Sun, 27 Mar 2022 13:05:55 +0100
+
 xdg-desktop-portal (1.14.1-1) unstable; urgency=medium
 
   * New upstream release
