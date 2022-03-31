@@ -1,3 +1,9 @@
+xdg-desktop-portal (1.14.2-1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Simon McVittie <smcv@debian.org>  Thu, 31 Mar 2022 12:10:56 +0100
+
 xdg-desktop-portal (1.14.1-2) unstable; urgency=medium
 
   * d/x-d-p.postinst: Clean up enabled state of x-d-p.service on upgrades.
