@@ -10,6 +10,7 @@ built_binaries := $(shell dh_listpackages)
 CONFFLAGS :=
 
 # No suitable version in Ubuntu < 22.04
+CONFFLAGS += --disable-libportal
 CONFFLAGS += --disable-pipewire
 
 %:
