@@ -386,15 +386,15 @@ tests_test_backends_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(tests_test_backends_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
-	src/file-chooser.c src/file-chooser.h src/open-uri.c \
-	src/open-uri.h src/print.c src/print.h src/memory-monitor.c \
-	src/memory-monitor.h src/network-monitor.c \
-	src/network-monitor.h src/power-profile-monitor.c \
-	src/power-profile-monitor.h src/proxy-resolver.c \
-	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
-	src/notification.c src/notification.h src/inhibit.c \
-	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/realtime.c src/realtime.h \
+	src/file-chooser.c src/file-chooser.h src/glib-backports.c \
+	src/glib-backports.h src/open-uri.c src/open-uri.h src/print.c \
+	src/print.h src/memory-monitor.c src/memory-monitor.h \
+	src/network-monitor.c src/network-monitor.h \
+	src/power-profile-monitor.c src/power-profile-monitor.h \
+	src/proxy-resolver.c src/proxy-resolver.h src/screenshot.c \
+	src/screenshot.h src/notification.c src/notification.h \
+	src/inhibit.c src/inhibit.h src/device.c src/device.h \
+	src/account.c src/account.h src/realtime.c src/realtime.h \
 	src/dynamic-launcher.c src/dynamic-launcher.h src/request.c \
 	src/request.h src/call.c src/call.h src/documents.c \
 	src/documents.h src/permissions.c src/permissions.h \
@@ -422,6 +422,7 @@ am__xdg_desktop_portal_SOURCES_DIST = src/xdg-desktop-portal.c \
 am_xdg_desktop_portal_OBJECTS =  \
 	src/xdg_desktop_portal-xdg-desktop-portal.$(OBJEXT) \
 	src/xdg_desktop_portal-file-chooser.$(OBJEXT) \
+	src/xdg_desktop_portal-glib-backports.$(OBJEXT) \
 	src/xdg_desktop_portal-open-uri.$(OBJEXT) \
 	src/xdg_desktop_portal-print.$(OBJEXT) \
 	src/xdg_desktop_portal-memory-monitor.$(OBJEXT) \
@@ -468,7 +469,8 @@ xdg_desktop_portal_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(xdg_desktop_portal_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am_xdg_desktop_portal_rewrite_launchers_OBJECTS = src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.$(OBJEXT)
-nodist_xdg_desktop_portal_rewrite_launchers_OBJECTS =
+nodist_xdg_desktop_portal_rewrite_launchers_OBJECTS = src/xdg_desktop_portal_rewrite_launchers-glib-backports.$(OBJEXT) \
+	$(am__objects_1)
 xdg_desktop_portal_rewrite_launchers_OBJECTS =  \
 	$(am_xdg_desktop_portal_rewrite_launchers_OBJECTS) \
 	$(nodist_xdg_desktop_portal_rewrite_launchers_OBJECTS)
@@ -592,6 +594,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po \
+	src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-location.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po \
@@ -620,6 +623,7 @@ am__depfiles_remade = document-portal/$(DEPDIR)/test_doc_portal-document-portal-
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po \
 	src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po \
+	src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po \
 	src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po \
 	src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po \
 	src/$(DEPDIR)/xdg_document_portal-sd-escape.Po \
@@ -1371,15 +1375,15 @@ nodist_xdg_desktop_portal_SOURCES = \
 	$(NULL)
 
 xdg_desktop_portal_SOURCES = src/xdg-desktop-portal.c \
-	src/file-chooser.c src/file-chooser.h src/open-uri.c \
-	src/open-uri.h src/print.c src/print.h src/memory-monitor.c \
-	src/memory-monitor.h src/network-monitor.c \
-	src/network-monitor.h src/power-profile-monitor.c \
-	src/power-profile-monitor.h src/proxy-resolver.c \
-	src/proxy-resolver.h src/screenshot.c src/screenshot.h \
-	src/notification.c src/notification.h src/inhibit.c \
-	src/inhibit.h src/device.c src/device.h src/account.c \
-	src/account.h src/realtime.c src/realtime.h \
+	src/file-chooser.c src/file-chooser.h src/glib-backports.c \
+	src/glib-backports.h src/open-uri.c src/open-uri.h src/print.c \
+	src/print.h src/memory-monitor.c src/memory-monitor.h \
+	src/network-monitor.c src/network-monitor.h \
+	src/power-profile-monitor.c src/power-profile-monitor.h \
+	src/proxy-resolver.c src/proxy-resolver.h src/screenshot.c \
+	src/screenshot.h src/notification.c src/notification.h \
+	src/inhibit.c src/inhibit.h src/device.c src/device.h \
+	src/account.c src/account.h src/realtime.c src/realtime.h \
 	src/dynamic-launcher.c src/dynamic-launcher.h src/request.c \
 	src/request.h src/call.c src/call.h src/documents.c \
 	src/documents.h src/permissions.c src/permissions.h \
@@ -1420,7 +1424,12 @@ xdg_desktop_portal_validate_icon_SOURCES = src/validate-icon.c
 xdg_desktop_portal_validate_icon_LDADD = $(GDK_PIXBUF_LIBS)
 xdg_desktop_portal_validate_icon_CFLAGS = $(GDK_PIXBUF_CFLAGS) -DHELPER=\"$(BWRAP)\" -D_GNU_SOURCE=1
 xdg_desktop_portal_rewrite_launchers_SOURCES = src/rewrite-launchers.c
-nodist_xdg_desktop_portal_rewrite_launchers_SOURCES = src/dynamic-launcher.h
+nodist_xdg_desktop_portal_rewrite_launchers_SOURCES = \
+	src/dynamic-launcher.h \
+	src/glib-backports.c \
+	src/glib-backports.h \
+	$(NULL)
+
 xdg_desktop_portal_rewrite_launchers_LDADD = $(BASE_LIBS)
 xdg_desktop_portal_rewrite_launchers_CFLAGS = $(BASE_CFLAGS)
 tests_test_backends_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
@@ -2069,6 +2078,8 @@ src/xdg_desktop_portal-xdg-desktop-portal.$(OBJEXT):  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-file-chooser.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal-glib-backports.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-open-uri.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
 src/xdg_desktop_portal-print.$(OBJEXT): src/$(am__dirstamp) \
@@ -2150,6 +2161,8 @@ xdg-desktop-portal$(EXEEXT): $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_
 	@rm -f xdg-desktop-portal$(EXEEXT)
 	$(AM_V_CCLD)$(xdg_desktop_portal_LINK) $(xdg_desktop_portal_OBJECTS) $(xdg_desktop_portal_LDADD) $(LIBS)
 src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.$(OBJEXT):  \
+	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
+src/xdg_desktop_portal_rewrite_launchers-glib-backports.$(OBJEXT):  \
 	src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 
 xdg-desktop-portal-rewrite-launchers$(EXEEXT): $(xdg_desktop_portal_rewrite_launchers_OBJECTS) $(xdg_desktop_portal_rewrite_launchers_DEPENDENCIES) $(EXTRA_xdg_desktop_portal_rewrite_launchers_DEPENDENCIES) 
@@ -2311,6 +2324,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-location.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po@am__quote@ # am--include-marker
@@ -2339,6 +2353,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@src/$(DEPDIR)/xdg_document_portal-sd-escape.Po@am__quote@ # am--include-marker
@@ -3214,6 +3229,20 @@ src/xdg_desktop_portal-file-chooser.obj: src/file-chooser.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-file-chooser.obj `if test -f 'src/file-chooser.c'; then $(CYGPATH_W) 'src/file-chooser.c'; else $(CYGPATH_W) '$(srcdir)/src/file-chooser.c'; fi`
 
+src/xdg_desktop_portal-glib-backports.o: src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-glib-backports.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Tpo -c -o src/xdg_desktop_portal-glib-backports.o `test -f 'src/glib-backports.c' || echo '$(srcdir)/'`src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Tpo src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/glib-backports.c' object='src/xdg_desktop_portal-glib-backports.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-glib-backports.o `test -f 'src/glib-backports.c' || echo '$(srcdir)/'`src/glib-backports.c
+
+src/xdg_desktop_portal-glib-backports.obj: src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-glib-backports.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Tpo -c -o src/xdg_desktop_portal-glib-backports.obj `if test -f 'src/glib-backports.c'; then $(CYGPATH_W) 'src/glib-backports.c'; else $(CYGPATH_W) '$(srcdir)/src/glib-backports.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Tpo src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/glib-backports.c' object='src/xdg_desktop_portal-glib-backports.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal-glib-backports.obj `if test -f 'src/glib-backports.c'; then $(CYGPATH_W) 'src/glib-backports.c'; else $(CYGPATH_W) '$(srcdir)/src/glib-backports.c'; fi`
+
 src/xdg_desktop_portal-open-uri.o: src/open-uri.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(xdg_desktop_portal_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal-open-uri.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal-open-uri.Tpo -c -o src/xdg_desktop_portal-open-uri.o `test -f 'src/open-uri.c' || echo '$(srcdir)/'`src/open-uri.c
 @am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal-open-uri.Tpo src/$(DEPDIR)/xdg_desktop_portal-open-uri.Po
@@ -3759,6 +3788,20 @@ src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj: src/rewrite-laun
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/rewrite-launchers.c' object='src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.obj `if test -f 'src/rewrite-launchers.c'; then $(CYGPATH_W) 'src/rewrite-launchers.c'; else $(CYGPATH_W) '$(srcdir)/src/rewrite-launchers.c'; fi`
+
+src/xdg_desktop_portal_rewrite_launchers-glib-backports.o: src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_rewrite_launchers-glib-backports.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Tpo -c -o src/xdg_desktop_portal_rewrite_launchers-glib-backports.o `test -f 'src/glib-backports.c' || echo '$(srcdir)/'`src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Tpo src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/glib-backports.c' object='src/xdg_desktop_portal_rewrite_launchers-glib-backports.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_rewrite_launchers-glib-backports.o `test -f 'src/glib-backports.c' || echo '$(srcdir)/'`src/glib-backports.c
+
+src/xdg_desktop_portal_rewrite_launchers-glib-backports.obj: src/glib-backports.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_rewrite_launchers-glib-backports.obj -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Tpo -c -o src/xdg_desktop_portal_rewrite_launchers-glib-backports.obj `if test -f 'src/glib-backports.c'; then $(CYGPATH_W) 'src/glib-backports.c'; else $(CYGPATH_W) '$(srcdir)/src/glib-backports.c'; fi`
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Tpo src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='src/glib-backports.c' object='src/xdg_desktop_portal_rewrite_launchers-glib-backports.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_rewrite_launchers_CFLAGS) $(CFLAGS) -c -o src/xdg_desktop_portal_rewrite_launchers-glib-backports.obj `if test -f 'src/glib-backports.c'; then $(CYGPATH_W) 'src/glib-backports.c'; else $(CYGPATH_W) '$(srcdir)/src/glib-backports.c'; fi`
 
 src/xdg_desktop_portal_validate_icon-validate-icon.o: src/validate-icon.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(xdg_desktop_portal_validate_icon_CFLAGS) $(CFLAGS) -MT src/xdg_desktop_portal_validate_icon-validate-icon.o -MD -MP -MF src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Tpo -c -o src/xdg_desktop_portal_validate_icon-validate-icon.o `test -f 'src/validate-icon.c' || echo '$(srcdir)/'`src/validate-icon.c
@@ -4856,6 +4899,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
@@ -4884,6 +4928,7 @@ distclean: distclean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po
@@ -5030,6 +5075,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-flatpak-instance.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-gamemode.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-geoclue-dbus.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal-glib-backports.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-inhibit.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-location.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-memory-monitor.Po
@@ -5058,6 +5104,7 @@ maintainer-clean: maintainer-clean-recursive
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-impl-dbus.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal-xdp-utils.Po
+	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-glib-backports.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_rewrite_launchers-rewrite-launchers.Po
 	-rm -f src/$(DEPDIR)/xdg_desktop_portal_validate_icon-validate-icon.Po
 	-rm -f src/$(DEPDIR)/xdg_document_portal-sd-escape.Po

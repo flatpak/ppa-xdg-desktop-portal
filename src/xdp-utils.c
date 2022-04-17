@@ -163,7 +163,7 @@ _xdp_parse_app_id_from_unit_name (const char *unit)
    * app[-<launcher>]-<ApplicationID>-<RANDOM>.slice
    */
   regex = g_regex_new ("^app-(?:[[:alnum:]]+\\-)?(.+?\\..+?\\..+?)"
-                       "(?:[@\\-][0-9]*)?(?:-autostart)?"
+                       "(?:[@\\-][[:alnum:]]*)?(?:-autostart)?"
                        "(?:\\.scope|\\.service|\\.slice)$",
                        0, 0, &error);
   g_assert (error == NULL);
@@ -1979,7 +1979,7 @@ pidfd_to_pid (int fdinfo, const int pidfd, pid_t *pid, GError **error)
 }
 
 static JsonNode *
-xdg_app_info_load_brwap_info (XdpAppInfo *app_info,
+xdp_app_info_load_bwrap_info (XdpAppInfo *app_info,
                               GError    **error)
 {
   g_autoptr(JsonParser) parser = NULL;
@@ -1994,7 +1994,11 @@ xdg_app_info_load_brwap_info (XdpAppInfo *app_info,
   instance = xdp_app_info_get_instance (app_info);
 
   if (instance == NULL)
-    return 0;
+    {
+      g_set_error_literal (error, G_IO_ERROR, G_IO_ERROR_FAILED,
+                           "Could not find instance-id in process's /.flatpak-info");
+      return 0;
+    }
 
   path = g_build_filename (g_get_user_runtime_dir (),
                            ".flatpak",
@@ -2038,7 +2042,7 @@ xdp_app_info_get_pid_namespace (JsonNode *root,
   JsonObject *cpo;
   gint64 nsid;
 
-  /* xdg_app_info_load_brwap_info assures root is of type object */
+  /* xdp_app_info_load_bwrap_info assures root is of type object */
   cpo = json_node_get_object (root);
   node = json_object_get_member (cpo, "pid-namespace");
 
@@ -2073,7 +2077,7 @@ xdp_app_info_get_child_pid (JsonNode *root,
 #define xdp_lockguard G_GNUC_UNUSED __attribute__((cleanup(xdp_auto_unlock_helper)))
 
 static gboolean
-xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
+xdp_app_info_ensure_pidns (XdpAppInfo  *app_info,
                            DIR         *proc,
                            GError     **error)
 {
@@ -2091,7 +2095,7 @@ xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
   if (app_info->u.flatpak.pidns_id != 0)
     return TRUE;
 
-  root = xdg_app_info_load_brwap_info (app_info, error);
+  root = xdp_app_info_load_bwrap_info (app_info, error);
   if (root == NULL)
     return FALSE;
 
@@ -2132,7 +2136,7 @@ xdg_app_info_ensure_pidns (XdpAppInfo  *app_info,
 
 
 gboolean
-xdg_app_info_map_pids (XdpAppInfo  *app_info,
+xdp_app_info_map_pids (XdpAppInfo  *app_info,
                        pid_t       *pids,
                        guint        n_pids,
                        GError     **error)
@@ -2161,7 +2165,7 @@ xdg_app_info_map_pids (XdpAppInfo  *app_info,
     }
 
   /* Make sure we know the pid namespace the app is running in */
-  ok = xdg_app_info_ensure_pidns (app_info, proc, error);
+  ok = xdp_app_info_ensure_pidns (app_info, proc, error);
   if (!ok)
     {
       g_prefix_error (error, "Could not determine pid namespace: ");
@@ -2182,7 +2186,7 @@ xdg_app_info_map_pids (XdpAppInfo  *app_info,
 }
 
 gboolean
-xdg_app_info_pidfds_to_pids (XdpAppInfo  *app_info,
+xdp_app_info_pidfds_to_pids (XdpAppInfo  *app_info,
                              const int   *fds,
                              pid_t       *pids,
                              gint         count,
@@ -2343,48 +2347,3 @@ xdp_validate_serialized_icon (GVariant  *v,
 
   return TRUE;
 }
-
-#if !GLIB_CHECK_VERSION (2, 68, 0)
-/* All this code is backported directly from glib */
-guint
-g_string_replace (GString     *string,
-                  const gchar *find,
-                  const gchar *replace,
-                  guint        limit)
-{
-  gsize f_len, r_len, pos;
-  gchar *cur, *next;
-  guint n = 0;
-
-  g_return_val_if_fail (string != NULL, 0);
-  g_return_val_if_fail (find != NULL, 0);
-  g_return_val_if_fail (replace != NULL, 0);
-
-  f_len = strlen (find);
-  r_len = strlen (replace);
-  cur = string->str;
-
-  while ((next = strstr (cur, find)) != NULL)
-    {
-      pos = next - string->str;
-      g_string_erase (string, pos, f_len);
-      g_string_insert (string, pos, replace);
-      cur = string->str + pos + r_len;
-      n++;
-      /* Only match the empty string once at any given position, to
-       * avoid infinite loops */
-      if (f_len == 0)
-        {
-          if (cur[0] == '\0')
-            break;
-          else
-            cur++;
-        }
-      if (n == limit)
-        break;
-    }
-
-  return n;
-}
-
-#endif /* GLIB_CHECK_VERSION (2, 28, 0) */
