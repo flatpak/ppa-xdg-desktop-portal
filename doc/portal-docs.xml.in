@@ -66,7 +66,7 @@
       <para>
         Under X11, the "parent_window" argument should have the form
         "x11:<replaceable>XID</replaceable>", where <replaceable>XID</replaceable>
-        is the XID of the application window.
+        is the XID of the application window in hexadecimal notation.
       </para>
       <para>
         Under Wayland, it should have the form "wayland:<replaceable>HANDLE</replaceable>",
@@ -90,33 +90,36 @@
         bus.
       </para>
     </partintro>
-    <xi:include href="portal-org.freedesktop.portal.Request.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Session.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.FileChooser.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Trash.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.OpenURI.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Print.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Email.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Device.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Location.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Screenshot.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.ScreenCast.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.RemoteDesktop.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Notification.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Inhibit.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.NetworkMonitor.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.ProxyResolver.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Settings.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Secret.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Account.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Background.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.GameMode.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Camera.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Device.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Documents.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Wallpaper.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.MemoryMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Email.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.FileChooser.xml"/>
     <xi:include href="portal-org.freedesktop.portal.FileTransfer.xml"/>
-    <xi:include href="portal-org.freedesktop.portal.Flatpak.xml"/>
     <xi:include href="portal-org.freedesktop.portal.Flatpak.UpdateMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Flatpak.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.GameMode.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Inhibit.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Location.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.MemoryMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.NetworkMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Notification.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.OpenURI.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.PowerProfileMonitor.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Print.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.ProxyResolver.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Realtime.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.RemoteDesktop.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Request.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.ScreenCast.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Screenshot.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Secret.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Session.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Settings.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Trash.xml"/>
+    <xi:include href="portal-org.freedesktop.portal.Wallpaper.xml"/>
   </reference>
   <reference>
     <title>Portal Backend API Reference</title>
@@ -139,23 +142,24 @@
       by the portal frontend.
     </para>
     </partintro>
-    <xi:include href="portal-org.freedesktop.impl.portal.Request.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Session.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.FileChooser.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.AppChooser.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Print.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Email.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Screenshot.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.ScreenCast.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.RemoteDesktop.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Notification.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Inhibit.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.Access.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Settings.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Secret.xml"/>
-    <xi:include href="portal-org.freedesktop.impl.portal.Lockdown.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Account.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.AppChooser.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.Background.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Email.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.FileChooser.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Inhibit.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Lockdown.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Notification.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.PermissionStore.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Print.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.RemoteDesktop.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Request.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.ScreenCast.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Screenshot.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Secret.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Session.xml"/>
+    <xi:include href="portal-org.freedesktop.impl.portal.Settings.xml"/>
     <xi:include href="portal-org.freedesktop.impl.portal.Wallpaper.xml"/>
   </reference>
 </book>

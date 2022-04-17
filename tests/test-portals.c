@@ -21,6 +21,7 @@
 #include "print.h"
 #include "screenshot.h"
 #include "trash.h"
+#include "utils.h"
 #include "wallpaper.h"
 #endif
 
@@ -35,8 +36,7 @@ char outdir[] = "/tmp/xdp-test-XXXXXX";
 
 static GTestDBus *dbus;
 static GDBusConnection *session_bus;
-static GSubprocess *portals;
-static GSubprocess *backends;
+static GList *test_procs = NULL;
 XdpImplPermissionStore *permission_store;
 XdpImplLockdown *lockdown;
 
@@ -126,6 +126,7 @@ global_setup (void)
   g_autofree gchar *portal_dir = NULL;
   g_autofree gchar *argv0 = NULL;
   g_autoptr(GSubprocessLauncher) launcher = NULL;
+  g_autoptr(GSubprocess) subprocess = NULL;
   guint name_timeout;
   const char *argv[4];
   GQuark portal_errors G_GNUC_UNUSED;
@@ -140,6 +141,9 @@ global_setup (void)
 
   g_setenv ("XDG_RUNTIME_DIR", outdir, TRUE);
   g_setenv ("XDG_DATA_HOME", outdir, TRUE);
+
+  /* Re-defining dbus-monitor with a custom script */
+  setup_dbus_daemon_wrapper (outdir);
 
   dbus = g_test_dbus_new (G_TEST_DBUS_NONE);
   services = g_test_build_filename (G_TEST_BUILT, "services", NULL);
@@ -179,8 +183,11 @@ global_setup (void)
 
   g_print ("launching test-backend\n");
 
-  backends = g_subprocess_launcher_spawnv (launcher, argv, &error);
+  subprocess = g_subprocess_launcher_spawnv (launcher, argv, &error);
   g_assert_no_error (error);
+  g_test_message ("Launched %s with pid %s\n", argv[0],
+                  g_subprocess_get_identifier (subprocess));
+  test_procs = g_list_append (test_procs, g_steal_pointer (&subprocess));
 
   name_timeout = g_timeout_add (1000 * timeout_mult, timeout_cb, "Failed to launch test-backends");
 
@@ -222,8 +229,11 @@ global_setup (void)
 
   g_print ("launching %s\n", argv0);
 
-  portals = g_subprocess_launcher_spawnv (launcher, argv, &error);
+  subprocess = g_subprocess_launcher_spawnv (launcher, argv, &error);
   g_assert_no_error (error);
+  g_test_message ("Launched %s with pid %s\n", argv[0],
+                  g_subprocess_get_identifier (subprocess));
+  test_procs = g_list_append (test_procs, g_steal_pointer (&subprocess));
   g_clear_pointer (&argv0, g_free);
 
   name_timeout = g_timeout_add (1000 * timeout_mult, timeout_cb, "Failed to launch xdg-desktop-portal");
@@ -264,8 +274,11 @@ global_setup (void)
 
   g_print ("launching %s\n", argv0);
 
-  portals = g_subprocess_launcher_spawnv (launcher, argv, &error);
+  subprocess = g_subprocess_launcher_spawnv (launcher, argv, &error);
   g_assert_no_error (error);
+  g_test_message ("Launched %s with pid %s\n", argv[0],
+                  g_subprocess_get_identifier (subprocess));
+  test_procs = g_list_append (test_procs, g_steal_pointer (&subprocess));
 
   name_timeout = g_timeout_add (1000 * timeout_mult, timeout_cb, "Failed to launch xdg-permission-store");
 
@@ -296,6 +309,42 @@ global_setup (void)
 }
 
 static void
+wait_for_test_procs (void)
+{
+  GList *l;
+
+  for (l = test_procs; l; l = l->next)
+    {
+      GSubprocess *subprocess = G_SUBPROCESS (l->data);
+      GError *error = NULL;
+      g_autofree char *identifier = NULL;
+
+      identifier = g_strdup (g_subprocess_get_identifier (subprocess));
+
+      g_debug ("Terminating and waiting for process %s", identifier);
+      g_subprocess_send_signal (subprocess, SIGTERM);
+
+      /* This may lead the test to hang, we assume that the test suite or CI
+       * can handle the case at upper level, without having us async function
+       * and timeouts */
+      g_subprocess_wait (subprocess, NULL, &error);
+      g_assert_no_error (error);
+      g_assert_null (g_subprocess_get_identifier (subprocess));
+
+      if (!g_subprocess_get_if_exited (subprocess))
+        {
+          g_assert_true (g_subprocess_get_if_signaled (subprocess));
+          g_assert_cmpint (g_subprocess_get_term_sig (subprocess), ==, SIGTERM);
+        }
+      else if (!g_subprocess_get_successful (subprocess))
+        {
+          g_error ("Subprocess %s, exited with exit status %d", identifier,
+                   g_subprocess_get_exit_status (subprocess));
+        }
+    }
+}
+
+static void
 global_teardown (void)
 {
   GError *error = NULL;
@@ -306,8 +355,8 @@ global_teardown (void)
   g_dbus_connection_close_sync (session_bus, NULL, &error);
   g_assert_no_error (error);
 
-  g_subprocess_force_exit (portals);
-  g_subprocess_force_exit (backends);
+  wait_for_test_procs ();
+  g_list_free_full (g_steal_pointer (&test_procs), g_object_unref);
 
   g_object_unref (lockdown);
   g_object_unref (permission_store);
@@ -387,6 +436,7 @@ DEFINE_TEST_EXISTS(screenshot, SCREENSHOT, 2)
 DEFINE_TEST_EXISTS(settings, SETTINGS, 1)
 DEFINE_TEST_EXISTS(trash, TRASH, 1)
 DEFINE_TEST_EXISTS(wallpaper, WALLPAPER, 1)
+DEFINE_TEST_EXISTS(realtime, REALTIME, 1)
 
 int
 main (int argc, char **argv)
@@ -414,6 +464,7 @@ main (int argc, char **argv)
   g_test_add_func ("/portal/settings/exists", test_settings_exists);
   g_test_add_func ("/portal/trash/exists", test_trash_exists);
   g_test_add_func ("/portal/wallpaper/exists", test_wallpaper_exists);
+  g_test_add_func ("/portal/realtime/exists", test_realtime_exists);
 
 #ifdef HAVE_LIBPORTAL
   g_test_add_func ("/portal/account/basic", test_account_basic);

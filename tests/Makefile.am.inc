@@ -13,26 +13,29 @@ testdb_LDADD = \
 	$(NULL)
 testdb_SOURCES = tests/testdb.c	$(DB_SOURCES)
 
-test_doc_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(FUSE_CFLAGS)
+test_doc_portal_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(FUSE3_CFLAGS)
 test_doc_portal_LDADD = \
 	$(AM_LDADD) \
 	$(BASE_LIBS) \
-	$(FUSE_LIBS) \
+	$(FUSE3_LIBS) \
 	$(NULL)
 test_doc_portal_SOURCES = \
 	tests/can-use-fuse.c \
 	tests/can-use-fuse.h \
 	tests/test-doc-portal.c \
+	tests/utils.c \
+	tests/utils.h \
 	$(NULL)
 nodist_test_doc_portal_SOURCES = document-portal/document-portal-dbus.c
 
 EXTRA_test_doc_portal_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
 
-test_portals_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(LIBPORTAL_CFLAGS)
+test_portals_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(LIBPORTAL_CFLAGS) $(SYSTEMD_LIBS)
 test_portals_LDADD = \
 	$(AM_LDADD) \
 	$(BASE_LIBS) \
 	$(LIBPORTAL_LIBS) \
+	$(SYSTEMD_LIBS) \
 	$(NULL)
 test_portals_SOURCES = tests/test-portals.c
 test_portals_CPPFLAGS = $(AM_CPPFLAGS) -DLIBEXECDIR=\"$(libexecdir)\"
@@ -66,8 +69,6 @@ test_portals_SOURCES += \
 	tests/trash.h \
 	tests/wallpaper.c \
 	tests/wallpaper.h \
-	tests/utils.c \
-	tests/utils.h \
         tests/glib-backports.c \
         tests/glib-backports.h \
 	$(NULL)
@@ -76,25 +77,41 @@ nodist_test_portals_SOURCES = \
 	src/xdp-dbus.c \
 	src/xdp-impl-dbus.c \
 	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
         document-portal/permission-store-dbus.c \
+		tests/utils.c \
+		tests/utils.h \
 	$(NULL)
 test_programs += test-portals
 
-test_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
+test_permission_store_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(SYSTEMD_CFLAGS)
 test_permission_store_LDADD = \
 	$(AM_LDADD) \
 	$(BASE_LIBS) \
+	$(SYSTEMD_LIBS) \
 	$(NULL)
 test_permission_store_SOURCES = tests/test-permission-store.c
-nodist_test_permission_store_SOURCES = document-portal/permission-store-dbus.c src/xdp-utils.c
+nodist_test_permission_store_SOURCES = \
+	document-portal/permission-store-dbus.c \
+	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
+	tests/utils.c \
+	tests/utils.h \
+	$(NULL)
 
 EXTRA_test_permission_store_DEPENDENCIES = tests/services/org.freedesktop.impl.portal.PermissionStore.service tests/services/org.freedesktop.portal.Documents.service
 
 test_programs += test-xdp-utils
-test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS)
-test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS)
-test_xdp_utils_SOURCES = tests/test-xdp-utils.c src/xdp-utils.c
-
+test_xdp_utils_CFLAGS = $(AM_CFLAGS) $(BASE_CFLAGS) $(SYSTEMD_CFLAGS)
+test_xdp_utils_LDADD = $(AM_LD_ADD) $(BASE_LIBS) $(SYSTEMD_LIBS)
+test_xdp_utils_SOURCES = \
+	tests/test-xdp-utils.c \
+	src/xdp-utils.c \
+	src/sd-escape.c \
+	src/sd-escape.h \
+	$(NULL)
 
 tests/services/org.freedesktop.portal.Documents.service: document-portal/org.freedesktop.portal.Documents.service.in
 	mkdir -p tests/services

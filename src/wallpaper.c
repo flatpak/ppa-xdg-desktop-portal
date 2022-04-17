@@ -90,6 +90,7 @@ handle_set_wallpaper_uri_done (GObject *source,
                                                          result,
                                                          &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("A backend call failed: %s", error->message);
     }
 
@@ -142,7 +143,7 @@ handle_set_wallpaper_in_thread_func (GTask *task,
 
   if (uri != NULL && fd != -1)
     {
-      g_warning ("Rejecting invalid open-uri request (both URI and fd are set)");
+      g_warning ("Rejecting invalid set-wallpaper request (both URI and fd are set)");
       if (request->exported)
         {
           g_variant_builder_init (&opt_builder, G_VARIANT_TYPE_VARDICT);
@@ -183,6 +184,10 @@ handle_set_wallpaper_in_thread_func (GTask *task,
 
       if (g_str_equal (app_id, ""))
         {
+          /* Note: this will set the wallpaper permission for all unsandboxed
+           * apps for which an app ID can't be determined.
+           */
+          g_assert (xdp_app_info_is_host (request->app_info));
           title = g_strdup (_("Allow Applications to Set Backgrounds?"));
           subtitle = g_strdup (_("An application is requesting to be able to change the background image."));
         }
@@ -233,9 +238,11 @@ handle_set_wallpaper_in_thread_func (GTask *task,
     {
       g_autofree char *path = NULL;
 
-      path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, NULL);
+      path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, NULL, &error);
       if (path == NULL)
         {
+          g_debug ("Cannot get path for fd: %s", error->message);
+
           /* Reject the request */
           if (request->exported)
             {
@@ -304,7 +311,7 @@ handle_set_wallpaper_uri (XdpWallpaper *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_set_wallpaper_in_thread_func);
 
-  return TRUE;  
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static gboolean
@@ -327,7 +334,7 @@ handle_set_wallpaper_file (XdpWallpaper *object,
   if (fd == -1)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_object_set_data (G_OBJECT (request), "fd", GINT_TO_POINTER (fd));
@@ -344,7 +351,7 @@ handle_set_wallpaper_file (XdpWallpaper *object,
   g_task_set_task_data (task, g_object_ref (request), g_object_unref);
   g_task_run_in_thread (task, handle_set_wallpaper_in_thread_func);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 static void
 wallpaper_iface_init (XdpWallpaperIface *iface)

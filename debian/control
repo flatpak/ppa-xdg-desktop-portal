@@ -6,23 +6,23 @@ Uploaders:
  Simon McVittie <smcv@debian.org>,
 Build-Depends:
  dbus,
- debhelper-compat (= 12),
- geoclue-2.0 <!nocheck pkg.libportal.enable>,
- fuse <!nocheck>,
+ debhelper-compat (= 13),
+ geoclue-2.0 <!nocheck>,
+ fuse3 <!nocheck>,
  libcap2-bin <!nocheck>,
  libgdk-pixbuf2.0-dev,
  libgeoclue-2-dev (>= 2.5.2),
  libflatpak-dev (>= 1.5.0),
- libfuse-dev,
+ libfuse3-dev (>= 3.10.0),
  libglib2.0-dev,
  libjson-glib-dev,
- libportal-dev (>= 0.3) <pkg.libportal.enable>,
+ libsystemd-dev,
  procps <!nocheck>,
  python3 <!nocheck>,
  python3-gi <!nocheck>,
  xmlto,
 Rules-Requires-Root: no
-Standards-Version: 4.5.1
+Standards-Version: 4.6.0
 Homepage: https://github.com/flatpak/xdg-desktop-portal
 Vcs-Git: https://salsa.debian.org/debian/xdg-desktop-portal.git -b debian/buster-backports
 Vcs-Browser: https://salsa.debian.org/debian/xdg-desktop-portal
@@ -33,7 +33,7 @@ Multi-arch: foreign
 Depends:
  bubblewrap,
  default-dbus-session-bus | dbus-session-bus,
- fuse,
+ fuse3,
  ${misc:Depends},
  ${shlibs:Depends},
 Breaks:

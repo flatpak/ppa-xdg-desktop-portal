@@ -40,6 +40,7 @@
 #include "print.h"
 #include "memory-monitor.h"
 #include "network-monitor.h"
+#include "power-profile-monitor.h"
 #include "proxy-resolver.h"
 #include "screenshot.h"
 #include "notification.h"
@@ -57,6 +58,8 @@
 #include "camera.h"
 #include "secret.h"
 #include "wallpaper.h"
+#include "realtime.h"
+#include "dynamic-launcher.h"
 
 static GMainLoop *loop = NULL;
 
@@ -121,12 +124,19 @@ method_needs_request (GDBusMethodInvocation *invocation)
       else
         return TRUE;
     }
-  if (strcmp (interface, "org.freedesktop.portal.Camera") == 0)
+  else if (strcmp (interface, "org.freedesktop.portal.Camera") == 0)
     {
       if (strcmp (method, "OpenPipeWireRemote") == 0)
         return FALSE;
       else
         return TRUE;
+    }
+  else if (strcmp (interface, "org.freedesktop.portal.DynamicLauncher") == 0)
+    {
+      if (strcmp (method, "PrepareInstall") == 0)
+        return TRUE;
+      else
+        return FALSE;
     }
   else
     {
@@ -195,6 +205,9 @@ peer_died_cb (const char *name)
 {
   close_requests_for_sender (name);
   close_sessions_for_sender (name);
+#ifdef HAVE_PIPEWIRE
+  screen_cast_remove_transient_permissions_for_sender (name);
+#endif
 }
 
 static void
@@ -227,10 +240,12 @@ on_bus_acquired (GDBusConnection *connection,
     lockdown = xdp_impl_lockdown_skeleton_new ();
 
   export_portal_implementation (connection, memory_monitor_create (connection));
+  export_portal_implementation (connection, power_profile_monitor_create (connection));
   export_portal_implementation (connection, network_monitor_create (connection));
   export_portal_implementation (connection, proxy_resolver_create (connection));
   export_portal_implementation (connection, trash_create (connection));
   export_portal_implementation (connection, game_mode_create (connection));
+  export_portal_implementation (connection, realtime_create (connection));
 
   impls = find_all_portal_implementations ("org.freedesktop.impl.portal.Settings");
   export_portal_implementation (connection, settings_create (connection, impls));
@@ -308,7 +323,14 @@ on_bus_acquired (GDBusConnection *connection,
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.Secret");
   if (implementation != NULL)
     export_portal_implementation (connection,
-				  secret_create (connection, implementation->dbus_name));
+                                  secret_create (connection, implementation->dbus_name));
+
+#ifdef HAVE_GLIB_2_66
+  implementation = find_portal_implementation ("org.freedesktop.impl.portal.DynamicLauncher");
+  if (implementation != NULL)
+    export_portal_implementation (connection,
+                                  dynamic_launcher_create (connection, implementation->dbus_name));
+#endif
 
 #ifdef HAVE_PIPEWIRE
   implementation = find_portal_implementation ("org.freedesktop.impl.portal.ScreenCast");
@@ -352,6 +374,9 @@ main (int argc, char *argv[])
   bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
   textdomain (GETTEXT_PACKAGE);
 
+  /* Note: if you add any more environment variables here, update
+   * handle_launch() in dynamic-launcher.c to unset them before launching apps
+   */
   /* Avoid even loading gvfs to avoid accidental confusion */
   g_setenv ("GIO_USE_VFS", "local", TRUE);
 

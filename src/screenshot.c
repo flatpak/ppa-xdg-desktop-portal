@@ -94,7 +94,11 @@ send_response_in_thread_func (GTask *task,
           goto out;
         }
 
-      ruri = register_document (uri, xdp_app_info_get_id (request->app_info), FALSE, FALSE, FALSE, &error);
+      if (xdp_app_info_is_host (request->app_info))
+        ruri = g_strdup (uri);
+      else
+        ruri = register_document (uri, xdp_app_info_get_id (request->app_info), FALSE, FALSE, FALSE, &error);
+
       if (ruri == NULL)
         g_warning ("Failed to register %s: %s", uri, error->message);
       else
@@ -144,6 +148,7 @@ screenshot_done (GObject *source,
                                                    result,
                                                    &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("A backend call failed: %s", error->message);
     }
 
@@ -183,7 +188,7 @@ handle_screenshot (XdpScreenshot *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -205,7 +210,7 @@ handle_screenshot (XdpScreenshot *object,
 
   xdp_screenshot_complete_screenshot (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -225,6 +230,7 @@ pick_color_done (GObject *source,
                                                    result,
                                                    &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("A backend call failed: %s", error->message);
     }
 
@@ -262,7 +268,7 @@ handle_pick_color (XdpScreenshot *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -284,7 +290,7 @@ handle_pick_color (XdpScreenshot *object,
 
   xdp_screenshot_complete_pick_color (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -295,9 +301,9 @@ screenshot_iface_init (XdpScreenshotIface *iface)
 }
 
 static void
-screenshot_init (Screenshot *fc)
+screenshot_init (Screenshot *screenshot)
 {
-  xdp_screenshot_set_version (XDP_SCREENSHOT (fc), 2);
+  xdp_screenshot_set_version (XDP_SCREENSHOT (screenshot), 2);
 }
 
 static void

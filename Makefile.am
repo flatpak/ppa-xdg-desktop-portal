@@ -13,6 +13,7 @@ BUILT_SOURCES = $(NULL)
 EXTRA_DIST = tap-driver.sh tap-test
 
 include $(top_srcdir)/glib-tap.mk
+include $(top_srcdir)/Makefile.am.inc
 
 SUBDIRS = doc po
 
@@ -30,6 +31,7 @@ EXTRA_DIST += $(service_in_files)
 ACLOCAL_AMFLAGS = --install -I m4 ${ACLOCAL_FLAGS}
 AM_CPPFLAGS =							\
 	-DG_LOG_DOMAIN=\"xdg-desktop-portal\"			\
+	-DLIBEXECDIR=\"$(libexecdir)\" \
 	$(NULL)
 
 lib_LTLIBRARIES =

@@ -80,6 +80,7 @@ print_done (GObject *source,
                                          result,
                                          &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
 
@@ -123,7 +124,7 @@ handle_print (XdpPrint *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "Printing disabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
 
@@ -137,7 +138,7 @@ handle_print (XdpPrint *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -160,10 +161,10 @@ handle_print (XdpPrint *object,
 
   xdp_print_complete_print (object, invocation, NULL, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
-XdpOptionKey response_options[] = {
+static XdpOptionKey response_options[] = {
   { "settings", G_VARIANT_TYPE_VARDICT, NULL },
   { "page-setup", G_VARIANT_TYPE_VARDICT, NULL },
   { "token", G_VARIANT_TYPE_UINT32, NULL }
@@ -187,6 +188,7 @@ prepare_print_done (GObject *source,
                                                  result,
                                                  &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
 
@@ -235,7 +237,7 @@ handle_prepare_print (XdpPrint *object,
                                              XDG_DESKTOP_PORTAL_ERROR,
                                              XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
                                              "Printing disabled");
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   REQUEST_AUTOLOCK (request);
@@ -248,7 +250,7 @@ handle_prepare_print (XdpPrint *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -271,7 +273,7 @@ handle_prepare_print (XdpPrint *object,
 
   xdp_print_complete_prepare_print (object, invocation, request->id);
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void
@@ -282,9 +284,9 @@ print_iface_init (XdpPrintIface *iface)
 }
 
 static void
-print_init (Print *fc)
+print_init (Print *print)
 {
-  xdp_print_set_version (XDP_PRINT (fc), 1);
+  xdp_print_set_version (XDP_PRINT (print), 1);
 }
 
 static void

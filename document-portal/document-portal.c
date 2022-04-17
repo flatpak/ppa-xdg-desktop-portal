@@ -109,7 +109,6 @@ portal_grant_permissions (GDBusMethodInvocation *invocation,
                           GVariant              *parameters,
                           XdpAppInfo            *app_info)
 {
-  const char *app_id = xdp_app_info_get_id (app_info);
   const char *target_app_id;
   const char *id;
   g_autofree const char **permissions = NULL;
@@ -148,7 +147,7 @@ portal_grant_permissions (GDBusMethodInvocation *invocation,
       }
 
     /* Must have grant-permissions and all the newly granted permissions */
-    if (!document_entry_has_permissions (entry, app_id,
+    if (!document_entry_has_permissions (entry, app_info,
                                     DOCUMENT_PERMISSION_FLAGS_GRANT_PERMISSIONS | perms))
       {
         g_dbus_method_invocation_return_error (invocation,
@@ -158,7 +157,7 @@ portal_grant_permissions (GDBusMethodInvocation *invocation,
       }
 
     do_set_permissions (entry, id, target_app_id,
-                        perms | document_entry_get_permissions (entry, target_app_id));
+                        perms | document_entry_get_permissions_by_app_id (entry, target_app_id));
   }
 
   /* Invalidate with lock dropped to avoid deadlock */
@@ -211,7 +210,7 @@ portal_revoke_permissions (GDBusMethodInvocation *invocation,
       }
 
     /* Must have grant-permissions, or be itself */
-    if (!document_entry_has_permissions (entry, app_id,
+    if (!document_entry_has_permissions (entry, app_info,
                                     DOCUMENT_PERMISSION_FLAGS_GRANT_PERMISSIONS) ||
         strcmp (app_id, target_app_id) == 0)
       {
@@ -222,7 +221,7 @@ portal_revoke_permissions (GDBusMethodInvocation *invocation,
       }
 
     do_set_permissions (entry, id, target_app_id,
-                        ~perms & document_entry_get_permissions (entry, target_app_id));
+                        ~perms & document_entry_get_permissions_by_app_id (entry, target_app_id));
   }
 
   /* Invalidate with lock dropped to avoid deadlock */
@@ -237,7 +236,6 @@ portal_delete (GDBusMethodInvocation *invocation,
                XdpAppInfo            *app_info)
 {
   const char *id;
-  const char *app_id = xdp_app_info_get_id (app_info);
   g_autoptr(PermissionDbEntry) entry = NULL;
   g_autofree const char **old_apps = NULL;
   int i;
@@ -258,7 +256,7 @@ portal_delete (GDBusMethodInvocation *invocation,
         return;
       }
 
-    if (!document_entry_has_permissions (entry, app_id, DOCUMENT_PERMISSION_FLAGS_DELETE))
+    if (!document_entry_has_permissions (entry, app_info, DOCUMENT_PERMISSION_FLAGS_DELETE))
       {
         g_dbus_method_invocation_return_error (invocation,
                                                XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
@@ -362,10 +360,15 @@ validate_fd (int fd,
   g_autofree char *name = NULL;
   xdp_autofd int dir_fd = -1;
   struct stat real_st_buf;
+  g_autoptr(GError) local_error = NULL;
 
-  path = xdp_app_info_get_path_for_fd (app_info, fd, 0, st_buf, writable_out);
+  path = xdp_app_info_get_path_for_fd (app_info, fd, 0, st_buf, writable_out, &local_error);
+
   if (path == NULL)
-    goto errout;
+    {
+      g_debug ("Invalid fd passed: %s", local_error->message);
+      goto errout;
+    }
 
   if ((ensure_type == VALIDATE_FD_FILE_TYPE_REGULAR || ensure_type == VALIDATE_FD_FILE_TYPE_ANY) && S_ISREG (st_buf->st_mode))
     {
@@ -417,7 +420,7 @@ static char *
 verify_existing_document (struct stat *st_buf,
                           gboolean     reuse_existing,
                           gboolean     directory,
-                          const char  *app_id,
+                          XdpAppInfo  *app_info,
                           gboolean     allow_write,
                           char       **real_path_out)
 {
@@ -447,8 +450,7 @@ verify_existing_document (struct stat *st_buf,
 
   /* Don't allow re-exposing non-writable document as writable */
   if (allow_write &&
-      app_id != NULL &&
-      !document_entry_has_permissions (old_entry, app_id, DOCUMENT_PERMISSION_FLAGS_WRITE))
+      !document_entry_has_permissions (old_entry, app_info, DOCUMENT_PERMISSION_FLAGS_WRITE))
     return NULL;
 
   return g_steal_pointer (&id);
@@ -813,7 +815,7 @@ document_add_full (int                      *fd,
           g_autofree char *id = NULL;
 
           /* The passed in fd is on the fuse filesystem itself */
-          id = verify_existing_document (&st_buf, reuse_existing, is_dir, app_id, allow_write, &real_path);
+          id = verify_existing_document (&st_buf, reuse_existing, is_dir, app_info, allow_write, &real_path);
           if (id == NULL)
             {
               g_set_error (error,
@@ -947,7 +949,7 @@ portal_add_named_full (GDBusMethodInvocation *invocation,
   filename = g_variant_get_bytestring (filename_v);
 
   /* This is only allowed from the host, or else we could leak existence of files */
-  if (*app_id != 0)
+  if (!xdp_app_info_is_host (app_info))
     {
       g_dbus_method_invocation_return_error (invocation,
                                              XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
@@ -995,9 +997,16 @@ portal_add_named_full (GDBusMethodInvocation *invocation,
       return;
     }
 
-  parent_path = xdp_app_info_get_path_for_fd (app_info, parent_fd, S_IFDIR, &parent_st_buf, NULL);
+  parent_path = xdp_app_info_get_path_for_fd (app_info, parent_fd, S_IFDIR, &parent_st_buf, NULL, &error);
   if (parent_path == NULL || parent_st_buf.st_dev == fuse_dev)
     {
+      if (parent_path == NULL)
+        g_debug ("Invalid fd passed: %s", error->message);
+      else
+        g_debug ("Invalid fd passed: \"%s\" not on FUSE device", parent_path);
+
+      /* Don't leak any info about real file path existence, etc */
+      g_clear_error (&error);
       g_dbus_method_invocation_return_error (invocation,
                                              XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
                                              "Invalid fd passed");
@@ -1071,7 +1080,6 @@ portal_add_named (GDBusMethodInvocation *invocation,
                   GVariant              *parameters,
                   XdpAppInfo            *app_info)
 {
-  const char *app_id = xdp_app_info_get_id (app_info);
   GDBusMessage *message;
   GUnixFDList *fd_list;
   g_autofree char *id = NULL;
@@ -1082,14 +1090,14 @@ portal_add_named (GDBusMethodInvocation *invocation,
   struct stat parent_st_buf;
   const char *filename;
   gboolean reuse_existing, persistent;
-
+  g_autoptr(GError) local_error = NULL;
   g_autoptr(GVariant) filename_v = NULL;
 
   g_variant_get (parameters, "(h@aybb)", &parent_fd_id, &filename_v, &reuse_existing, &persistent);
   filename = g_variant_get_bytestring (filename_v);
 
   /* This is only allowed from the host, or else we could leak existence of files */
-  if (*app_id != 0)
+  if (!xdp_app_info_is_host (app_info))
     {
       g_dbus_method_invocation_return_error (invocation,
                                              XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_NOT_ALLOWED,
@@ -1116,9 +1124,16 @@ portal_add_named (GDBusMethodInvocation *invocation,
       return;
     }
 
-  parent_path = xdp_app_info_get_path_for_fd (app_info, parent_fd, S_IFDIR, &parent_st_buf, NULL);
+  parent_path = xdp_app_info_get_path_for_fd (app_info, parent_fd, S_IFDIR, &parent_st_buf, NULL, &local_error);
   if (parent_path == NULL || parent_st_buf.st_dev == fuse_dev)
     {
+      if (parent_path == NULL)
+        g_debug ("Invalid fd passed: %s", local_error->message);
+      else
+        g_debug ("Invalid fd passed: \"%s\" not on FUSE device", parent_path);
+
+      /* Don't leak any info about real file path existence, etc */
+      g_clear_error (&local_error);
       g_dbus_method_invocation_return_error (invocation,
                                              XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
                                              "Invalid fd passed");
@@ -1482,11 +1497,11 @@ on_name_lost (GDBusConnection *connection,
   g_main_loop_quit (loop);
 }
 
-void
+int
 on_fuse_unmount (void)
 {
   if (!g_main_loop_is_running (loop))
-    return;
+    return G_SOURCE_REMOVE;
 
   g_debug ("fuse fs unmounted externally");
 
@@ -1497,6 +1512,8 @@ on_fuse_unmount (void)
     g_set_error (&exit_error, G_IO_ERROR, G_IO_ERROR_FAILED, "Fuse filesystem unmounted");
 
   g_main_loop_quit (loop);
+
+  return G_SOURCE_REMOVE;
 }
 
 static void

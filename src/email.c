@@ -103,6 +103,7 @@ compose_email_done (GObject *source,
                                                  result,
                                                  &error))
     {
+      g_dbus_error_strip_remote_error (error);
       g_warning ("Backend call failed: %s", error->message);
     }
 
@@ -219,7 +220,7 @@ handle_compose_email (XdpEmail *object,
   if (!impl_request)
     {
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   g_variant_builder_init (&options, G_VARIANT_TYPE_VARDICT);
@@ -242,10 +243,22 @@ handle_compose_email (XdpEmail *object,
           if (fd == -1)
             {
               g_dbus_method_invocation_return_gerror (invocation, error);
-              return TRUE;
+              return G_DBUS_METHOD_INVOCATION_HANDLED;
             }
 
-          path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, NULL);
+          path = xdp_app_info_get_path_for_fd (request->app_info, fd, 0, NULL, NULL, &error);
+
+          if (path == NULL)
+            {
+              g_debug ("Invalid attachment fd passed: %s", error->message);
+
+              /* Don't leak any info about real file path existence, etc */
+              g_dbus_method_invocation_return_error (invocation,
+                                                     XDG_DESKTOP_PORTAL_ERROR, XDG_DESKTOP_PORTAL_ERROR_INVALID_ARGUMENT,
+                                                     "Invalid attachment fd passed");
+              return G_DBUS_METHOD_INVOCATION_HANDLED;
+            }
+
           g_variant_builder_add (&attachments, "s", path);
         }
 
@@ -258,7 +271,7 @@ handle_compose_email (XdpEmail *object,
     {
       g_debug ("Returning an error from option filtering");
       g_dbus_method_invocation_return_gerror (invocation, error);
-      return TRUE;
+      return G_DBUS_METHOD_INVOCATION_HANDLED;
     }
 
   request_set_impl_request (request, impl_request);
@@ -275,7 +288,7 @@ handle_compose_email (XdpEmail *object,
                                      compose_email_done,
                                      g_object_ref (request));
 
-  return TRUE;
+  return G_DBUS_METHOD_INVOCATION_HANDLED;
 }
 
 static void

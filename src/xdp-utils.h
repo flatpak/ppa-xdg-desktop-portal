@@ -29,12 +29,18 @@
 #include <gio/gio.h>
 #include <errno.h>
 
+#ifndef G_DBUS_METHOD_INVOCATION_HANDLED
+#define G_DBUS_METHOD_INVOCATION_HANDLED TRUE
+#define G_DBUS_METHOD_INVOCATION_UNHANDLED FALSE
+#endif
+
 #define DESKTOP_PORTAL_OBJECT_PATH "/org/freedesktop/portal/desktop"
 
 #define FLATPAK_METADATA_GROUP_APPLICATION "Application"
 #define FLATPAK_METADATA_KEY_NAME "name"
 #define FLATPAK_METADATA_GROUP_INSTANCE "Instance"
 #define FLATPAK_METADATA_KEY_APP_PATH "app-path"
+#define FLATPAK_METADATA_KEY_ORIGINAL_APP_PATH "original-app-path"
 #define FLATPAK_METADATA_KEY_RUNTIME_PATH "runtime-path"
 #define FLATPAK_METADATA_KEY_INSTANCE_ID "instance-id"
 
@@ -43,12 +49,24 @@
 #define SNAP_METADATA_KEY_DESKTOP_FILE "DesktopFile"
 #define SNAP_METADATA_KEY_NETWORK "HasNetworkStatus"
 
+typedef enum
+{
+  XDP_APP_INFO_KIND_HOST = 0,
+  XDP_APP_INFO_KIND_FLATPAK = 1,
+  XDP_APP_INFO_KIND_SNAP    = 2,
+} XdpAppInfoKind;
+
 gint xdp_mkstempat (int    dir_fd,
                     gchar *tmpl,
                     int    flags,
                     int    mode);
 
 gboolean xdp_is_valid_app_id (const char *string);
+
+gboolean xdp_validate_serialized_icon (GVariant  *v,
+                                       gboolean   bytes_only,
+                                       char     **out_format,
+                                       char     **out_size);
 
 typedef void (*XdpPeerDiedCallback) (const char *name);
 
@@ -62,6 +80,7 @@ void        xdp_app_info_unref           (XdpAppInfo  *app_info);
 const char *xdp_app_info_get_id          (XdpAppInfo  *app_info);
 char *      xdp_app_info_get_instance    (XdpAppInfo  *app_info);
 gboolean    xdp_app_info_is_host         (XdpAppInfo  *app_info);
+XdpAppInfoKind xdp_app_info_get_kind     (XdpAppInfo  *app_info);
 gboolean    xdp_app_info_supports_opath  (XdpAppInfo  *app_info);
 char *      xdp_app_info_remap_path      (XdpAppInfo  *app_info,
                                           const char  *path);
@@ -78,13 +97,16 @@ char *      xdp_app_info_get_path_for_fd (XdpAppInfo  *app_info,
                                           int          fd,
                                           int          require_st_mode,
                                           struct stat *st_buf,
-                                          gboolean    *writable_out);
+                                          gboolean    *writable_out,
+                                          GError     **error);
 gboolean    xdp_app_info_has_network     (XdpAppInfo  *app_info);
 XdpAppInfo *xdp_get_app_info_from_pid    (pid_t        pid,
                                           GError     **error);
 GAppInfo *  xdp_app_info_load_app_info   (XdpAppInfo *app_info);
-char **     xdp_app_info_rewrite_commandline (XdpAppInfo *app_info,
-                                              const char *const *commandline);
+char **     xdp_app_info_rewrite_commandline (XdpAppInfo        *app_info,
+                                              const char *const *commandline,
+                                              gboolean           quote_escape);
+char       *xdp_app_info_get_tryexec_path (XdpAppInfo  *app_info);
 
 G_DEFINE_AUTOPTR_CLEANUP_FUNC(XdpAppInfo, xdp_app_info_unref)
 
@@ -151,22 +173,10 @@ xdp_close_fd (int *fdp)
 
 #define xdp_autofd __attribute__((cleanup(xdp_close_fd)))
 
-static inline void
-xdp_auto_unlock_helper (GMutex **mutex)
-{
-  if (*mutex)
-    g_mutex_unlock (*mutex);
-}
-
-static inline GMutex *
-xdp_auto_lock_helper (GMutex *mutex)
-{
-  if (mutex)
-    g_mutex_lock (mutex);
-  return mutex;
-}
-
-#define XDP_AUTOLOCK(name) G_GNUC_UNUSED __attribute__((cleanup (xdp_auto_unlock_helper))) GMutex * G_PASTE (auto_unlock, __LINE__) = xdp_auto_lock_helper (&G_LOCK_NAME (name))
+#define XDP_AUTOLOCK(name) \
+  g_autoptr(GMutexLocker) G_PASTE (name ## locker, __LINE__) = \
+    g_mutex_locker_new (&G_LOCK_NAME (name)); \
+  (void) G_PASTE (name ## locker, __LINE__);
 
 
 char *   xdp_quote_argv (const char           *argv[]);
@@ -189,7 +199,9 @@ gboolean  xdp_has_path_prefix (const char *str,
 /* exposed for the benefit of tests */
 int _xdp_parse_cgroup_file (FILE     *f,
                             gboolean *is_snap);
-
+#ifdef HAVE_LIBSYSTEMD
+char *_xdp_parse_app_id_from_unit_name (const char *unit);
+#endif
 
 #if !GLIB_CHECK_VERSION (2, 58, 0)
 static inline gboolean
@@ -206,4 +218,11 @@ g_hash_table_steal_extended (GHashTable    *hash_table,
   else
       return FALSE;
 }
+#endif
+
+#if !GLIB_CHECK_VERSION (2, 68, 0)
+guint g_string_replace (GString     *string,
+                        const gchar *find,
+                        const gchar *replace,
+                        guint        limit);
 #endif

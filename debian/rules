@@ -5,14 +5,12 @@ export LC_ALL=C.UTF-8
 
 include /usr/share/dpkg/default.mk
 
-CONFFLAGS += --disable-pipewire
+built_binaries := $(shell dh_listpackages)
 
-# ITP #946605
-ifeq ($(filter pkg.libportal.enable,$(DEB_BUILD_PROFILES)),)
-CONFFLAGS += --disable-libportal
-else
-CONFFLAGS += --enable-libportal
-endif
+CONFFLAGS :=
+
+# No suitable version in Ubuntu < 22.04
+CONFFLAGS += --disable-pipewire
 
 %:
 	dh $@
@@ -22,17 +20,23 @@ override_dh_auto_configure:
 		--enable-docbook-docs \
 		--enable-geoclue \
 		--enable-installed-tests \
+		--enable-libportal \
 		--enable-pipewire \
+		--with-systemd \
 		$(CONFFLAGS)
 		$(NULL)
 
-override_dh_missing:
-	dh_missing --fail-missing
-
 override_dh_auto_test:
 ifeq ($(filter nocheck,$(DEB_BUILD_OPTIONS)),)
-	chmod +x tests/test-document-fuse.py
 	G_MESSAGES_DEBUG=all \
 	TEST_IN_CI=1 \
 	dh_auto_test --no-parallel
+endif
+
+# debhelper >= 13.4 makes all of /usr/libexec executable, which is not
+# quite right for installed-tests
+override_dh_fixperms:
+	dh_fixperms -Xusr/libexec/installed-tests
+ifneq ($(filter %-tests,$(built_binaries)),)
+	chmod --recursive --changes a+rX,u+w,og-w debian/*-tests/usr/libexec/installed-tests
 endif
