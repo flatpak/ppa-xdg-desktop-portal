@@ -1,0 +1,34 @@
+From: Simon McVittie <smcv@debian.org>
+Date: Sun, 17 Apr 2022 15:40:29 +0100
+Subject: Roll back to FUSE 3.9.x compatibility
+
+---
+ configure.ac                           | 2 +-
+ document-portal/document-portal-fuse.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 88d97d6..4018742 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -183,7 +183,7 @@ fi
+ 
+ GLIB_TESTS
+ 
+-PKG_CHECK_MODULES(FUSE3, [fuse3 >= 3.10.0])
++PKG_CHECK_MODULES(FUSE3, [fuse3 >= 3.9.0])
+ AC_CHECK_FUNCS(renameat2)
+ PKG_CHECK_MODULES(GDK_PIXBUF, [gdk-pixbuf-2.0])
+ 
+diff --git a/document-portal/document-portal-fuse.c b/document-portal/document-portal-fuse.c
+index 6c5f160..47d7f12 100644
+--- a/document-portal/document-portal-fuse.c
++++ b/document-portal/document-portal-fuse.c
+@@ -1,6 +1,6 @@
+ #include "config.h"
+ 
+-#define FUSE_USE_VERSION 35
++#define FUSE_USE_VERSION 31
+ 
+ #include <glib-unix.h>
+ 
